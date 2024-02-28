@@ -19,3 +19,13 @@
 
 # Go workspace file
 go.work
+
+
+
+bin
+
+# air build files
+tmp
+
+# task file temporary files
+.task
