@@ -8,41 +8,35 @@ env:
   PORT: 8080
 
 vars:
-  container_name: app
+  container_name: tasklify
   container_tag: latest
 
 tasks:
   dev:
-    run: always
+    deps:
+      - task: deps
     cmds:
+      - npx tailwindcss -i ./input.css -o ./static/css/style.css --watch &
       - air
 
   build:
     deps:
-      - task: generate
-    cmds:
-      - CGO_ENABLED=0 go build -o build/server main.go
-
-  container:
-    deps:
+      - task: deps
       - task: generate
     cmds:
       - docker build -t {{.container_name}}:{{.container_tag}} .
 
-  generate:
-    aliases:
-      - gen
-      - g
-    generates:
-      - templates/**/*.go
-      - views/**/*.go
-      - static/**/*.css
-    sources:
-      - templates/**/*.templ
-      - views/**/*.templ
-      - tailwind.config.js
-      - tailwind.css
+  deps:
+    internal: true
     cmds:
-      - npx tailwindcss build -i tailwind.css -o static/style.css
-      - go run github.com/a-h/templ/cmd/templ@latest generate
+      - yarn
+      - mkdir -p static/{css,script}
+      - cp node_modules/htmx.org/dist/htmx.min.js static/script/.
+      - cp node_modules/htmx.org/dist/ext/response-targets.js static/script/.
+
+  generate:
+    internal: true
+    cmds:
+      - npx tailwindcss -i ./input.css -o ./static/css/style.css --minify
+      - templ generate
       - go generate ./...

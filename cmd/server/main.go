@@ -47,6 +47,7 @@ func main() {
 			m.TextHTMLMiddleware,
 			m.CSPMiddleware,
 			jwtauth.Verify(tokenAuth.JWTAuth, TokenFromCookie),
+			middleware.Compress(5),
 		)
 
 		r.NotFound(handlers.NewNotFoundHandler().ServeHTTP)

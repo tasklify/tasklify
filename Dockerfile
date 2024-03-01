@@ -1,33 +1,20 @@
-FROM golang:1.21 as builder
+# Build
+FROM golang:latest as build-stage
 
 WORKDIR /app
 
 COPY . .
 
-RUN CGO_ENABLED=0 go build -o /server main.go
+RUN CGO_ENABLED=0 GOOS=linux go build -o /tasklify ./cmd/server/main.go
 
-FROM gcr.io/distroless/base-debian11 as final
+# Deploy
+FROM gcr.io/distroless/static-debian12:latest as release-stage
 
-COPY --from=builder /server /server
+COPY --from=build-stage /tasklify /tasklify
+COPY --from=build-stage /app/static /static
 
-ENV PORT 8080
+ENV PORT ${ PORT }
 EXPOSE $PORT
 
-ENTRYPOINT ["/server"]
-
-# # Build.
-# FROM golang:1.20 AS build-stage
-# WORKDIR /app
-# COPY go.mod go.sum ./
-# RUN go mod download
-# COPY . /app
-# RUN CGO_ENABLED=0 GOOS=linux go build -o /entrypoint
-# 
-# # Deploy.
-# FROM gcr.io/distroless/static-debian11 AS release-stage
-# WORKDIR /
-# COPY --from=build-stage /entrypoint /entrypoint
-# COPY --from=build-stage /app/assets /assets
-# EXPOSE 8080
-# USER nonroot:nonroot
-# ENTRYPOINT ["/entrypoint"]
+USER nonroot:nonroot
+ENTRYPOINT ["/tasklify"]
