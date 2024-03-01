@@ -12,6 +12,9 @@ vars:
   container_tag: latest
 
 tasks:
+
+  ## Golang, HTMX, Templ, TailwindCSS, YARN
+
   dev:
     deps:
       - task: deps
@@ -40,3 +43,17 @@ tasks:
       - npx tailwindcss -i ./input.css -o ./static/css/style.css --minify
       - templ generate
       - go generate ./...
+
+  ## Docker compose
+
+  up:
+    cmds:
+      - docker compose up -d
+
+  down:
+    cmds:
+      - docker compose down
+
+  purge:
+    cmds:
+      - docker compose down --volumes

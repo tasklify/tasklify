@@ -38,8 +38,7 @@ func main() {
 		SecretKey: []byte("secret"),
 	})
 
-	fileServer := http.FileServer(http.Dir("./static"))
-	r.Handle("/static/*", http.StripPrefix("/static/", fileServer))
+	r.Handle("/static/*", http.StripPrefix("/static/", http.FileServer(http.Dir("./static"))))
 
 	r.Group(func(r chi.Router) {
 		r.Use(

@@ -1,0 +1,63 @@
+version: "3"
+
+services:
+  tasklify:
+    image: tasklify:latest
+    container_name: tasklify
+    restart: on-failure:5
+    networks:
+      - tasklify-internal
+    ports:
+      - "80:8080"
+    depends_on:
+      tasklify-postgres:
+        condition: service_healthy
+
+  tasklify-postgres:
+    image: postgres:16-alpine
+    container_name: tasklify-postgres
+    restart: on-failure:5
+    networks:
+      - tasklify-internal
+    ports:
+      - "5432:5432"
+    volumes:
+      - tasklify-db:/var/lib/postgresql/data:rw
+    environment:
+      POSTGRES_DB: ${TASKLIFY_DATABASE_NAME}
+      POSTGRES_PASSWORD: ${TASKLIFY_DATABASE_PASSWORD}
+      POSTGRES_USER: ${TASKLIFY_DATABASE_USER}
+    healthcheck:
+      interval: 10s
+      retries: 10
+      test: pg_isready -U ${TASKLIFY_DATABASE_USER} -d ${TASKLIFY_DATABASE_NAME}
+      timeout: 2s
+
+  tasklify-pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: tasklify-pgadmin
+    restart: on-failure:5
+    networks:
+      - tasklify-internal
+    ports:
+      - "5000:80"
+    volumes:
+      - tasklify-pgadmin:/var/lib/pgadmin:rw
+      - ./servers.json:/pgadmin4/servers.json:rw
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${TASKLIFY_PGADMIN_EMAIL}
+      PGADMIN_DEFAULT_PASSWORD: ${TASKLIFY_PGADMIN_PASSWORD}
+      PGADMIN_DISABLE_POSTFIX: true
+    depends_on:
+      tasklify-postgres:
+        condition: service_healthy
+
+networks:
+  tasklify-internal:
+    name: tasklify-internal
+
+volumes:
+  tasklify-db:
+    name: tasklify-db
+  tasklify-pgadmin:
+    name: tasklify-pgadmin

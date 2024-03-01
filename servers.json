@@ -1,0 +1,12 @@
+{
+    "Servers": {
+        "1": {
+            "Name": "tasklify-db",
+            "Group": "Servers",
+            "Host": "tasklify-postgres",
+            "Port": 5432,
+            "MaintenanceDB": "postgres",
+            "Username": "task"
+        }
+    }
+}
