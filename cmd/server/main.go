@@ -9,16 +9,10 @@ import (
 	"os"
 	"os/signal"
 	"syscall"
-	"tasklify/internal/auth/tokenauth"
-	"tasklify/internal/handlers"
-	"tasklify/internal/store/dbstore"
+	"tasklify/internal/config"
+	"tasklify/internal/database"
+	"tasklify/internal/router"
 	"time"
-
-	m "tasklify/internal/middleware"
-
-	"github.com/go-chi/chi/v5"
-	"github.com/go-chi/chi/v5/middleware"
-	"github.com/go-chi/jwtauth/v5"
 )
 
 func TokenFromCookie(r *http.Request) string {
@@ -31,53 +25,17 @@ func TokenFromCookie(r *http.Request) string {
 
 func main() {
 	logger := slog.New(slog.NewJSONHandler(os.Stdout, nil))
-	r := chi.NewRouter()
 
-	userStore := dbstore.NewUserStore()
-	tokenAuth := tokenauth.NewTokenAuth(tokenauth.NewTokenAuthParams{
-		SecretKey: []byte("secret"),
-	})
-
-	r.Handle("/static/*", http.StripPrefix("/static/", http.FileServer(http.Dir("./static"))))
-
-	r.Group(func(r chi.Router) {
-		r.Use(
-			middleware.Logger,
-			m.TextHTMLMiddleware,
-			m.CSPMiddleware,
-			jwtauth.Verify(tokenAuth.JWTAuth, TokenFromCookie),
-			middleware.Compress(5),
-		)
-
-		r.NotFound(handlers.NewNotFoundHandler().ServeHTTP)
-
-		r.Get("/", handlers.NewHomeHandler().ServeHTTP)
-
-		r.Get("/about", handlers.NewAboutHandler().ServeHTTP)
-
-		r.Get("/register", handlers.NewGetRegisterHandler().ServeHTTP)
-
-		r.Post("/register", handlers.NewPostRegisterHandler(handlers.PostRegisterHandlerParams{
-			UserStore: userStore,
-		}).ServeHTTP)
-
-		r.Get("/login", handlers.NewGetLoginHandler().ServeHTTP)
-
-		r.Post("/login", handlers.NewPostLoginHandler(handlers.PostLoginHandlerParams{
-			UserStore: userStore,
-			TokenAuth: tokenAuth,
-		}).ServeHTTP)
-	})
+	config := config.GetConfig()
+	database.GetDatabase(config)
 
 	killSig := make(chan os.Signal, 1)
 
 	signal.Notify(killSig, os.Interrupt, syscall.SIGTERM)
 
-	port := ":8080"
-
 	srv := &http.Server{
-		Addr:    port,
-		Handler: r,
+		Addr:    config.Port,
+		Handler: router.Router(),
 	}
 
 	go func() {
@@ -91,7 +49,7 @@ func main() {
 		}
 	}()
 
-	logger.Info("Server started", slog.String("port", port))
+	logger.Info("Server started", slog.String("port", config.Port))
 	<-killSig
 
 	logger.Info("Shutting down server")
