@@ -22,6 +22,14 @@ Run build:
 task build
 ```
 
+## Libraries
+
+Session management:
+
+- https://github.com/gorilla/sessions
+- https://github.com/alexedwards/scs
+- https://github.com/gin-contrib/sessions
+
 Template created from:
 
 - https://github.com/tomdoesTech/gotth
