@@ -5,6 +5,7 @@ services:
     image: tasklify:latest
     container_name: tasklify
     restart: on-failure:5
+    profiles: ["prod"]
     networks:
       - tasklify-internal
     ports:

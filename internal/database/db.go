@@ -12,6 +12,7 @@ import (
 
 type Database interface {
 	CreateProduct(email string, password string) error
+	RawDB() *gorm.DB
 }
 
 type database struct {
@@ -19,19 +20,18 @@ type database struct {
 }
 
 var (
-	onceStore sync.Once
+	onceDatabase sync.Once
 
 	databaseClient *database
 )
 
 func GetDatabase(config ...*config.Config) Database {
 
-	onceStore.Do(func() { // <-- atomic, does not allow repeating
+	onceDatabase.Do(func() { // <-- atomic, does not allow repeating
 		config := config[0]
 
 		databaseClient = connectDatabase(config.Database)
 		registerTables(databaseClient)
-
 	})
 
 	return databaseClient
@@ -57,4 +57,8 @@ func registerTables(db *database) {
 	}
 
 	log.Println("Database tables registered")
+}
+
+func (db *database) RawDB() *gorm.DB {
+	return db.DB
 }

@@ -16,18 +16,24 @@ const (
 )
 
 type Config struct {
-	Debug    bool   `env:"DEBUG" envDefault:"false"`
-	Host     string `env:"HOST" envDefault:"0.0.0.0"`
-	Port     string `env:"PORT" envDefault:"8080"`
+	Debug    bool   `env:"TASKLIFY_DEBUG" envDefault:"false"`
+	Host     string `env:"TASKLIFY_HOST" envDefault:"0.0.0.0"`
+	Port     string `env:"TASKLIFY_PORT" envDefault:"8080"`
 	Database Database
+	Auth     Auth
 }
 
 type Database struct {
 	Host     string `env:"TASKLIFY_DATABASE_HOST"`
-	Port     string `env:"TASKLIFY_DATABASE_HOST" envDefault:"5432"`
+	Port     string `env:"TASKLIFY_DATABASE_PORT" envDefault:"5432"`
 	DbName   string `env:"TASKLIFY_DATABASE_NAME"`
 	User     string `env:"TASKLIFY_DATABASE_USER"`
 	Password string `env:"TASKLIFY_DATABASE_PASSWORD"`
+}
+
+type Auth struct {
+	SessionHashKey  string `env:"TASKLIFY_AUTH_SESSION_HASH_KEY"`
+	SessionBlockKey string `env:"TASKLIFY_AUTH_SESSION_ENCRYPTION_KEY"`
 }
 
 var (
@@ -52,7 +58,7 @@ func loadConfig() *Config {
 	// Load env vars
 	err := env.ParseWithOptions(config, envOptions)
 	if err != nil {
-		log.Fatal(err)
+		log.Panic(err)
 	}
 
 	if config.Debug {
