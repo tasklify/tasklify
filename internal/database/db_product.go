@@ -10,10 +10,10 @@ type Product struct {
 	Price uint
 }
 
-func (s *database) CreateProduct(email string, password string) error {
+func (db *database) CreateProduct(email string, password string) error {
 
 	// Create
-	s.Create(&Product{Code: "D42", Price: 100})
+	db.Create(&Product{Code: "D42", Price: 100})
 
 	return nil
 }

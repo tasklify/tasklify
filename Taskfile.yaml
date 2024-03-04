@@ -20,6 +20,7 @@ tasks:
       - task: deps
     cmds:
       - npx tailwindcss -i ./input.css -o ./static/css/style.css --watch &
+      - docker compose up &
       - air
 
   build:
@@ -57,7 +58,7 @@ tasks:
 
   up:
     cmds:
-      - docker compose up -d
+      - docker compose up -d --profile prod
 
   down:
     cmds:

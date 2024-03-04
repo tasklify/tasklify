@@ -4,11 +4,13 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"log"
 	"log/slog"
 	"net/http"
 	"os"
 	"os/signal"
 	"syscall"
+	"tasklify/internal/auth"
 	"tasklify/internal/config"
 	"tasklify/internal/database"
 	"tasklify/internal/router"
@@ -28,13 +30,14 @@ func main() {
 
 	config := config.GetConfig()
 	database.GetDatabase(config)
+	auth.GetSession(config)
 
 	killSig := make(chan os.Signal, 1)
 
 	signal.Notify(killSig, os.Interrupt, syscall.SIGTERM)
 
 	srv := &http.Server{
-		Addr:    config.Port,
+		Addr:    fmt.Sprintf(":%s", config.Port),
 		Handler: router.Router(),
 	}
 
@@ -44,8 +47,7 @@ func main() {
 		if errors.Is(err, http.ErrServerClosed) {
 			fmt.Printf("server closed\n")
 		} else if err != nil {
-			fmt.Printf("error starting server: %s\n", err)
-			os.Exit(1)
+			log.Panicf("error starting server: %s\n", err)
 		}
 	}()
 
