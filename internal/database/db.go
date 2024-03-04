@@ -31,7 +31,9 @@ func GetDatabase(config ...*config.Config) Database {
 		config := config[0]
 
 		databaseClient = connectDatabase(config.Database)
+		registerEnums(databaseClient)
 		registerTables(databaseClient)
+		// populateDatabase(databaseClient)
 	})
 
 	return databaseClient
@@ -49,15 +51,53 @@ func connectDatabase(config config.Database) *database {
 	return &database{DB: db}
 }
 
+func registerEnums(db *database) {
+	// Create ENUMs
+	if err := db.Exec(`
+        DO $$
+        BEGIN
+            IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'status_enum') THEN
+                CREATE TYPE status_enum AS ENUM ('StatusTodo', 'StatusInProgress', 'StatusDone');
+            END IF;
+
+            IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'priority_enum') THEN
+                CREATE TYPE priority_enum AS ENUM ('PriorityMustHave', 'PriorityCouldHave', 'PriorityShouldHave', 'PriorityWontHaveThisTime');
+            END IF;
+        END$$;
+    `).Error; err != nil {
+		log.Fatal(err)
+	}
+}
+
 func registerTables(db *database) {
 	// Migrate the schema
-	err := db.AutoMigrate(&Product{})
+	// err := db.AutoMigrate(&Product{})
+	err := db.AutoMigrate(&User{}, &SystemRole{}, &ProjectRole{}, &Project{}, &UserStory{}, &Task{}, &ProjectHasUser{}, &Sprint{}, &WorkflowStep{})
 	if err != nil {
-		log.Fatal(err)
+		log.Fatal("Register error: ", err)
 	}
 
 	log.Println("Database tables registered")
 }
+
+// func populateDatabase(db *database) {
+
+// 	// Create System Roles
+// 	for _, role := range systemRoles {
+// 		if err := db.CreateSystemRole(&role); err != nil {
+// 			log.Fatal("Failed to populate database: ", err)
+// 		}
+// 	}
+
+// 	// Create Project Roles
+// 	for _, role := range projectRoles {
+// 		if err := db.CreateProjectRole(&role); err != nil {
+// 			log.Fatal("Failed to populate database: ", err)
+// 		}
+// 	}
+
+// 	log.Println("Database populated with initial data")
+// }
 
 func (db *database) RawDB() *gorm.DB {
 	return db.DB

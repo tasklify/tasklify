@@ -10,6 +10,6 @@ type SystemRole struct {
 	Title string
 }
 
-func (d *database) CreateSystemRole(role *SystemRole) error {
-	return d.Create(role).Error
-}
+// func (d *database) CreateSystemRole(role *SystemRole) error {
+// 	return d.Create(role).Error
+// }
