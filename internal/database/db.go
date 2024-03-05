@@ -11,7 +11,6 @@ import (
 )
 
 type Database interface {
-	CreateProduct(email string, password string) error
 	RawDB() *gorm.DB
 }
 

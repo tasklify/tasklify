@@ -1,8 +1,9 @@
 # policy
-p, admin, data1, rwd
-p, user, data2, rw
-p, data2_admin, data2, r
-p, data2_admin, data2, w
+p, system_admin, rwd
+p, system_user, data2, rw
+p, project_manager, data2, r
+p, project_master, data2, w
+p, project_developer, data2, w
 
 # role
-g, miha, data2_admin
+# g, miha, project_developer
