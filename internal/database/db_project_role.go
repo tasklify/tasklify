@@ -10,6 +10,6 @@ type ProjectRole struct {
 	Title string
 }
 
-// func (d *database) CreateProjectRole(role *ProjectRole) error {
-// 	return d.Create(role).Error
-// }
+func (d *database) CreateProjectRole(role *ProjectRole) error {
+	return d.Create(role).Error
+}

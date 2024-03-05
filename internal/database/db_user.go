@@ -18,3 +18,7 @@ type User struct {
 	SystemRole   SystemRole
 	Projects     []Project `gorm:"many2many:project_has_users;"` // m:n (User:Project)
 }
+
+func (d *database) CreateUser(user *User) error {
+	return d.Create(user).Error
+}
