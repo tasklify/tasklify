@@ -1,9 +1,10 @@
 # policy
-p, system_admin, rwd
-p, system_user, data2, rw
-p, project_manager, data2, r
-p, project_master, data2, w
-p, project_developer, data2, w
+p, system_admin, *, c|r|u|d
+p, system_user, /system/user, r|u
+p, system_user, /system/user/system-role, r
 
-# role
-# g, miha, project_developer
+
+
+p, project_manager, data2, c|r|u|d
+p, project_master, data2, c|r|u|d
+p, project_developer, data2, c|r|u|d

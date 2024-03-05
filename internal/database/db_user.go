@@ -1,8 +1,6 @@
 package database
 
 import (
-	"crypto/sha256"
-	"fmt"
 	"time"
 
 	"gorm.io/gorm"
@@ -21,16 +19,20 @@ type User struct {
 	Projects     []Project `gorm:"many2many:project_has_users;"` // m:n (User:Project)
 }
 
-func (u *User) BeforeSave(tx *gorm.DB) (err error) {
-	// Store hashed password
-	if u.Password != "" {
-		h := sha256.Sum256([]byte(u.Password))
-		u.Password = fmt.Sprintf("%x", h[:])
+func (db *database) GetUser(username string) (*User, error) {
+	var user = &User{Username: username}
+	err := db.First(user).Error
+	if err != nil {
+		return nil, err
 	}
 
-	return nil
+	return user, nil
 }
 
-func (d *database) CreateUser(user *User) error {
-	return d.Create(user).Error
+func (db *database) CreateUser(user *User) error {
+	return db.Create(user).Error
+}
+
+func (db *database) UpdateUser(user *User) error {
+	return db.Save(user).Error
 }
