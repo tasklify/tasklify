@@ -14,10 +14,11 @@ type UserStory struct {
 	RejectionComment *string `gorm:"type:TEXT"`
 	WorkflowStepID   *uint   // 1:1 (WorkflowStep:UserStory)
 	WorkflowStep     WorkflowStep
-	SprintID         *uint  // 1:n (Sprint:UserStory)
-	ProjectID        uint   // 1:n (Project:UserStory)
-	Tasks            []Task // 1:n (UserStory:Task)
-	// ProjectHasUser   *ProjectHasUser `gorm:"foreignKey:ProjectID,UserID"` // 1:n (ProjectHasUser:UserStory)
+	SprintID         *uint           // 1:n (Sprint:UserStory)
+	ProjectID        uint            // 1:n (Project:UserStory)
+	Tasks            []Task          // 1:n (UserStory:Task)
+	UserID           uint            // 1:n (ProjectHasUser:UserStory)
+	ProjectHasUser   *ProjectHasUser `gorm:"foreignKey:ProjectID,UserID"` // 1:n (ProjectHasUser:UserStory)
 }
 
 type PriorityEnum string
