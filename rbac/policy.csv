@@ -1,0 +1,8 @@
+# policy
+p, admin, data1, rwd
+p, user, data2, rw
+p, data2_admin, data2, r
+p, data2_admin, data2, w
+
+# role
+g, miha, data2_admin
