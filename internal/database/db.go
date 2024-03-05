@@ -103,10 +103,10 @@ func populateDatabase(db *database) {
 	// Create Users
 	if db.Model(&User{}).Count(&count); count == 0 {
 		for _, user := range users {
-			// Associate user with system role, or create the role if it doesn't exist
+			// Associate user with system role
 			var systemRole SystemRole
-			if err := db.Where(&user.SystemRole).FirstOrCreate(&systemRole).Error; err != nil {
-				log.Fatal("Failed to retrieve or create SystemRole: ", err)
+			if err := db.Where(&user.SystemRole).First(&systemRole).Error; err != nil {
+				log.Fatal("Failed to retrieve SystemRole: ", err)
 			}
 
 			user.SystemRoleID = systemRole.ID
