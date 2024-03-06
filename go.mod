@@ -12,6 +12,8 @@ require (
 	gorm.io/gorm v1.25.7
 )
 
+require github.com/orsinium-labs/enum v1.3.0 // indirect
+
 require (
 	github.com/caarlos0/env/v10 v10.0.0
 	github.com/casbin/govaluate v1.1.1 // indirect

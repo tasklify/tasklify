@@ -1,41 +1,25 @@
 package config
 
-import "fmt"
+import (
+	"fmt"
 
-type EnvironmentEnum struct {
-	slug string
-}
-
-func (o EnvironmentEnum) String() string {
-	return o.slug
-}
-
-var (
-	Invalid = EnvironmentEnum{"invalid"}
-	Prod    = EnvironmentEnum{"prod"}
-	Dev     = EnvironmentEnum{"dev"}
+	"github.com/orsinium-labs/enum"
 )
 
-func EnvironmentEnums() []EnvironmentEnum {
-	return []EnvironmentEnum{Prod, Dev}
-}
+type Environment enum.Member[string]
 
-func EnvironmentEnumFromString(s string) (EnvironmentEnum, error) {
-	switch s {
-	case Prod.slug:
-		return Prod, nil
-	case Dev.slug:
-		return Dev, nil
-	}
-
-	return Invalid, fmt.Errorf("no valid environmanrt found in input: %s", s)
-}
+var (
+	e            = enum.NewBuilder[string, Environment]()
+	Prod         = e.Add(Environment{"prod"})
+	Dev          = e.Add(Environment{"dev"})
+	Environments = e.Enum()
+)
 
 // Only for parsers
-func EnvironmentEnumFromStringParser(v string) (interface{}, error) {
-	env, err := EnvironmentEnumFromString(v)
-	if err != nil {
-		return nil, err
+func environmentParser(v string) (interface{}, error) {
+	env := Environments.Parse(v)
+	if env == nil {
+		return nil, fmt.Errorf("'%s' is not a valid enviranment enum", v)
 	}
-	return env, nil
+	return *env, nil
 }

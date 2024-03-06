@@ -10,10 +10,10 @@ import (
 )
 
 type Config struct {
-	Debug       bool            `env:"TASKLIFY_DEBUG" envDefault:"false"`
-	Environment EnvironmentEnum `env:"TASKLIFY_ENVIRONMENT" envDefault:"prod"`
-	Host        string          `env:"TASKLIFY_HOST" envDefault:"0.0.0.0"`
-	Port        string          `env:"TASKLIFY_PORT" envDefault:"8080"`
+	Debug       bool        `env:"TASKLIFY_DEBUG" envDefault:"false"`
+	Environment Environment `env:"TASKLIFY_ENVIRONMENT" envDefault:"prod"`
+	Host        string      `env:"TASKLIFY_HOST" envDefault:"0.0.0.0"`
+	Port        string      `env:"TASKLIFY_PORT" envDefault:"8080"`
 	Database    Database
 	Auth        Auth
 	Admin       Admin
@@ -56,7 +56,7 @@ func loadConfig() *Config {
 	config := &Config{}
 	envOptions := env.Options{RequiredIfNoDef: true,
 		FuncMap: map[reflect.Type]env.ParserFunc{
-			reflect.TypeOf(EnvironmentEnum{}): EnvironmentEnumFromStringParser,
+			reflect.TypeOf(Environment{}): environmentParser,
 		},
 	}
 
