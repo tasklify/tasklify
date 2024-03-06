@@ -1,8 +1,7 @@
-package handlers
+package pages
 
 import (
 	"net/http"
-	"tasklify/internal/templates"
 
 	"github.com/go-chi/jwtauth/v5"
 )
@@ -20,8 +19,8 @@ func (h *HomeHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	email, ok := claims["email"].(string)
 
 	if !ok {
-		c := templates.GuestIndex()
-		err := templates.Layout(c, "Tasklify").Render(r.Context(), w)
+		c := GuestIndex()
+		err := Layout(c, "Tasklify").Render(r.Context(), w)
 
 		if err != nil {
 			http.Error(w, "Error rendering template", http.StatusInternalServerError)
@@ -31,8 +30,8 @@ func (h *HomeHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	c := templates.Index(email)
-	err := templates.Layout(c, "Tasklify").Render(r.Context(), w)
+	c := Index(email)
+	err := Layout(c, "Tasklify").Render(r.Context(), w)
 
 	if err != nil {
 		http.Error(w, "Error rendering template", http.StatusInternalServerError)

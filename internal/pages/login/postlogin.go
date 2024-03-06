@@ -1,8 +1,7 @@
-package handlers
+package login
 
 import (
 	"net/http"
-	"tasklify/internal/templates"
 )
 
 type PostLoginHandler struct {
@@ -32,7 +31,7 @@ func (h *PostLoginHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 		if err != nil {
 			w.WriteHeader(http.StatusUnauthorized)
-			c := templates.LoginError()
+			c := LoginError()
 			c.Render(r.Context(), w)
 			return
 		}
@@ -58,6 +57,6 @@ func (h *PostLoginHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	*/
 
 	w.WriteHeader(http.StatusUnauthorized)
-	c := templates.LoginError()
+	c := LoginError()
 	c.Render(r.Context(), w)
 }

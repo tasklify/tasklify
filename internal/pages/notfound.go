@@ -1,8 +1,7 @@
-package handlers
+package pages
 
 import (
 	"net/http"
-	"tasklify/internal/templates"
 )
 
 type NotFoundHandler struct{}
@@ -12,8 +11,8 @@ func NewNotFoundHandler() *NotFoundHandler {
 }
 
 func (h *NotFoundHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	c := templates.NotFound()
-	err := templates.Layout(c, "Not Found").Render(r.Context(), w)
+	c := NotFound()
+	err := Layout(c, "Not Found").Render(r.Context(), w)
 
 	if err != nil {
 		http.Error(w, "Error rendering template", http.StatusInternalServerError)
