@@ -12,6 +12,7 @@ require (
 	github.com/gookit/goutil v0.6.15
 	github.com/orsinium-labs/enum v1.3.0
 	github.com/wader/gormstore/v2 v2.0.3
+	go.uber.org/automaxprocs v1.5.3
 	gorm.io/driver/postgres v1.5.6
 	gorm.io/gorm v1.25.7
 )
