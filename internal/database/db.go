@@ -11,7 +11,10 @@ import (
 )
 
 type Database interface {
-	CreateProduct(email string, password string) error
+	GetUser(username string) (*User, error)
+	UpdateUser(user *User) error
+	CreateUser(user *User) error
+	GetSystemRole(systemRoleName string) (*SystemRole, error)
 	RawDB() *gorm.DB
 }
 

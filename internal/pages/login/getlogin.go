@@ -1,8 +1,8 @@
-package handlers
+package login
 
 import (
 	"net/http"
-	"tasklify/internal/templates"
+	"tasklify/internal/pages"
 )
 
 type GetLoginHandler struct{}
@@ -12,8 +12,8 @@ func NewGetLoginHandler() *GetLoginHandler {
 }
 
 func (h *GetLoginHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	c := templates.Login("Login")
-	err := templates.Layout(c, "My website").Render(r.Context(), w)
+	c := Login("Login")
+	err := pages.Layout(c, "My website").Render(r.Context(), w)
 
 	if err != nil {
 		http.Error(w, "Error rendering template", http.StatusInternalServerError)

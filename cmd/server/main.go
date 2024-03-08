@@ -31,6 +31,7 @@ func main() {
 	config := config.GetConfig()
 	database.GetDatabase(config)
 	auth.GetSession(config)
+	auth.GetAuthorization()
 
 	killSig := make(chan os.Signal, 1)
 
