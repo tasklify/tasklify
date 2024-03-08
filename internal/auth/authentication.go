@@ -40,10 +40,11 @@ func CreateUser(username, password, firstName, lastName, email string, systemRol
 		return err
 	}
 
-	systemRole, err := database.GetDatabase().GetSystemRole(systemRoleName)
-	if err != nil {
-		return err
-	}
+	// systemRole, err := database.GetDatabase().GetSystemRole(systemRoleName)
+	// if err != nil {
+	// 	return err
+	// }
+	systemRole := database.SystemRoles.Parse(systemRoleName)
 
 	var user = &database.User{
 		Username:   username,
@@ -101,15 +102,16 @@ func UpdateUser(issuerUsername, issuerPassword string, id uint, username, passwo
 	}
 
 	if systemRole != nil {
-		err = GetAuthorization().HasPermission("system_"+issuerUser.SystemRole.Key, "/system/user/system-role", "u")
+		err = GetAuthorization().HasPermission(database.SystemRoles.Value(issuerUser.SystemRole), "/system/user/system-role", "u")
 		if err != nil {
 			return err
 		}
 
-		systemRoleObj, err := database.GetDatabase().GetSystemRole(*systemRole)
-		if err != nil {
-			return err
-		}
+		// systemRoleObj, err := database.GetDatabase().GetSystemRole(*systemRole)
+		// if err != nil {
+		// 	return err
+		// }
+		systemRoleObj := database.SystemRoles.Parse(*systemRole)
 
 		user.SystemRole = *systemRoleObj
 	}
