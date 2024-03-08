@@ -16,10 +16,6 @@ var (
 	SystemRoles     = e.Enum()
 )
 
-func (role *SystemRole) Enum() enum.Enum[SystemRole, string] {
-	return SystemRoles
-}
-
 // CustomType embeds SystemRole and implements driver.Valuer
 type SystemRoleGORM struct {
 	*SystemRole
