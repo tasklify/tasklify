@@ -6,9 +6,9 @@ import (
 
 type UserStory struct {
 	gorm.Model
-	Title            string       `gorm:"unique"`
-	Description      *string      `gorm:"type:TEXT"`
-	Priority         PriorityEnum `gorm:"type:priority_enum"`
+	Title            string  `gorm:"unique"`
+	Description      *string `gorm:"type:TEXT"`
+	Priority         Priority
 	BusinessValue    int
 	Realized         *bool
 	RejectionComment *string `gorm:"type:TEXT"`
@@ -20,12 +20,3 @@ type UserStory struct {
 	UserID           uint            // 1:n (ProjectHasUser:UserStory)
 	ProjectHasUser   *ProjectHasUser `gorm:"foreignKey:ProjectID,UserID"` // 1:n (ProjectHasUser:UserStory)
 }
-
-type PriorityEnum string
-
-const (
-	PriorityMustHave         PriorityEnum = "Must have"
-	PriorityCouldHave        PriorityEnum = "Could have"
-	PriorityShouldHave       PriorityEnum = "Should have"
-	PriorityWontHaveThisTime PriorityEnum = "Won't have this time"
-)
