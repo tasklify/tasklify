@@ -2,8 +2,7 @@ package config
 
 import (
 	"fmt"
-
-	"github.com/orsinium-labs/enum"
+	"tasklify/pkg/enum"
 )
 
 type Environment enum.Member[string]
