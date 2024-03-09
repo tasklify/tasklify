@@ -1,15 +1,15 @@
 package common
 
-templ CreateDialog(title string) {
+templ CreateDialog(title string, hxPostPath string) {
 	<div class="fixed top-0 left-0 w-full h-full bg-gray-900 bg-opacity-50 flex justify-center items-center z-50">
-            <form action="/submit" method="post" class="bg-white rounded-lg p-8 shadow-lg w-2/5 h-auto">
+            <form hx-post={hxPostPath} class="bg-white rounded-lg p-8 shadow-lg w-2/5 h-auto">
                 <div class="text-center">
                     <h2 class="text-xl font-bold mb-4">{title}</h2>
                     { children... }
                 </div>
                 <div class="flex justify-end">
                     <button class="btn btn-ghost btn-sm mr-2" hx-get="/cancel">Cancel</button>
-                    <button class="btn btn-primary btn-sm" hx-get="/create">Create</button>
+                    <button class="btn btn-primary btn-sm" type="submit">Create</button>
                 </div>
             </form>
     </div>

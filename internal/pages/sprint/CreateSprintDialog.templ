@@ -1,9 +1,9 @@
-package templates
+package sprint
 
-import "tasklify/internal/templates/common"
+import "tasklify/internal/pages/common"
 
 templ CreateSprintDialog() {
-    @common.CreateDialog("Create sprint") {
+    @common.CreateDialog("Create sprint", "/createsprint") {
 
     		<!-- Start Date Field -->
             <div class="mb-4">
