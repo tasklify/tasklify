@@ -1,14 +1,14 @@
 package router
 
 import (
+	"github.com/go-chi/chi"
+	"github.com/go-chi/chi/middleware"
 	"net/http"
 	"tasklify/internal/middlewares"
 	"tasklify/internal/pages"
 	"tasklify/internal/pages/about"
 	"tasklify/internal/pages/login"
-
-	"github.com/go-chi/chi"
-	"github.com/go-chi/chi/middleware"
+	"tasklify/internal/pages/sprint"
 )
 
 func Router() *chi.Mux {
@@ -34,6 +34,8 @@ func Router() *chi.Mux {
 			// UserStore: userStore,
 			// TokenAuth: tokenAuth,
 		}).ServeHTTP)
+		r.Get("/createsprint", sprint.NewGetCreateSprintHandler().ServeHTTP)
+		r.Post("/createsprint", sprint.NewPostCreateSprintHandler().ServeHTTP)
 
 		// Secure
 		r.Group(func(r chi.Router) {

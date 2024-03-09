@@ -15,3 +15,7 @@ type Sprint struct {
 	ProjectID   uint        // 1:n (Project:Sprint)
 	UserStories []UserStory // 1:n (Sprint:UserStory)
 }
+
+func (db *database) CreateSprint(sprint *Sprint) error {
+	return db.Create(sprint).Error
+}
