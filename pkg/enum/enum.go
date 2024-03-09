@@ -11,7 +11,7 @@ import (
 
 // Member is an enum member, a specific value bound to a variable.
 type Member[T comparable] struct {
-	Value T
+	Val T
 }
 
 // iMember is the type constraint for Member used by Enum.
@@ -23,7 +23,7 @@ type Member[T comparable] struct {
 // We also can't use a normal interface because new types
 // don't inherit methods of their base type.
 type iMember[T comparable] interface {
-	~struct{ Value T }
+	~struct{ Val T }
 }
 
 // Enum is a collection of enum members.
@@ -79,7 +79,7 @@ func (e Enum[M, V]) Parse(value V) *M {
 
 // WrappedValue returns the wrapped value of the given enum member.
 func (e Enum[M, V]) WrappedValue(member M) V { // Changed from Value due to clashing with GORM
-	return Member[V](member).Value
+	return Member[V](member).Val
 }
 
 // Index returns the index of the given member in the enum.
