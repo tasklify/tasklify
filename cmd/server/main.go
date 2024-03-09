@@ -15,15 +15,9 @@ import (
 	"tasklify/internal/database"
 	"tasklify/internal/router"
 	"time"
-)
 
-func TokenFromCookie(r *http.Request) string {
-	cookie, err := r.Cookie("access_token")
-	if err != nil {
-		return ""
-	}
-	return cookie.Value
-}
+	_ "go.uber.org/automaxprocs" // Automatically set GOMAXPROCS to match Linux container CPU quota
+)
 
 func main() {
 	logger := slog.New(slog.NewJSONHandler(os.Stdout, nil))
