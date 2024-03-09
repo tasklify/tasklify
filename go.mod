@@ -10,7 +10,6 @@ require (
 	github.com/go-chi/chi v1.5.5
 	github.com/go-chi/jwtauth/v5 v5.3.1
 	github.com/gookit/goutil v0.6.15
-	github.com/orsinium-labs/enum v1.3.0
 	github.com/wader/gormstore/v2 v2.0.3
 	go.uber.org/automaxprocs v1.5.3
 	gorm.io/driver/postgres v1.5.6
