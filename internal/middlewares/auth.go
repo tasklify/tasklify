@@ -17,9 +17,8 @@ func AuthUser(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		userId, err := auth.GetSession().GetUserId(r)
 		if err != nil {
-			log.Printf("Middleware: AuthUser: %v", err)
+			log.Printf("Middleware: AuthUser: %v\n", err)
 
-			// http.RedirectHandler("/login", http.StatusTemporaryRedirect)
 			http.Redirect(w, r, "/login", http.StatusTemporaryRedirect)
 			return
 		}

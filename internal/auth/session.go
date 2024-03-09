@@ -18,8 +18,9 @@ const (
 )
 
 type Session interface {
+	Create(userId string, w http.ResponseWriter, r *http.Request) (http.ResponseWriter, error)
+	Destroy(w http.ResponseWriter, r *http.Request) (http.ResponseWriter, error)
 	GetUserId(r *http.Request) (string, error)
-	SaveUserId(userId string, w http.ResponseWriter, r *http.Request) (http.ResponseWriter, error)
 }
 
 type session struct {
@@ -59,6 +60,30 @@ func connectSession(config config.Auth) *session {
 	return &session{Store: ses}
 }
 
+func (s *session) Create(userId string, w http.ResponseWriter, r *http.Request) (http.ResponseWriter, error) {
+	session, err := s.Get(r, cookieName)
+	if err != nil {
+		return nil, err
+	}
+
+	session.Values[userIdFieldName] = userId
+	sessionClient.Save(r, w, session)
+
+	return w, nil
+}
+
+func (s *session) Destroy(w http.ResponseWriter, r *http.Request) (http.ResponseWriter, error) {
+	session, err := s.Get(r, cookieName)
+	if err != nil {
+		return nil, err
+	}
+
+	session.Options.MaxAge = -1 // Destroys cookie/session
+	sessionClient.Save(r, w, session)
+
+	return w, nil
+}
+
 func (s *session) GetUserId(r *http.Request) (string, error) {
 	session, err := s.Get(r, cookieName)
 	if err != nil {
@@ -71,16 +96,4 @@ func (s *session) GetUserId(r *http.Request) (string, error) {
 	}
 
 	return userId, nil
-}
-
-func (s *session) SaveUserId(userId string, w http.ResponseWriter, r *http.Request) (http.ResponseWriter, error) {
-	session, err := s.Get(r, cookieName)
-	if err != nil {
-		return nil, err
-	}
-
-	session.Values[userIdFieldName] = userId
-	sessionClient.Save(r, w, session)
-
-	return w, nil
 }

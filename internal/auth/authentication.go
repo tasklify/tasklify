@@ -34,7 +34,7 @@ func AuthenticateUser(username, password string) (bool, error) {
 	return match, nil
 }
 
-func CreateUser(username, password, firstName, lastName, email string, systemRoleName string) error {
+func CreateUser(username, password, firstName, lastName, email, systemRoleName string) error {
 	passwordHash, err := argon2id.CreateHash(password, argon2id.DefaultParams)
 	if err != nil {
 		return err
@@ -57,13 +57,13 @@ func CreateUser(username, password, firstName, lastName, email string, systemRol
 	return database.GetDatabase().CreateUser(user)
 }
 
-func UpdateUser(issuerUsername, issuerPassword string, id uint, username, password, firstName, lastName, email, systemRole *string) error {
-	ok, err := AuthenticateUser(issuerUsername, issuerPassword)
+func UpdateUser(issuerUserId, issuerPassword string, userId uint, username, password, firstName, lastName, email, systemRoleName *string) error {
+	ok, err := AuthenticateUser(issuerUserId, issuerPassword)
 	if err != nil {
 		return err
 	}
 
-	issuerUser, err := database.GetDatabase().GetUser(issuerUsername)
+	issuerUser, err := database.GetDatabase().GetUser(issuerUserId)
 	if err != nil {
 		return err
 	}
@@ -73,7 +73,7 @@ func UpdateUser(issuerUsername, issuerPassword string, id uint, username, passwo
 	}
 
 	var user = &database.User{}
-	user.ID = id
+	user.ID = userId
 
 	if username != nil {
 		user.Username = *username
@@ -100,15 +100,15 @@ func UpdateUser(issuerUsername, issuerPassword string, id uint, username, passwo
 		user.Email = *email
 	}
 
-	if systemRole != nil {
-		err = GetAuthorization().HasPermission(database.SystemRoles.WrappedValue(issuerUser.SystemRole), "/system/user/system-role", "u")
+	if systemRoleName != nil {
+		err = GetAuthorization().HasPermission("system_"+issuerUser.SystemRole.Key, "/system/user/system-role", "u")
 		if err != nil {
 			return err
 		}
 
-		systemRoleObj := database.SystemRoles.Parse(*systemRole)
-		if systemRoleObj == (&database.SystemRole{}) {
-			return errors.New("system role not found")
+		systemRoleObj, err := database.GetDatabase().GetSystemRole(*systemRoleName)
+		if err != nil {
+			return err
 		}
 
 		user.SystemRole = *systemRoleObj
