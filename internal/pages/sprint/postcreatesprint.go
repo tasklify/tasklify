@@ -40,5 +40,5 @@ func (h *PostCreateSprintHandler) ServeHTTP(w http.ResponseWriter, r *http.Reque
 		return
 	}
 
-	http.Redirect(w, r, "/login", http.StatusSeeOther) // TODO redirect to previous page
+	http.Redirect(w, r, "/about", http.StatusSeeOther)
 }

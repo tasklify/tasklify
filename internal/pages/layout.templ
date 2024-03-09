@@ -39,7 +39,7 @@ templ Layout(contents templ.Component, title string) {
 	<!-- <!DOCTYPE html> -->
 	<html>
 		@header(title)
-		<body class="flex flex-col h-full">
+		<body id="root" class="flex flex-col h-full">
 			@nav()
 			<main class="flex-1">
 				@contents
