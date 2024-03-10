@@ -31,7 +31,6 @@ func Router() *chi.Mux {
 		r.NotFound(pages.NewNotFoundHandler().ServeHTTP)
 		r.Get("/", pages.NewHomeHandler().ServeHTTP)
 		r.Get("/about", about.NewAboutHandler().ServeHTTP)
-		r.Get("/sprint", sprint.NewSprintHandler().ServeHTTP)
 		r.Get("/login", login.NewGetLoginHandler().ServeHTTP)
 		r.Post("/login", login.NewPostLoginHandler(login.PostLoginHandlerParams{
 			// UserStore: userStore,

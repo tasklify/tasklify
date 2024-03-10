@@ -45,5 +45,5 @@ func (h *PostCreateUserStoryHandler) ServeHTTP(w http.ResponseWriter, r *http.Re
 		return
 	}
 
-	http.Redirect(w, r, "/sprint", http.StatusSeeOther)
+	http.Redirect(w, r, "/about", http.StatusSeeOther)
 }
