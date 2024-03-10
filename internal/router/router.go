@@ -9,6 +9,7 @@ import (
 	"tasklify/internal/web/pages/dashboard"
 	"tasklify/internal/web/pages/login"
 	"tasklify/internal/web/pages/sprint"
+	"tasklify/internal/web/pages/userstory"
 
 	ghandlers "github.com/gorilla/handlers"
 
@@ -59,9 +60,9 @@ func Router() *chi.Mux {
 				"GET":  handlers.UnifiedHandler(handlers.AuthenticatedHandlerFunc(sprint.GetSprint)),
 				"POST": handlers.UnifiedHandler(handlers.AuthenticatedHandlerFunc(sprint.PostSprint)),
 			})
-			r.Handle("/userstory", ghandlers.MethodHandler{
-				"GET":  handlers.UnifiedHandler(handlers.AuthenticatedHandlerFunc(sprint.GetSprint)),
-				"POST": handlers.UnifiedHandler(handlers.AuthenticatedHandlerFunc(sprint.PostSprint)),
+			r.Handle("/createuserstory", ghandlers.MethodHandler{
+				"GET":  handlers.UnifiedHandler(handlers.AuthenticatedHandlerFunc(userstory.GetUserStory)),
+				"POST": handlers.UnifiedHandler(handlers.AuthenticatedHandlerFunc(userstory.PostUserStory)),
 			})
 		})
 	})
