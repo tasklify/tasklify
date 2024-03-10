@@ -1,0 +1,88 @@
+package project
+
+import (
+	"fmt"
+	"tasklify/internal/database"
+)
+
+templ createProjectDialog(d Data) {
+	<div class="mb-4">
+		<label for="title" class="block text-sm font-medium text-gray-700">Project title</label>
+		<input
+			type="text"
+			id="title"
+			name="title"
+			class="input input-bordered input-primary w-full max-w-s mt-1"
+			required
+		/>
+	</div>
+	<button class="btn" hx-on:click="add_user_modal.showModal()">Add users to project</button>
+	<dialog id="add_user_modal" class="modal">
+		<div class="modal-box">
+			// <div class="navbar bg-base-100">
+			// 	<div class="flex-1">
+			// 		<h3 class="font-bold text-lg">Add user</h3>
+			// 	</div>
+			// 	<div class="flex-none">
+			// 		<button class="btn btn-sm btn-circle btn-ghost">✕</button>
+			// 	</div>
+			// </div>
+			<div class="flex">
+				<h3 class="font-bold text-lg flex-1">Add user</h3>
+				<form method="dialog" class="">
+					<button class="btn btn-sm btn-circle btn-ghost">✕</button>
+				</form>
+			</div>
+			<div class="py-4">
+				<select class="select select-bordered select-primary join-item" name="projectUser[]">
+					<option hidden disabled selected value>Select user </option>
+					for _, user := range d.users {
+						<option value={ fmt.Sprint(user.ID) }>{ user.FirstName } { user.LastName }</option>
+					}
+				</select>
+				<select class="select select-bordered select-primary join-item" name="projectUser[]">
+					<option hidden disabled selected value>Select project role </option>
+					<option value={ database.ProjectRoleManager.Val }>Project manager</option>
+					<option value={ database.ProjectRoleMaster.Val }>Project master</option>
+					<option value={ database.ProjectRoleDeveloper.Val }>Project developer</option>
+				</select>
+			</div>
+		</div>
+	</dialog>
+	<div class="overflow-x-auto">
+		<table class="table">
+			<!-- head -->
+			<thead>
+				<tr>
+					<th></th>
+					<th>Name</th>
+					<th>Job</th>
+					<th>Favorite Color</th>
+				</tr>
+			</thead>
+			<tbody>
+				<!-- row 1 -->
+				<tr>
+					<th>1</th>
+					<td>Cy Ganderton</td>
+					<td>Quality Control Specialist</td>
+					<td>Blue</td>
+				</tr>
+				<!-- row 2 -->
+				<tr>
+					<th>2</th>
+					<td>Hart Hagerty</td>
+					<td>Desktop Support Technician</td>
+					<td>Purple</td>
+				</tr>
+				<!-- row 3 -->
+				<tr>
+					<th>3</th>
+					<td>Brice Swyre</td>
+					<td>Tax Accountant</td>
+					<td>Red</td>
+				</tr>
+			</tbody>
+		</table>
+	</div>
+}

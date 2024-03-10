@@ -18,6 +18,16 @@ type User struct {
 	Projects   []Project  `gorm:"many2many:project_has_users;"` // m:n (User:Project)
 }
 
+func (db *database) GetUsers() ([]User, error) {
+	var users []User
+	err := db.Find(&users).Error
+	if err != nil {
+		return []User{}, err
+	}
+
+	return users, nil
+}
+
 func (db *database) GetUser(username string) (*User, error) {
 	var user = &User{Username: username}
 	err := db.First(user).Error

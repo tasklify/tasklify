@@ -11,3 +11,7 @@ type Project struct {
 	Sprints     []Sprint    // 1:n (Project:Sprint)
 	UserStories []UserStory // 1:n (Project:UserStory)
 }
+
+func (db *database) CreateProject(project *Project) error {
+	return db.Create(&project).Error
+}
