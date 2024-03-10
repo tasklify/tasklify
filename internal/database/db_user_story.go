@@ -20,3 +20,7 @@ type UserStory struct {
 	UserID           uint            // 1:n (ProjectHasUser:UserStory)
 	ProjectHasUser   *ProjectHasUser `gorm:"foreignKey:ProjectID,UserID"` // 1:n (ProjectHasUser:UserStory)
 }
+
+func (db *database) CreateUserStory(userStory *UserStory) error {
+	return db.Create(userStory).Error
+}

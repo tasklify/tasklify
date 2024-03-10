@@ -15,6 +15,7 @@ type Database interface {
 	UpdateUser(user *User) error
 	CreateUser(user *User) error
 	CreateSprint(sprint *Sprint) error
+	CreateUserStory(userStory *UserStory) error
 	// GetSystemRole(systemRoleName string) (*SystemRole, error)
 	RawDB() *gorm.DB
 }
