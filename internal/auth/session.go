@@ -1,6 +1,8 @@
 package auth
 
 import (
+	"crypto/sha256"
+	"crypto/sha512"
 	"fmt"
 	"log"
 	"net/http"
@@ -14,13 +16,13 @@ import (
 
 const (
 	cookieName      = "session"
-	userIdFieldName = "user_id"
+	userIDFieldName = "user_id"
 )
 
 type Session interface {
-	Create(userId string, w http.ResponseWriter, r *http.Request) (http.ResponseWriter, error)
-	Destroy(w http.ResponseWriter, r *http.Request) (http.ResponseWriter, error)
-	GetUserId(r *http.Request) (string, error)
+	Create(userID uint, w http.ResponseWriter, r *http.Request) error
+	Destroy(w http.ResponseWriter, r *http.Request) error
+	GetUserID(r *http.Request) (uint, error)
 }
 
 type session struct {
@@ -49,51 +51,65 @@ func GetSession(config ...*config.Config) Session {
 }
 
 func connectSession(config config.Auth) *session {
-	ses := gormstore.New(
+
+	sessionHashKey := sha512.Sum512([]byte(config.SessionHashKey))
+	sessionBlockKey := sha256.Sum256([]byte(config.SessionBlockKey))
+
+	store := gormstore.New(
 		database.GetDatabase().RawDB(),
-		[]byte(config.SessionHashKey),
-		[]byte(config.SessionBlockKey),
+		sessionHashKey[:],
+		sessionBlockKey[:],
 	)
+
+	store.SessionOpts.Secure = true
+	store.SessionOpts.HttpOnly = true
+	// store.SessionOpts.MaxAge = 2 * 24 * int(time.Hour)
 
 	log.Println("Session connected")
 
-	return &session{Store: ses}
+	return &session{Store: store}
 }
 
-func (s *session) Create(userId string, w http.ResponseWriter, r *http.Request) (http.ResponseWriter, error) {
+func (s *session) Create(userID uint, w http.ResponseWriter, r *http.Request) error {
 	session, err := s.Get(r, cookieName)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
-	session.Values[userIdFieldName] = userId
-	sessionClient.Save(r, w, session)
+	session.Values[userIDFieldName] = userID
+	err = session.Save(r, w)
+	if err != nil {
+		return err
+	}
 
-	return w, nil
+	return nil
 }
 
-func (s *session) Destroy(w http.ResponseWriter, r *http.Request) (http.ResponseWriter, error) {
+func (s *session) Destroy(w http.ResponseWriter, r *http.Request) error {
 	session, err := s.Get(r, cookieName)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
 	session.Options.MaxAge = -1 // Destroys cookie/session
-	sessionClient.Save(r, w, session)
+	err = session.Save(r, w)
+	if err != nil {
+		return err
+	}
 
-	return w, nil
+	return nil
 }
 
-func (s *session) GetUserId(r *http.Request) (string, error) {
+func (s *session) GetUserID(r *http.Request) (uint, error) {
 	session, err := s.Get(r, cookieName)
 	if err != nil {
-		return "", err
+		return 0, err
 	}
 
-	userId, ok := session.Values[userIdFieldName].(string)
+	userID, ok := session.Values[userIDFieldName].(uint)
 	if !ok {
-		return "", fmt.Errorf("could not get value of '%s'", userIdFieldName)
+		return 0, fmt.Errorf("could not get value of '%s'", userIDFieldName)
 	}
 
-	return userId, nil
+	return userID, nil
 }

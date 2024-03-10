@@ -2,25 +2,31 @@ package auth
 
 import (
 	"errors"
+	"fmt"
 	"log"
 	"tasklify/internal/database"
 	"time"
 
 	"github.com/alexedwards/argon2id"
+	"github.com/gookit/goutil/dump"
 )
 
-func AuthenticateUser(username, password string) (bool, error) {
+func AuthenticateUser(username, password string) (uint, error) {
 	loginTime := time.Now()
 
 	user, err := database.GetDatabase().GetUser(username)
 	if err != nil {
-		return false, err
+		return 0, err
 	}
 
 	match, err := argon2id.ComparePasswordAndHash(password, user.Password)
 	if err != nil {
 		log.Println(err)
-		return false, errors.New("no matching username and password")
+		return 0, errors.New("error when checking passwords")
+	}
+
+	if !match {
+		return 0, errors.New("no matching username and password")
 	}
 
 	var userLastLogin = &database.User{}
@@ -28,13 +34,13 @@ func AuthenticateUser(username, password string) (bool, error) {
 	userLastLogin.LastLogin = &loginTime
 	err = database.GetDatabase().UpdateUser(userLastLogin)
 	if err != nil {
-		return false, err
+		return 0, err
 	}
 
-	return match, nil
+	return user.ID, nil
 }
 
-func CreateUser(username, password, firstName, lastName, email, systemRoleName string) error {
+func CreateUser(ID *uint, username, password, firstName, lastName, email, systemRoleName string) error {
 	passwordHash, err := argon2id.CreateHash(password, argon2id.DefaultParams)
 	if err != nil {
 		return err
@@ -54,26 +60,32 @@ func CreateUser(username, password, firstName, lastName, email, systemRoleName s
 		SystemRole: *systemRole,
 	}
 
-	return database.GetDatabase().CreateUser(user)
+	if ID != nil {
+		user.ID = *ID
+	}
+
+	dump.P(user)
+
+	return database.GetDatabase().UpdateUser(user)
 }
 
-func UpdateUser(issuerUserId, issuerPassword string, userId uint, username, password, firstName, lastName, email, systemRoleName *string) error {
-	ok, err := AuthenticateUser(issuerUserId, issuerPassword)
+func UpdateUser(issuerUserID, issuerPassword string, userID uint, username, password, firstName, lastName, email, systemRoleName *string) error {
+	ok, err := AuthenticateUser(issuerUserID, issuerPassword)
 	if err != nil {
 		return err
 	}
 
-	issuerUser, err := database.GetDatabase().GetUser(issuerUserId)
+	issuerUser, err := database.GetDatabase().GetUser(issuerUserID)
 	if err != nil {
 		return err
 	}
 
-	if !ok {
+	if ok == 0 {
 		return errors.New("you are not authenticated")
 	}
 
 	var user = &database.User{}
-	user.ID = userId
+	user.ID = userID
 
 	if username != nil {
 		user.Username = *username
@@ -101,17 +113,17 @@ func UpdateUser(issuerUserId, issuerPassword string, userId uint, username, pass
 	}
 
 	if systemRoleName != nil {
-		err = GetAuthorization().HasPermission("system_"+issuerUser.SystemRole.Key, "/system/user/system-role", "u")
+		err = GetAuthorization().HasSystemPermission(issuerUser.SystemRole, "/system/user/system-role", ActionUpdate)
 		if err != nil {
 			return err
 		}
 
-		systemRoleObj, err := database.GetDatabase().GetSystemRole(*systemRoleName)
-		if err != nil {
-			return err
+		systemRole := database.SystemRoles.Parse(*systemRoleName)
+		if systemRole == nil {
+			return fmt.Errorf("'%s' is not a valid system role", *systemRoleName)
 		}
 
-		user.SystemRole = *systemRoleObj
+		user.SystemRole = *systemRole
 	}
 
 	return database.GetDatabase().UpdateUser(user)

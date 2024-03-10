@@ -7,15 +7,15 @@ import (
 	"tasklify/internal/auth"
 )
 
-type contextKeyUserId string
+type contextKeyUserID string
 
 const (
-	ContextKeyUserId contextKeyUserId = "user_id"
+	ContextKeyUserID contextKeyUserID = "user_id"
 )
 
 func AuthUser(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		userId, err := auth.GetSession().GetUserId(r)
+		userID, err := auth.GetSession().GetUserID(r)
 		if err != nil {
 			log.Printf("Middleware: AuthUser: %v\n", err)
 
@@ -23,7 +23,7 @@ func AuthUser(next http.Handler) http.Handler {
 			return
 		}
 
-		ctx := context.WithValue(r.Context(), ContextKeyUserId, userId)
+		ctx := context.WithValue(r.Context(), ContextKeyUserID, userID)
 
 		next.ServeHTTP(w, r.WithContext(ctx))
 	})

@@ -1,0 +1,38 @@
+package pages
+
+templ Layout(contents templ.Component, title string) {
+	<!-- <!DOCTYPE html> -->
+	<html>
+		@header(title)
+		<body id="root" class="flex flex-col h-full">
+			@nav()
+			<main class="flex-1">
+				@contents
+			</main>
+		</body>
+		@footer()
+	</html>
+}
+
+templ header(title string) {
+	<head>
+		<title>{ title }</title>
+		<meta charset="UTF-8"/>
+		<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+		<script src="static/script/htmx.min.js"></script>
+		<script src="static/script/response-targets.js"></script>
+		<link rel="stylesheet" href="static/css/style.css"/>
+	</head>
+}
+
+templ nav(){
+	<nav class="bg-blue-600 p-4">
+		<a class="text-gray-200" href="/">Home</a>
+		<a class="text-gray-200" href="/login">Login</a>
+		<a class="text-gray-200" href="/about">About</a>
+	</nav>
+}
+
+templ footer() {
+	<footer class="bg-blue-600 p-4"></footer>
+}
