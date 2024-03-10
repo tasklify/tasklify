@@ -28,9 +28,19 @@ func (db *database) GetUsers() ([]User, error) {
 	return users, nil
 }
 
-func (db *database) GetUser(username string) (*User, error) {
+func (db *database) GetUserByUsername(username string) (*User, error) {
 	var user = &User{Username: username}
 	err := db.First(user).Error
+	if err != nil {
+		return nil, err
+	}
+
+	return user, nil
+}
+
+func (db *database) GetUserByID(id uint) (*User, error) {
+	var user = &User{}
+	err := db.First(user, id).Error
 	if err != nil {
 		return nil, err
 	}
