@@ -1,0 +1,21 @@
+package pages
+
+import "net/http"
+
+
+func Home(w http.ResponseWriter, r *http.Request) error {
+	c := GuestIndex()
+	return Layout(c, "Tasklify").Render(r.Context(), w)
+}
+
+templ Index(userID string) {
+		<div>
+		Welcome {userID}
+		</div>
+}
+
+templ GuestIndex() {
+	<div>
+	Welcome guest
+	</div>
+}

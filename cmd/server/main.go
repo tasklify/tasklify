@@ -27,6 +27,8 @@ func main() {
 	auth.GetSession(config)
 	auth.GetAuthorization()
 
+	auth.InitialUsers()
+
 	killSig := make(chan os.Signal, 1)
 
 	signal.Notify(killSig, os.Interrupt, syscall.SIGTERM)

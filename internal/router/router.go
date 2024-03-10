@@ -2,12 +2,15 @@ package router
 
 import (
 	"net/http"
+	"tasklify/internal/handlers"
 	"tasklify/internal/middlewares"
-	"tasklify/internal/pages"
-	"tasklify/internal/pages/about"
-	"tasklify/internal/pages/login"
-	"tasklify/internal/pages/sprint"
-	"tasklify/internal/pages/userstory"
+	"tasklify/internal/web/pages"
+	"tasklify/internal/web/pages/about"
+	"tasklify/internal/web/pages/dashboard"
+	"tasklify/internal/web/pages/login"
+	"tasklify/internal/web/pages/sprint"
+
+	ghandlers "github.com/gorilla/handlers"
 
 	"github.com/go-chi/chi"
 	"github.com/go-chi/chi/middleware"
@@ -24,22 +27,24 @@ func Router() *chi.Mux {
 			middlewares.TextHTMLMiddleware,
 			middlewares.CSPMiddleware,
 			// TODO: https://github.com/gorilla/csrf
+			// TODO: CORS
 			middleware.Compress(5),
 		)
 
 		// Public
-		r.NotFound(pages.NewNotFoundHandler().ServeHTTP)
-		r.Get("/", pages.NewHomeHandler().ServeHTTP)
-		r.Get("/about", about.NewAboutHandler().ServeHTTP)
-		r.Get("/login", login.NewGetLoginHandler().ServeHTTP)
-		r.Post("/login", login.NewPostLoginHandler(login.PostLoginHandlerParams{
-			// UserStore: userStore,
-			// TokenAuth: tokenAuth,
-		}).ServeHTTP)
-		r.Get("/createsprint", sprint.NewGetCreateSprintHandler().ServeHTTP)
-		r.Post("/createsprint", sprint.NewPostCreateSprintHandler().ServeHTTP)
-		r.Get("/createuserstory", userstory.NewGetCreateUserStoryHandler().ServeHTTP)
-		r.Post("/createuserstory", userstory.NewPostCreateUserStoryHandler().ServeHTTP)
+
+		r.Handle("/", ghandlers.MethodHandler{
+			"GET": handlers.UnifiedHandler(handlers.PlainHandlerFunc(pages.Home)),
+		})
+		r.Handle("/about", ghandlers.MethodHandler{
+			"GET": handlers.UnifiedHandler(handlers.PlainHandlerFunc(about.About)),
+		})
+		r.Handle("/login", ghandlers.MethodHandler{
+			"GET":  handlers.UnifiedHandler(handlers.PlainHandlerFunc(login.GetLogin)),
+			"POST": handlers.UnifiedHandler(handlers.PlainHandlerFunc(login.PostLogin)),
+		})
+
+		r.NotFound(handlers.UnifiedHandler(handlers.PlainHandlerFunc(pages.NotFound)))
 
 		// Secure
 		r.Group(func(r chi.Router) {
@@ -47,7 +52,17 @@ func Router() *chi.Mux {
 				middlewares.AuthUser,
 			)
 
-			r.Get("/dashboard", pages.NewHomeHandler().ServeHTTP)
+			r.Handle("/dashboard", ghandlers.MethodHandler{
+				"GET": handlers.UnifiedHandler(handlers.AuthenticatedHandlerFunc(dashboard.Dashboard)),
+			})
+			r.Handle("/sprint", ghandlers.MethodHandler{
+				"GET":  handlers.UnifiedHandler(handlers.AuthenticatedHandlerFunc(sprint.GetSprint)),
+				"POST": handlers.UnifiedHandler(handlers.AuthenticatedHandlerFunc(sprint.PostSprint)),
+			})
+			r.Handle("/userstory", ghandlers.MethodHandler{
+				"GET":  handlers.UnifiedHandler(handlers.AuthenticatedHandlerFunc(sprint.GetSprint)),
+				"POST": handlers.UnifiedHandler(handlers.AuthenticatedHandlerFunc(sprint.PostSprint)),
+			})
 		})
 	})
 
