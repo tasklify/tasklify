@@ -2,7 +2,7 @@ package database
 
 import (
 	"database/sql/driver"
-	"tasklify/pkg/enum"
+	"tasklify/third_party/enum"
 )
 
 type ProjectRole enum.Member[string]

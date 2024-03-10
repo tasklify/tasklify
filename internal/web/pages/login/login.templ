@@ -1,0 +1,49 @@
+package login
+
+templ login(title string) {
+	<div hx-ext="response-targets">
+		<h1>
+			Sign in to your account
+		</h1>
+		<form
+			hx-post="/login"
+			hx-trigger="submit"
+			hx-target-401="#login-error"
+		>
+			<div id="login-error"></div>
+			<div>
+				<label for="username">Your username</label>
+				<input
+					type="username"
+					name="username"
+					id="username"
+					placeholder=""
+					required=""
+					autocomplete="username"
+				/>
+			</div>
+			<div>
+				<label for="password">Password</label>
+				<input
+					type="password"
+					name="password"
+					id="password"
+					placeholder=""
+					required=""
+					autocomplete="current-password"
+				/>
+			</div>
+			<button class="" type="submit">
+				Sign in
+			</button>
+			<p>
+				Don’t have an account yet?
+				<a href="/register">Register</a>
+			</p>
+		</form>
+	</div>
+}
+
+templ loginError() {
+	<p>Invalid email or password</p>
+}

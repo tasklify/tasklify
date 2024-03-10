@@ -4,12 +4,14 @@ import (
 	"errors"
 	"log"
 	"sync"
+	"tasklify/internal/database"
 
 	"github.com/casbin/casbin/v2"
 )
 
 type Authorization interface {
-	HasPermission(projectGroup, object, action string) error
+	HasSystemPermission(systemRole database.SystemRole, object string, action Action) error
+	HasProjectPermission(systemRole database.ProjectRole, object string, action Action) error
 }
 
 type authorization struct {
@@ -33,7 +35,7 @@ func GetAuthorization() Authorization {
 
 func connectAuthorization() *authorization {
 	// a, _ := gormadapter.NewAdapterByDB(database.GetDatabase().RawDB())
-	enforcer, err := casbin.NewEnforcer("./rbac/model.conf", "./rbac/policy.csv" /*, a */)
+	enforcer, err := casbin.NewEnforcer("./configs/rbac_model.conf", "./configs/rbac_policy.csv" /*, a */)
 	if err != nil {
 		log.Panic(err)
 	}
@@ -46,8 +48,21 @@ func connectAuthorization() *authorization {
 	return &authorization{Enforcer: enforcer}
 }
 
-func (a *authorization) HasPermission(groupName, object, action string) error {
-	ok, err := a.Enforce(groupName, object, action)
+func (a *authorization) HasSystemPermission(systemRole database.SystemRole, object string, action Action) error {
+	ok, err := a.Enforce(systemRole, object, action)
+	if err != nil {
+		return err
+	}
+
+	if !ok {
+		return errors.New("not authorized")
+	}
+
+	return nil
+}
+
+func (a *authorization) HasProjectPermission(systemRole database.ProjectRole, object string, action Action) error {
+	ok, err := a.Enforce(systemRole, object, action)
 	if err != nil {
 		return err
 	}

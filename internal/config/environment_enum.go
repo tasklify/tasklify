@@ -2,7 +2,7 @@ package config
 
 import (
 	"fmt"
-	"tasklify/pkg/enum"
+	"tasklify/third_party/enum"
 )
 
 type Environment enum.Member[string]

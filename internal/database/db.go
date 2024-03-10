@@ -36,7 +36,6 @@ func GetDatabase(config ...*config.Config) Database {
 
 		databaseClient = connectDatabase(config.Database)
 		registerTables(databaseClient)
-		populateDatabase(databaseClient)
 	})
 
 	return databaseClient
@@ -62,21 +61,6 @@ func registerTables(db *database) {
 	}
 
 	log.Println("Database tables registered")
-}
-
-func populateDatabase(db *database) {
-	var count int64
-
-	// Create Users
-	if db.Model(&User{}).Count(&count); count == 0 {
-		for _, user := range users {
-			if err := db.CreateUser(&user); err != nil {
-				log.Fatal("Failed to populate database: ", err)
-			}
-		}
-	}
-
-	log.Println("Database populated with initial data")
 }
 
 func (db *database) RawDB() *gorm.DB {

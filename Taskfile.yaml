@@ -1,11 +1,7 @@
 version: "3"
 
 dotenv:
-  - .env
-  - .env.local
-
-env:
-  PORT: 8080
+  - configs/dev/.env
 
 vars:
   container_name: tasklify
@@ -19,51 +15,42 @@ tasks:
     deps:
       - task: deps
     cmds:
-      - npx tailwindcss -i ./input.css -o ./static/css/style.css --watch &
-      - docker compose up &
-      - air
+      - npx tailwindcss -c configs/tailwind.config.js -i configs/input.css -o static/css/style.css --watch &
+      - docker compose -f deployments/docker-compose.yml -p tasklify up &
+      - air -c configs/dev/.air.toml
 
   build:
     deps:
       - task: deps
       - task: generate
     cmds:
-      - docker build -t {{.container_name}}:{{.container_tag}} .
+      - docker build -t {{.container_name}}:{{.container_tag}} build/server/Dockerfile
 
   deps:
     internal: true
     cmds:
       - yarn
-      
-      - cmd: mkdir -p static/{css,script}
-        platforms: [linux, darwin]
-      - cmd: cp node_modules/htmx.org/dist/htmx.min.js static/script/.
-        platforms: [linux, darwin]
-      - cmd: cp node_modules/htmx.org/dist/ext/response-targets.js static/script/.
-        platforms: [linux, darwin]
-
-      - cmd: powershell -Command "New-Item -ItemType Directory -Force -Path 'static\css', 'static\script'"
-        platforms: [windows]
-      - cmd: powershell -Command "Copy-Item -Path 'node_modules\htmx.org\dist\htmx.min.js', 'node_modules\htmx.org\dist\ext\response-targets.js' -Destination 'static\script\'"
-        platforms: [windows]
+      - mkdir -p static/{css,script}
+      - cp node_modules/htmx.org/dist/htmx.min.js static/script/.
+      - cp node_modules/htmx.org/dist/ext/response-targets.js static/script/.
 
   generate:
     internal: true
     cmds:
-      - npx tailwindcss -i ./input.css -o ./static/css/style.css --minify
-      - templ generate
+      - npx tailwindcss -c configs/tailwind.config.js -i configs/input.css -o static/css/style.css --minify
+      - templ generate -include-version=false
       - go generate ./...
 
   ## Docker compose
 
   up:
     cmds:
-      - docker compose up -d --profile prod
+      - docker compose -f deployments/docker-compose.yml -p tasklify up -d --profile prod
 
   down:
     cmds:
-      - docker compose down
+      - docker compose -f deployments/docker-compose.yml -p tasklify down
 
   purge:
     cmds:
-      - docker compose down --volumes
+      - docker compose -f deployments/docker-compose.yml -p tasklify down --volumes
