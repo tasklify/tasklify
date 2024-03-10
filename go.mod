@@ -15,16 +15,14 @@ require (
 	gorm.io/gorm v1.25.7
 )
 
-require github.com/quasoft/memstore v0.0.0-20191010062613-2bce066d2b0b // indirect
-
 require (
 	github.com/aws/smithy-go v1.20.1
 	github.com/casbin/govaluate v1.1.1 // indirect
 	github.com/felixge/httpsnoop v1.0.3 // indirect
 	github.com/go-sql-driver/mysql v1.7.1 // indirect
 	github.com/gookit/color v1.5.4 // indirect
-	github.com/gorilla/handlers v1.5.2 // indirect
-	github.com/gorilla/schema v1.2.1 // indirect
+	github.com/gorilla/handlers v1.5.2
+	github.com/gorilla/schema v1.2.1
 	github.com/gorilla/securecookie v1.1.2 // indirect
 	github.com/gorilla/sessions v1.2.2 // indirect
 	github.com/jackc/pgpassfile v1.0.0 // indirect
