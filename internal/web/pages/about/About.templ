@@ -10,6 +10,8 @@ func About(w http.ResponseWriter, r *http.Request) error {
 
 templ about() {
 	<p>About page content</p>
-	<button hx-get="/sprint" hx-target="#dialog" hx-swap="outerHTML">Create sprint</button>
-    <div id="dialog"></div>
+	<button hx-get="/sprint" hx-target="#sprint-dialog" hx-swap="outerHTML">Create sprint</button>
+	<button hx-get="/createuserstory" hx-target="#userstory-dialog" hx-swap="outerHTML">Create user story</button>
+	<div id="sprint-dialog"></div>
+	<div id="userstory-dialog"></div>
 }
