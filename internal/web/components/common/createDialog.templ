@@ -1,13 +1,22 @@
 package common
 
 templ CreateDialog(title string, hxPostPath string) {
+	<script>
+		// TODO: check if it's ok to set this here
+		// If this is set to True, dialog closes even after unsuccessful request (e.g. because of validation error)
+		// Read https://htmx.org/extensions/response-targets/ for further explanation
+		htmx.config.responseTargetUnsetsError = false;
+		document.addEventListener('DOMContentLoaded', function () {
+			htmx.init();
+		});
+	</script>
 	<div hx-ext="response-targets">
 		<div id="create-dialog" hx-ext="response-targets" class="fixed top-0 left-0 w-full h-full bg-gray-900 bg-opacity-50 flex justify-center items-center z-50">
 			<form
 				hx-post={ hxPostPath }
 				hx-target-400="#validation-error"
 				class="bg-white rounded-lg p-8 shadow-lg w-2/5 h-auto"
-				hx-on::after-request="dialog_container.close()"
+				hx-on::after-request="if(event.detail.successful) dialog_container.close()"
 			>
 				<div class="text-center">
 					<h2 class="text-xl font-medium mb-4">{ title }</h2>

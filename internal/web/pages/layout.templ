@@ -11,19 +11,11 @@ templ Layout(contents templ.Component, title string) {
 			</main>
 			// Container for all dialogs
 			<dialog id="dialog_container" class="modal">
-				<div id="dialog" class="modal-dialog"></div>
+				<div id="dialog" class="modal-dialog" hx-on::after-swap="dialog_container.showModal()"></div>
 			</dialog>
 		</body>
 		@footer()
 	</html>
-	<script>
-		// Event handler to open the dialog
-		htmx.on("htmx:afterSwap", (e) => {
-  			if (e.detail.target.id == "dialog") {
-    			dialog_container.showModal()
-			}
-		})
-	</script>
 }
 
 templ header(title string) {
