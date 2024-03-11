@@ -14,7 +14,7 @@ templ CreateDialog(title string, hxPostPath string) {
                     </div>
                     <div id="validation-error"></div>
                     <div class="flex justify-end mt-3">
-                        <button class="btn btn-ghost btn-sm mr-2" hx-target="#root">Cancel</button>
+                        <button class="btn btn-ghost btn-sm mr-2" hx-get="#close-dialog" hx-target="#root" hx-swap="innerhtml">Cancel</button>
                         <button class="btn btn-primary btn-sm" type="submit">Create</button>
                     </div>
                 </form>
