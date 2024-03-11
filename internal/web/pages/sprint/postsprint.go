@@ -2,7 +2,6 @@ package sprint
 
 import (
 	"github.com/gorilla/schema"
-	"math/rand"
 	"net/http"
 	"reflect"
 	"strconv"
@@ -40,15 +39,19 @@ func PostSprint(w http.ResponseWriter, r *http.Request, params handlers.RequestP
 	}
 
 	var projectID uint = 1 // TODO change
+	sprints, err := database.GetDatabase().GetSprintByProject(projectID)
+	if err != nil {
+		return err
+	}
 
-	err2, fieldsInvalid := fieldValidation(w, r, sprintFormData, projectID)
+	err2, fieldsInvalid := fieldValidation(w, r, sprintFormData, sprints)
 
 	if fieldsInvalid {
 		return err2
 	}
 
 	var sprint = &database.Sprint{
-		Title:     strconv.Itoa(rand.Int()), // TODO ask if title is needed for sprint
+		Title:     "Sprint " + strconv.Itoa(len(sprints)),
 		StartDate: sprintFormData.StartDate,
 		EndDate:   sprintFormData.EndDate,
 		Velocity:  sprintFormData.Velocity,
@@ -66,7 +69,7 @@ func PostSprint(w http.ResponseWriter, r *http.Request, params handlers.RequestP
 	return nil
 }
 
-func fieldValidation(w http.ResponseWriter, r *http.Request, sprintFormData sprintFormData, projectID uint) (error, bool) {
+func fieldValidation(w http.ResponseWriter, r *http.Request, sprintFormData sprintFormData, sprints []database.Sprint) (error, bool) {
 
 	// validation: end date before start date
 	if sprintFormData.EndDate.Before(sprintFormData.StartDate) {
@@ -84,11 +87,6 @@ func fieldValidation(w http.ResponseWriter, r *http.Request, sprintFormData spri
 	}
 
 	// validation: sprint should not overlap with an existing one
-	sprints, err := database.GetDatabase().GetSprintByProject(projectID)
-	if err != nil {
-		return err, false //TODO check if okay
-	}
-
 	for _, s := range sprints {
 		// (StartA <= EndB) and (EndA >= StartB)
 		if (s.StartDate.Before(sprintFormData.EndDate) || s.StartDate.Equal(sprintFormData.EndDate)) &&
