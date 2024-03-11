@@ -22,7 +22,7 @@ func CreateDialog(title string, hxPostPath string) templ.Component {
 			templ_7745c5c3_Var1 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<script>\n\t\t// TODO: check if it's ok to set this here\n\t\t// If this is set to True, dialog closes even after unsuccessful request (e.g. because of validation error)\n\t\t// Read https://htmx.org/extensions/response-targets/ for further explanation\n\t\thtmx.config.responseTargetUnsetsError = false;\n\t\tdocument.addEventListener('DOMContentLoaded', function () {\n\t\t\thtmx.init();\n\t\t});\n\t</script><div hx-ext=\"response-targets\"><div id=\"create-dialog\" hx-ext=\"response-targets\" class=\"fixed top-0 left-0 w-full h-full bg-gray-900 bg-opacity-50 flex justify-center items-center z-50\"><form hx-post=\"")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<meta name=\"htmx-config\" content=\"{&#34;responseTargetUnsetsError&#34;:&#34;false&#34;}\"><div hx-ext=\"response-targets\"><div id=\"create-dialog\" hx-ext=\"response-targets\" class=\"fixed top-0 left-0 w-full h-full bg-gray-900 bg-opacity-50 flex justify-center items-center z-50\"><form hx-post=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -37,7 +37,7 @@ func CreateDialog(title string, hxPostPath string) templ.Component {
 		var templ_7745c5c3_Var2 string
 		templ_7745c5c3_Var2, templ_7745c5c3_Err = templ.JoinStringErrs(title)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/web/components/common/createDialog.templ`, Line: 21, Col: 49}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/web/components/common/createDialog.templ`, Line: 15, Col: 49}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var2))
 		if templ_7745c5c3_Err != nil {
