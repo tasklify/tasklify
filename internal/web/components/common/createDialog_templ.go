@@ -51,7 +51,7 @@ func CreateDialog(title string, hxPostPath string) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</div><div id=\"validation-error\"></div><div class=\"flex justify-end mt-3\"><button class=\"btn btn-ghost btn-sm mr-2\" hx-target=\"#root\">Cancel</button> <button class=\"btn btn-primary btn-sm\" type=\"submit\">Create</button></div></form></div></div>")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</div><div id=\"validation-error\"></div><div class=\"flex justify-end mt-3\"><button class=\"btn btn-ghost btn-sm mr-2\" hx-get=\"#close-dialog\" hx-target=\"#root\" hx-swap=\"innerhtml\">Cancel</button> <button class=\"btn btn-primary btn-sm\" type=\"submit\">Create</button></div></form></div></div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

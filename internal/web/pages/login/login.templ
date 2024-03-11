@@ -19,7 +19,7 @@ templ login(title string) {
         <!-- Password Field -->
         <div class="mb-4">
             <label for="password" class="block text-sm font-medium text-gray-700">Password</label>
-            <input type="password" name="password" id="password" placeholder="" required="" autocomplete="current-password" class="input input-bordered input-primary w-full max-w-s mt-1" required></input>
+            <input type="password" name="password" id="password" placeholder="Password" required="" autocomplete="current-password" class="input input-bordered input-primary w-full max-w-s mt-1" required></input>
         </div>
 
 		Don’t have an account yet?
@@ -28,12 +28,13 @@ templ login(title string) {
 		 </div>
                     <div id="validation-error"></div>
                     <div class="flex justify-end mt-3">
-                        <button class="btn btn-ghost btn-sm mr-2" hx-target="/">Cancel</button>
+                        <button class="btn btn-ghost btn-sm" hx-get="#close-dialog" hx-target="#root" hx-swap="innerhtml">Cancel</button>
                         <button class="btn btn-primary btn-sm" type="submit">Sign In</button>
                     </div>
                 </form>
         </div>
     </div>
+
 }
 
 templ loginError() {

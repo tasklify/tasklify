@@ -26,15 +26,16 @@ templ header(title string) {
 }
 
 templ nav(){
-<div class="navbar bg-primary">
-  <div class="navbar-start">
-    <a class="btn btn-ghost text-xxl text-white">tasklify</a>
-  </div>
-  <div class="navbar-end">
-	<a class="btn btn-sm m-0.5" href="/login">Login</a>
-	<a class="btn btn-sm m-0.5" href="/register">Register</a>
-  </div>
-</div>
+	<div class="navbar bg-primary">
+		<div class="navbar-start">
+			<a class="btn btn-ghost text-xxl text-white" href="/">tasklify</a>
+		</div>
+		<div class="navbar-end">
+			<a class="btn btn-sm m-0.5" hx-get="/login" hx-target="#login-dialog" hx-swap="outerHTML">Login</a>
+			<a class="btn btn-sm m-0.5" href="/register">Register</a>
+		</div>
+	</div>
+	<div id="login-dialog"></div>
 }
 
 templ footer() {

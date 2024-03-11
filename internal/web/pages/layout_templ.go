@@ -115,7 +115,7 @@ func nav() templ.Component {
 			templ_7745c5c3_Var4 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div class=\"navbar bg-primary\"><div class=\"navbar-start\"><a class=\"btn btn-ghost text-xxl text-white\">tasklify</a></div><div class=\"navbar-end\"><a class=\"btn btn-sm m-0.5\" href=\"/login\">Login</a> <a class=\"btn btn-sm m-0.5\" href=\"/register\">Register</a></div></div>")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div class=\"navbar bg-primary\"><div class=\"navbar-start\"><a class=\"btn btn-ghost text-xxl text-white\" href=\"/\">tasklify</a></div><div class=\"navbar-end\"><a class=\"btn btn-sm m-0.5\" hx-get=\"/login\" hx-target=\"#login-dialog\" hx-swap=\"outerHTML\">Login</a> <a class=\"btn btn-sm m-0.5\" href=\"/register\">Register</a></div></div><div id=\"login-dialog\"></div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
