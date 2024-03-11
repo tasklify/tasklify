@@ -14,6 +14,7 @@ type Database interface {
 	GetUser(username string) (*User, error)
 	UpdateUser(user *User) error
 	CreateUser(user *User) error
+	GetSprintByProject(projectID uint) ([]Sprint, error)
 	CreateSprint(sprint *Sprint) error
 	CreateUserStory(userStory *UserStory) error
 	// GetSystemRole(systemRoleName string) (*SystemRole, error)

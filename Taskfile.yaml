@@ -30,9 +30,17 @@ tasks:
     internal: true
     cmds:
       - yarn
-      - mkdir -p static/{css,script}
-      - cp node_modules/htmx.org/dist/htmx.min.js static/script/.
-      - cp node_modules/htmx.org/dist/ext/response-targets.js static/script/.
+      - cmd: mkdir -p static/{css,script}
+        platforms: [linux, darwin]
+      - cmd: cp node_modules/htmx.org/dist/htmx.min.js static/script/.
+        platforms: [linux, darwin]
+      - cmd: cp node_modules/htmx.org/dist/ext/response-targets.js static/script/.
+        platforms: [linux, darwin]
+
+      - cmd: powershell -Command "New-Item -ItemType Directory -Force -Path 'static\css', 'static\script'"
+        platforms: [windows]
+      - cmd: powershell -Command "Copy-Item -Path 'node_modules\htmx.org\dist\htmx.min.js', 'node_modules\htmx.org\dist\ext\response-targets.js' -Destination 'static\script\'"
+        platforms: [windows]
 
   generate:
     internal: true

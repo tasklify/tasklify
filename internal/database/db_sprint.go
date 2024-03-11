@@ -19,3 +19,14 @@ type Sprint struct {
 func (db *database) CreateSprint(sprint *Sprint) error {
 	return db.Create(sprint).Error
 }
+
+func (db *database) GetSprintByProject(projectID uint) ([]Sprint, error) {
+	var sprints []Sprint
+
+	err := db.Find(&sprints, "sprints.project_id = ?", "1").Error
+	if err != nil {
+		return nil, err
+	}
+
+	return sprints, nil
+}
