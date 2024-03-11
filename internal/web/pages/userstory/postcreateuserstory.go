@@ -41,6 +41,8 @@ func PostUserStory(w http.ResponseWriter, r *http.Request, params handlers.Reque
 		return err
 	}
 
-	http.Redirect(w, r, "/about", http.StatusSeeOther)
+	w.Header().Set("HX-Redirect", "/about")
+	w.WriteHeader(http.StatusSeeOther)
+
 	return nil
 }

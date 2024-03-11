@@ -61,8 +61,8 @@ func Router() *chi.Mux {
 				"GET":  handlers.UnifiedHandler(handlers.AuthenticatedHandlerFunc(project.GetCreateProject)),
 				"POST": handlers.UnifiedHandler(handlers.AuthenticatedHandlerFunc(project.PostProject)),
 			})
-			r.Handle("/sprint", ghandlers.MethodHandler{
-				"GET":  handlers.UnifiedHandler(handlers.AuthenticatedHandlerFunc(sprint.GetSprint)),
+			r.Handle("/createsprint", ghandlers.MethodHandler{
+				"GET":  handlers.UnifiedHandler(handlers.AuthenticatedHandlerFunc(sprint.GetCreateSprint)),
 				"POST": handlers.UnifiedHandler(handlers.AuthenticatedHandlerFunc(sprint.PostSprint)),
 			})
 			r.Handle("/createuserstory", ghandlers.MethodHandler{

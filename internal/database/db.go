@@ -16,6 +16,7 @@ type Database interface {
 	GetUserByID(id uint) (*User, error)
 	UpdateUser(user *User) error
 	CreateUser(user *User) error
+	GetSprintByProject(projectID uint) ([]Sprint, error)
 	CreateSprint(sprint *Sprint) error
 	CreateUserStory(userStory *UserStory) error
 	RawDB() *gorm.DB
