@@ -7,5 +7,5 @@ import (
 
 func GetLogin(w http.ResponseWriter, r *http.Request) error {
 	c := login("Login")
-	return pages.Layout(c, "My website").Render(r.Context(), w)
+	return pages.Layout(c, "Tasklify").Render(r.Context(), w)
 }
