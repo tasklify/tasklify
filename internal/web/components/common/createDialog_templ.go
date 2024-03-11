@@ -30,14 +30,14 @@ func CreateDialog(title string, hxPostPath string) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("\" hx-target-400=\"#validation-error\" class=\"bg-white rounded-lg p-8 shadow-lg w-2/5 h-auto\"><div class=\"text-center\"><h2 class=\"text-xl font-medium mb-4\">")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("\" hx-target-400=\"#validation-error\" class=\"bg-white rounded-lg p-8 shadow-lg w-2/5 h-auto\" hx-on::after-request=\"dialog_container.close()\"><div class=\"text-center\"><h2 class=\"text-xl font-medium mb-4\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var2 string
 		templ_7745c5c3_Var2, templ_7745c5c3_Err = templ.JoinStringErrs(title)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal\web\components\common\createDialog.templ`, Line: 11, Col: 67}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/web/components/common/createDialog.templ`, Line: 12, Col: 49}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var2))
 		if templ_7745c5c3_Err != nil {
@@ -51,7 +51,7 @@ func CreateDialog(title string, hxPostPath string) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</div><div id=\"validation-error\"></div><div class=\"flex justify-end mt-3\"><button class=\"btn btn-ghost btn-sm mr-2\" hx-target=\"#root\">Cancel</button> <button class=\"btn btn-primary btn-sm\" type=\"submit\">Create</button></div></form></div></div>")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</div><div id=\"validation-error\"></div><div class=\"flex justify-end mt-3\"><button class=\"btn btn-ghost btn-sm mr-2\" type=\"button\" hx-on:click=\"dialog_container.close()\">Cancel</button> <button class=\"btn btn-primary btn-sm\" type=\"submit\">Create</button></div></form></div></div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

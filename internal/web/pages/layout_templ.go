@@ -46,7 +46,7 @@ func Layout(contents templ.Component, title string) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</main></body>")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</main><dialog id=\"dialog_container\" class=\"modal\"><div id=\"dialog\" class=\"modal-dialog\"></div></dialog></body>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -54,7 +54,7 @@ func Layout(contents templ.Component, title string) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</html>")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</html><script>\r\n\t\t// Event handler to open the dialog\r\n\t\thtmx.on(\"htmx:afterSwap\", (e) => {\r\n  \t\t\tif (e.detail.target.id == \"dialog\") {\r\n    \t\t\tdialog_container.showModal()\r\n\t\t\t}\r\n\t\t})\r\n\t</script>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -85,7 +85,7 @@ func header(title string) templ.Component {
 		var templ_7745c5c3_Var3 string
 		templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinStringErrs(title)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/web/pages/layout.templ`, Line: 18, Col: 16}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/web/pages/layout.templ`, Line: 30, Col: 16}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var3))
 		if templ_7745c5c3_Err != nil {
@@ -115,7 +115,7 @@ func nav() templ.Component {
 			templ_7745c5c3_Var4 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<nav class=\"bg-blue-600 p-4\"><a class=\"text-gray-200\" href=\"/\">Home</a> <a class=\"text-gray-200\" href=\"/login\">Login</a> <a class=\"text-gray-200\" href=\"/about\">About</a> <a class=\"text-gray-200\" href=\"/project\">Create project</a></nav>")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<nav class=\"bg-blue-600 p-4\"><a class=\"text-gray-200\" href=\"/\">Home</a> <a class=\"text-gray-200\" href=\"/login\">Login</a> <a class=\"text-gray-200\" href=\"/about\">About</a> <a href=\"#\" class=\"text-gray-200\" hx-get=\"/create-project\" hx-target=\"#dialog\">Create project</a></nav>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

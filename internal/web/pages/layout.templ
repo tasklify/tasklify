@@ -9,9 +9,21 @@ templ Layout(contents templ.Component, title string) {
 			<main class="flex-1">
 				@contents
 			</main>
+			// Container for all dialogs
+			<dialog id="dialog_container" class="modal">
+				<div id="dialog" class="modal-dialog"></div>
+			</dialog>
 		</body>
 		@footer()
 	</html>
+	<script>
+		// Event handler to open the dialog
+		htmx.on("htmx:afterSwap", (e) => {
+  			if (e.detail.target.id == "dialog") {
+    			dialog_container.showModal()
+			}
+		})
+	</script>
 }
 
 templ header(title string) {
@@ -25,12 +37,12 @@ templ header(title string) {
 	</head>
 }
 
-templ nav(){
+templ nav() {
 	<nav class="bg-blue-600 p-4">
 		<a class="text-gray-200" href="/">Home</a>
 		<a class="text-gray-200" href="/login">Login</a>
 		<a class="text-gray-200" href="/about">About</a>
-		<a class="text-gray-200" href="/project">Create project</a>
+		<a href="#" class="text-gray-200" hx-get="/create-project" hx-target="#dialog">Create project</a>
 	</nav>
 }
 
