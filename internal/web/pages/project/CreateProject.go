@@ -21,22 +21,6 @@ type ProjectUserDetails struct {
 }
 
 func GetCreateProject(w http.ResponseWriter, r *http.Request, params handlers.RequestParams) error {
-	// users, err := database.GetDatabase().GetUsers()
-	// if err != nil {
-	// 	return err
-	// }
-
-	// signedInUser, err := database.GetDatabase().GetUserByID(params.UserID)
-	// if err != nil {
-	// 	return err
-	// }
-
-	// d := Data{
-	// 	signedInUserID: signedInUser.ID,
-	// 	users:          users,
-	// 	projectMembers: []database.User{*signedInUser, *signedInUser},
-	// }
-
 	c := createProjectDialog()
 	return c.Render(r.Context(), w)
 }
@@ -99,5 +83,35 @@ func PostAddProjectMember(w http.ResponseWriter, r *http.Request, params handler
 	}
 
 	c := addProjectMembersDialog(projectMemberData.ProjectID, users, projectMembers)
+	return c.Render(r.Context(), w)
+}
+
+func RemoveProjectMember(w http.ResponseWriter, r *http.Request, params handlers.RequestParams) error {
+	type RequestData struct {
+		ProjectID uint `schema:"projectID,required"`
+		UserID    uint `schema:"userID,required"`
+	}
+
+	var requestData RequestData
+	err := decoder.Decode(&requestData, r.PostForm)
+	if err != nil {
+		return err
+	}
+
+	if err := database.GetDatabase().RemoveUserFromProject(requestData.ProjectID, requestData.UserID); err != nil {
+		return err
+	}
+
+	users, err := database.GetDatabase().GetUsersNotOnProject(requestData.ProjectID)
+	if err != nil {
+		return err
+	}
+
+	projectMembers, err := database.GetDatabase().GetUsersOnProject(requestData.ProjectID)
+	if err != nil {
+		return err
+	}
+
+	c := addProjectMembersDialog(requestData.ProjectID, users, projectMembers)
 	return c.Render(r.Context(), w)
 }
