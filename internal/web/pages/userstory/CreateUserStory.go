@@ -58,3 +58,8 @@ func PostUserStory(w http.ResponseWriter, r *http.Request, params handlers.Reque
 
 	return nil
 }
+
+func GetUserStory(w http.ResponseWriter, r *http.Request, params handlers.RequestParams) error {
+	c := CreateUserStoryDialog()
+	return c.Render(r.Context(), w)
+}
