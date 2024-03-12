@@ -1,0 +1,154 @@
+package productbacklog
+
+import "tasklify/internal/database"
+
+templ productBacklog(backlogUserStories []database.UserStory, sprintUserStories map[string][]database.UserStory) {
+    <div class="bg-base-100 min-h-screen">
+        <div>
+            <div class="flex flex-col w-full lg:flex-row">
+
+              <!-- Backlog - unassigned, unrealized -->
+              <div class="card card-compact bg-base-200 transition-shadow w-2/5 mt-2 ml-2">
+                  <div class="card-title collapse-title text-xl font-medium bg-base-300 border-base-300">Product backlog</div>
+                  <div class="card-body">
+                    for _, us := range backlogUserStories {
+                           <div class="card card-compact bg-base-100 shadow-xl hover:shadow-2xl transition-shadow w-full">
+                             <div class="card-body">
+                               <h2 class="card-title">{ us.Title }</h2>
+                               <p>{ *us.Description }</p>
+                             </div>
+                           </div>
+                       }
+                  </div>
+               </div>
+
+              <!-- Divide -->
+              <div class="divider lg:divider-horizontal"></div>
+
+              <!-- Sprints -->
+              <div class="bg-base-100 join join-vertical w-full mt-2 mr-2">
+
+                 <!-- Sprint -->
+                 for k, us := range sprintUserStories {
+
+                    <div class="collapse collapse-arrow join-item border border-base-300">
+                      <input type="radio" name="my-accordion-4" checked="checked" />
+                      <div class="collapse-title text-xl font-medium">
+                        Sprint {k}
+                      </div>
+                      <div class="collapse-content">
+
+                        <!-- user story table -->
+                        <div class="overflow-x-auto">
+                          <table class="table">
+                            <!-- head -->
+                            <thead>
+                              <tr>
+                                <th>Title</th>
+                                <th>Description</th>
+                                <th>Priority</th>
+                                <th>Assigned</th>
+                                <th>Realized</th>
+                                <th></th>
+                              </tr>
+                            </thead>
+
+                            <tbody>
+                                <!-- User stories rows -->
+                                for _, v := range us {
+
+                                    @userStoryTableRow(v)
+
+                                }
+                            </tbody>
+
+                          </table>
+                        </div>
+
+                      </div>
+                    </div>
+
+                 }
+
+              </div>
+
+            </div>
+        </div>
+    </div>
+
+}
+
+
+templ userStoryCard(name string, description string) {
+	<!-- user story -->
+    <div class="card card-compact bg-base-100 shadow-xl hover:shadow-2xl transition-shadow w-full">
+      <div class="card-body">
+        <h2 class="card-title">{name}</h2>
+        <p>{description}</p>
+      </div>
+   </div>
+}
+
+templ userStoryTableRow(us database.UserStory) {
+
+          <!-- row 1 -->
+          <tr class="hover">
+
+            <td>
+              <div class="font-bold">{us.Title}</div>
+            </td>
+
+            <!-- Description -->
+            <td class="min-w-[12rem] max-w-[20rem] whitespace-normal">
+                {*us.Description}
+            </td>
+
+            <!-- Priority -->
+            <td>
+             switch us.Priority {
+                        case database.PriorityMustHave:
+                            <div class="badge badge-error">Must have</div>
+                        case database.PriorityCouldHave:
+                            <div class="badge badge-warning">Could have</div>
+                        case database.PriorityShouldHave:
+                            <div class="badge badge-success">Should have</div>
+                        case database.PriorityWontHaveThisTime:
+                            <div class="badge badge-info">Won't have this time</div>
+                        default:
+                            <span></span>
+             }
+
+            </td>
+
+            <!-- Assigned -->
+            <td>
+                if us.UserID == 0 {
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
+                    </svg>
+                } else {
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                       <path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" />
+                    </svg>
+                }
+            </td>
+
+            <!-- Realized -->
+            <td>
+                if *us.Realized {
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                       <path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" />
+                    </svg>
+                } else {
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
+                    </svg>
+                }
+            </td>
+
+            <th>
+              <button class="btn btn-xs">details</button>
+            </th>
+
+          </tr>
+}

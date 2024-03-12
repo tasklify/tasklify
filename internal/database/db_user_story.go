@@ -24,3 +24,14 @@ type UserStory struct {
 func (db *database) CreateUserStory(userStory *UserStory) error {
 	return db.Create(userStory).Error
 }
+
+func (db *database) GetUserStoriesByProject(projectID uint) ([]UserStory, error) {
+	var userStories []UserStory
+
+	err := db.Find(&userStories, "user_stories.project_id = ?", projectID).Error
+	if err != nil {
+		return nil, err
+	}
+
+	return userStories, nil
+}

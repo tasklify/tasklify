@@ -8,6 +8,7 @@ import (
 	"tasklify/internal/web/pages/about"
 	"tasklify/internal/web/pages/dashboard"
 	"tasklify/internal/web/pages/login"
+	"tasklify/internal/web/pages/productbacklog"
 	"tasklify/internal/web/pages/project"
 	"tasklify/internal/web/pages/sprint"
 	"tasklify/internal/web/pages/userstory"
@@ -76,6 +77,10 @@ func Router() *chi.Mux {
 			r.Handle("/createproject", ghandlers.MethodHandler{
 				"GET": handlers.UnifiedHandler(handlers.AuthenticatedHandlerFunc(project.GetCreateProject)),
 			})
+			r.Handle("/productbacklog", ghandlers.MethodHandler{
+				"GET": handlers.UnifiedHandler(handlers.AuthenticatedHandlerFunc(productbacklog.GetProductBacklog)),
+			})
+
 		})
 	})
 
