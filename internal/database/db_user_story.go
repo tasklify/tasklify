@@ -19,17 +19,21 @@ type UserStory struct {
 	Tasks            []Task          // 1:n (UserStory:Task)
 	UserID           uint            // 1:n (ProjectHasUser:UserStory)
 	ProjectHasUser   *ProjectHasUser `gorm:"foreignKey:ProjectID,UserID"` // 1:n (ProjectHasUser:UserStory)
-	StoryNumber      int             `gorm:"not null"`
 }
 
 func (db *database) CreateUserStory(userStory *UserStory) error {
-	var count int64
-	db.Model(&UserStory{}).Where("project_id = ?", userStory.ProjectID).Count(&count)
-
-	// Set the StoryNumber to be the next number in sequence for the project
-	userStory.StoryNumber = int(count) + 1
-
 	return db.Create(userStory).Error
+}
+
+func (db *database) GetUserStoriesByProject(projectID uint) ([]UserStory, error) {
+	var userStories []UserStory
+
+	err := db.Find(&userStories, "user_stories.project_id = ?", projectID).Error
+	if err != nil {
+		return nil, err
+	}
+
+	return userStories, nil
 }
 
 func (db *database) GetUserStoryByID(id uint) (*UserStory, error) {
@@ -42,15 +46,6 @@ func (db *database) GetUserStoryByID(id uint) (*UserStory, error) {
 	return userStory, nil
 }
 
-func (db *database) GetUserStoryByProject(projectID uint) ([]UserStory, error) {
-	var userStories []UserStory
-	err := db.Where("project_id = ?", projectID).Find(&userStories).Error
-	if err != nil {
-		return []UserStory{}, err
-	}
-
-	return userStories, nil
-}
 
 func (db *database) GetUserStoryByUser(userID uint) ([]UserStory, error) {
 	var userStories []UserStory
