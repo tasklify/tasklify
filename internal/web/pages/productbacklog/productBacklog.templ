@@ -1,0 +1,75 @@
+package productbacklog
+
+import "tasklify/internal/database"
+
+templ productBacklog(backlogUserStories []database.UserStory) {
+    <div class="bg-base-200 min-h-screen">
+        <div>
+            <div class="flex flex-col w-full lg:flex-row">
+
+              <!-- Backlog - unassigned, unrealized -->
+              <div class="card card-compact bg-base-200 shadow-xl hover:shadow-2xl transition-shadow w-3/5">
+                  <div class="card-body">
+                    for _, us := range backlogUserStories {
+                           <div class="card card-compact bg-base-100 shadow-xl hover:shadow-2xl transition-shadow w-full">
+                             <div class="card-body">
+                               <h2 class="card-title">{ us.Title }</h2>
+                               <p>{ *us.Description }</p>
+                             </div>
+                           </div>
+                            <!-- @userStoryCard({ us.Title }, { *us.Description })-->
+                       }
+                  </div>
+               </div>
+
+              <!-- Divide -->
+              <div class="divider lg:divider-horizontal"></div>
+
+              <!-- Sprints -->
+              <div class="bg-base-100 join join-vertical w-full">
+                <div class="collapse collapse-arrow join-item border border-base-300">
+                  <input type="radio" name="my-accordion-4" checked="checked" />
+                  <div class="collapse-title text-xl font-medium">
+                    Sprint 1
+                  </div>
+                  <div class="collapse-content">
+                    <p>HELLO</p>
+                  </div>
+                </div>
+                <div class="collapse collapse-arrow join-item border border-base-300">
+                  <input type="radio" name="my-accordion-4" />
+                  <div class="collapse-title text-xl font-medium">
+                    Sprint 2
+                  </div>
+                  <div class="collapse-content">
+                    <p>hello</p>
+                  </div>
+                </div>
+                <div class="collapse collapse-arrow join-item border border-base-300">
+                  <input type="radio" name="my-accordion-4" />
+                  <div class="collapse-title text-xl font-medium">
+                    Sprint 3
+                  </div>
+                  <div class="collapse-content">
+                    <p>hello</p>
+                  </div>
+                </div>
+              </div>
+
+
+            </div>
+        </div>
+    </div>
+
+}
+
+
+templ userStoryCard(name string, description string) {
+	<!-- user story -->
+    <div class="card card-compact bg-base-100 shadow-xl hover:shadow-2xl transition-shadow w-full">
+      <div class="card-body">
+        <h2 class="card-title">{name}</h2>
+        <p>{description}</p>
+      </div>
+   </div>
+}

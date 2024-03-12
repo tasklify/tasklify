@@ -23,7 +23,7 @@ func (db *database) CreateSprint(sprint *Sprint) error {
 func (db *database) GetSprintByProject(projectID uint) ([]Sprint, error) {
 	var sprints []Sprint
 
-	err := db.Find(&sprints, "sprints.project_id = ?", "1").Error
+	err := db.Find(&sprints, "sprints.project_id = ?", projectID).Error
 	if err != nil {
 		return nil, err
 	}
