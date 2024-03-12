@@ -1,49 +1,37 @@
 package project
 
-import (
-	"fmt"
-	"net/http"
-	"tasklify/internal/handlers"
-)
+// type ProjectRequest struct {
+// 	Title       string
+// 	Users       []ProjectUserDetails
+// 	Sprints     []uint
+// 	UserStories []uint
+// }
 
-type PostProjectHandler struct{}
+// type ProjectUserDetails struct {
+// 	Username    string
+// 	ProjectRole string
+// }
 
-func NewPostProjectHandler() *PostProjectHandler {
-	return &PostProjectHandler{}
-}
+// func PostProject(w http.ResponseWriter, r *http.Request, params handlers.RequestParams) error {
 
-type ProjectRequest struct {
-	Title       string
-	Users       []ProjectUserDetails
-	Sprints     []uint
-	UserStories []uint
-}
+// 	fmt.Println(r.FormValue("projectUser"))
+// 	// reqData := &ProjectRequest{}
+// 	// json.NewDecoder(r.Body).Decode(&reqData)
 
-type ProjectUserDetails struct {
-	Username    string
-	ProjectRole string
-}
+// 	// newProject := database.Project{
+// 	// 	Title: reqData.Title,
+// 	// 	Users: []database.User{},
+// 	// }
 
-func PostProject(w http.ResponseWriter, r *http.Request, params handlers.RequestParams) error {
+// 	// fmt.Println(reqData)
 
-	fmt.Println(r.FormValue("projectUser"))
-	// reqData := &ProjectRequest{}
-	// json.NewDecoder(r.Body).Decode(&reqData)
+// 	// for _, userDetail := range reqData.Users {
+// 	// 	// user, _ := database.GetDatabase().GetUser(userDetail.Username)
+// 	// 	// newProject.Users = append(newProject.Users, *user)
+// 	// 	fmt.Println(userDetail)
+// 	// }
+// 	// fmt.Println(newProject)
+// 	// // database.GetDatabase().CreateProject(&newProject)
 
-	// newProject := database.Project{
-	// 	Title: reqData.Title,
-	// 	Users: []database.User{},
-	// }
-
-	// fmt.Println(reqData)
-
-	// for _, userDetail := range reqData.Users {
-	// 	// user, _ := database.GetDatabase().GetUser(userDetail.Username)
-	// 	// newProject.Users = append(newProject.Users, *user)
-	// 	fmt.Println(userDetail)
-	// }
-	// fmt.Println(newProject)
-	// // database.GetDatabase().CreateProject(&newProject)
-
-	return nil
-}
+// 	return nil
+// }

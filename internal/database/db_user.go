@@ -8,14 +8,15 @@ import (
 
 type User struct {
 	gorm.Model
-	Username   string `gorm:"unique"`
-	Password   string
-	FirstName  string
-	LastName   string
-	Email      string `gorm:"unique"`
-	LastLogin  *time.Time
-	SystemRole SystemRole `gorm:"type:string"`
-	Projects   []Project  `gorm:"many2many:project_has_users;"` // m:n (User:Project)
+	Username    string `gorm:"unique"`
+	Password    string
+	FirstName   string
+	LastName    string
+	Email       string `gorm:"unique"`
+	LastLogin   *time.Time
+	SystemRole  SystemRole  `gorm:"type:string"`
+	Projects    []Project   `gorm:"many2many:project_has_users;"` // m:n (User:Project)
+	ProjectRole ProjectRole `gorm:"type:string;-"`                // This field is ignored in database and all queries
 }
 
 func (db *database) GetUsers() ([]User, error) {

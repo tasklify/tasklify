@@ -46,7 +46,7 @@ func Layout(contents templ.Component, title string) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</main><dialog id=\"dialog_container\" class=\"modal\"><div id=\"dialog\" class=\"modal-dialog\" hx-on::after-swap=\"dialog_container.showModal()\"></div></dialog></body>")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</main><dialog id=\"dialog_container\" class=\"modal\"><div id=\"dialog\" class=\"modal-dialog\" hx-on::after-swap=\"dialog_container.showModal()\" hx-ext=\"response-targets\"></div></dialog></body>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

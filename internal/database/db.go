@@ -19,6 +19,12 @@ type Database interface {
 	GetSprintByProject(projectID uint) ([]Sprint, error)
 	CreateSprint(sprint *Sprint) error
 	CreateUserStory(userStory *UserStory) error
+	GetProjectByID(id uint) (*Project, error)
+	CreateProject(project *Project) (uint, error)
+	AddUserToProject(projectID uint, userID uint, projectRole string) error
+	GetUsersOnProject(projectID uint) ([]User, error)
+	GetUsersNotOnProject(projectID uint) ([]User, error)
+	ProjectWithTitleExists(title string) bool
 	RawDB() *gorm.DB
 }
 

@@ -11,7 +11,7 @@ templ Layout(contents templ.Component, title string) {
 			</main>
 			// Container for all dialogs
 			<dialog id="dialog_container" class="modal">
-				<div id="dialog" class="modal-dialog" hx-on::after-swap="dialog_container.showModal()"></div>
+				<div id="dialog" class="modal-dialog" hx-on::after-swap="dialog_container.showModal()" hx-ext="response-targets"></div>
 			</dialog>
 		</body>
 		@footer()
