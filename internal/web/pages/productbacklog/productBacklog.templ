@@ -37,13 +37,44 @@ templ productBacklog(backlogUserStories []database.UserStory, sprintUserStories 
                       </div>
                       <div class="collapse-content">
 
-                        <!-- User stories in sprint -->
-                        for _, v := range us {
+                        <!-- user story table -->
+                        <div class="overflow-x-auto">
+                          <table class="table">
+                            <!-- head -->
+                            <thead>
+                              <tr>
+                                <th>Title</th>
+                                <th>Description</th>
+                                <th>Priority</th>
+                                <th>Assigned</th>
+                                <th>Realized</th>
+                                <th></th>
+                              </tr>
+                            </thead>
 
-                            <h2>{ v.Title }</h2>
-                            <p>{ *v.Description }</p>
+                            <tbody>
+                                <!-- User stories rows -->
+                                for _, v := range us {
 
-                        }
+                                    @userStoryTableRow(v)
+
+                                }
+                            </tbody>
+
+                            <!-- foot -->
+                            <tfoot>
+                              <tr>
+                                <th>Title</th>
+                                <th>Description</th>
+                                <th>Priority</th>
+                                <th>Assigned</th>
+                                <th>Realized</th>
+                                <th></th>
+                              </tr>
+                            </tfoot>
+
+                          </table>
+                        </div>
 
                       </div>
                     </div>
@@ -67,4 +98,58 @@ templ userStoryCard(name string, description string) {
         <p>{description}</p>
       </div>
    </div>
+}
+
+templ userStoryTableRow(us database.UserStory) {
+
+          <!-- row 1 -->
+          <tr>
+
+            <td>
+              <div class="font-bold">{us.Title}</div>
+            </td>
+
+            <!-- Description -->
+            <td>
+              {*us.Description}
+            </td>
+
+            <!-- Priority -->
+            <td>
+             switch us.Priority {
+                        case database.PriorityMustHave:
+                            <div class="badge badge-error">Must have</div>
+                        case database.PriorityCouldHave:
+                            <div class="badge badge-warning">Could have</div>
+                        case database.PriorityShouldHave:
+                            <div class="badge badge-success">Should have</div>
+                        case database.PriorityWontHaveThisTime:
+                            <div class="badge badge-info">Won't have this time</div>
+                        default:
+                            <span></span>
+             }
+
+            </td>
+
+            <!-- Assigned -->
+            <td>TODO</td>
+
+            <!-- Realized -->
+            <td>
+                if *us.Realized {
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                       <path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" />
+                    </svg>
+                } else {
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
+                    </svg>
+                }
+            </td>
+
+            <th>
+              <button class="btn btn-xs">details</button>
+            </th>
+
+          </tr>
 }
