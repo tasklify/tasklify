@@ -3,12 +3,13 @@ package productbacklog
 import "tasklify/internal/database"
 
 templ productBacklog(backlogUserStories []database.UserStory, sprintUserStories map[string][]database.UserStory) {
-    <div class="bg-base-200 min-h-screen">
+    <div class="bg-base-100 min-h-screen">
         <div>
             <div class="flex flex-col w-full lg:flex-row">
 
               <!-- Backlog - unassigned, unrealized -->
-              <div class="card card-compact bg-base-200 shadow-xl hover:shadow-2xl transition-shadow w-3/5">
+              <div class="card card-compact bg-base-200 transition-shadow w-2/5 mt-2 ml-2">
+                  <div class="card-title collapse-title text-xl font-medium bg-base-300 border-base-300">Product backlog</div>
                   <div class="card-body">
                     for _, us := range backlogUserStories {
                            <div class="card card-compact bg-base-100 shadow-xl hover:shadow-2xl transition-shadow w-full">
@@ -25,7 +26,7 @@ templ productBacklog(backlogUserStories []database.UserStory, sprintUserStories 
               <div class="divider lg:divider-horizontal"></div>
 
               <!-- Sprints -->
-              <div class="bg-base-100 join join-vertical w-full">
+              <div class="bg-base-100 join join-vertical w-full mt-2 mr-2">
 
                  <!-- Sprint -->
                  for k, us := range sprintUserStories {
@@ -61,18 +62,6 @@ templ productBacklog(backlogUserStories []database.UserStory, sprintUserStories 
                                 }
                             </tbody>
 
-                            <!-- foot -->
-                            <tfoot>
-                              <tr>
-                                <th>Title</th>
-                                <th>Description</th>
-                                <th>Priority</th>
-                                <th>Assigned</th>
-                                <th>Realized</th>
-                                <th></th>
-                              </tr>
-                            </tfoot>
-
                           </table>
                         </div>
 
@@ -103,15 +92,15 @@ templ userStoryCard(name string, description string) {
 templ userStoryTableRow(us database.UserStory) {
 
           <!-- row 1 -->
-          <tr>
+          <tr class="hover">
 
             <td>
               <div class="font-bold">{us.Title}</div>
             </td>
 
             <!-- Description -->
-            <td>
-              {*us.Description}
+            <td class="min-w-[12rem] max-w-[20rem] whitespace-normal">
+                {*us.Description}
             </td>
 
             <!-- Priority -->
@@ -132,7 +121,17 @@ templ userStoryTableRow(us database.UserStory) {
             </td>
 
             <!-- Assigned -->
-            <td>TODO</td>
+            <td>
+                if us.UserID == 0 {
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
+                    </svg>
+                } else {
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                       <path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" />
+                    </svg>
+                }
+            </td>
 
             <!-- Realized -->
             <td>
