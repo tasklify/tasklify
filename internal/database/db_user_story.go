@@ -46,17 +46,6 @@ func (db *database) GetUserStoryByID(id uint) (*UserStory, error) {
 	return userStory, nil
 }
 
-
-func (db *database) GetUserStoryByUser(userID uint) ([]UserStory, error) {
-	var userStories []UserStory
-	err := db.Where("user_id = ?", userID).Find(&userStories).Error
-	if err != nil {
-		return []UserStory{}, err
-	}
-
-	return userStories, nil
-}
-
 func (db *database) UserStoryWithTitleExists(title string) bool {
 	var count int64
 	db.Model(&UserStory{}).Where("title = ?", title).Count(&count)
