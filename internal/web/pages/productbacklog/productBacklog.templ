@@ -2,7 +2,7 @@ package productbacklog
 
 import "tasklify/internal/database"
 
-templ productBacklog(backlogUserStories []database.UserStory) {
+templ productBacklog(backlogUserStories []database.UserStory, sprintUserStories map[string][]database.UserStory) {
     <div class="bg-base-200 min-h-screen">
         <div>
             <div class="flex flex-col w-full lg:flex-row">
@@ -17,7 +17,6 @@ templ productBacklog(backlogUserStories []database.UserStory) {
                                <p>{ *us.Description }</p>
                              </div>
                            </div>
-                            <!-- @userStoryCard({ us.Title }, { *us.Description })-->
                        }
                   </div>
                </div>
@@ -27,35 +26,31 @@ templ productBacklog(backlogUserStories []database.UserStory) {
 
               <!-- Sprints -->
               <div class="bg-base-100 join join-vertical w-full">
-                <div class="collapse collapse-arrow join-item border border-base-300">
-                  <input type="radio" name="my-accordion-4" checked="checked" />
-                  <div class="collapse-title text-xl font-medium">
-                    Sprint 1
-                  </div>
-                  <div class="collapse-content">
-                    <p>HELLO</p>
-                  </div>
-                </div>
-                <div class="collapse collapse-arrow join-item border border-base-300">
-                  <input type="radio" name="my-accordion-4" />
-                  <div class="collapse-title text-xl font-medium">
-                    Sprint 2
-                  </div>
-                  <div class="collapse-content">
-                    <p>hello</p>
-                  </div>
-                </div>
-                <div class="collapse collapse-arrow join-item border border-base-300">
-                  <input type="radio" name="my-accordion-4" />
-                  <div class="collapse-title text-xl font-medium">
-                    Sprint 3
-                  </div>
-                  <div class="collapse-content">
-                    <p>hello</p>
-                  </div>
-                </div>
-              </div>
 
+                 <!-- Sprint -->
+                 for k, us := range sprintUserStories {
+
+                    <div class="collapse collapse-arrow join-item border border-base-300">
+                      <input type="radio" name="my-accordion-4" checked="checked" />
+                      <div class="collapse-title text-xl font-medium">
+                        Sprint {k}
+                      </div>
+                      <div class="collapse-content">
+
+                        <!-- User stories in sprint -->
+                        for _, v := range us {
+
+                            <h2>{ v.Title }</h2>
+                            <p>{ *v.Description }</p>
+
+                        }
+
+                      </div>
+                    </div>
+
+                 }
+
+              </div>
 
             </div>
         </div>
