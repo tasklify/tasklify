@@ -11,13 +11,20 @@ import (
 )
 
 type Database interface {
-	GetUser(username string) (*User, error)
+	GetUsers() ([]User, error)
+	GetUserByUsername(username string) (*User, error)
+	GetUserByID(id uint) (*User, error)
 	UpdateUser(user *User) error
 	CreateUser(user *User) error
 	GetSprintByProject(projectID uint) ([]Sprint, error)
 	CreateSprint(sprint *Sprint) error
 	CreateUserStory(userStory *UserStory) error
-	// GetSystemRole(systemRoleName string) (*SystemRole, error)
+	GetProjectByID(id uint) (*Project, error)
+	CreateProject(project *Project) (uint, error)
+	AddUserToProject(projectID uint, userID uint, projectRole string) error
+	GetUsersOnProject(projectID uint) ([]User, error)
+	GetUsersNotOnProject(projectID uint) ([]User, error)
+	ProjectWithTitleExists(title string) bool
 	RawDB() *gorm.DB
 }
 

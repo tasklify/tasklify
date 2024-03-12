@@ -28,3 +28,16 @@ func (role *ProjectRole) Scan(value interface{}) error {
 
 	return nil
 }
+
+func (role ProjectRole) GetLabel() string {
+	switch role {
+	case ProjectRoleManager:
+		return "Project manager"
+	case ProjectRoleMaster:
+		return "Project master"
+	case ProjectRoleDeveloper:
+		return "Project developer"
+	default:
+		return "Unknown"
+	}
+}

@@ -14,7 +14,7 @@ import (
 func AuthenticateUser(username, password string) (uint, error) {
 	loginTime := time.Now()
 
-	user, err := database.GetDatabase().GetUser(username)
+	user, err := database.GetDatabase().GetUserByUsername(username)
 	if err != nil {
 		return 0, err
 	}
@@ -75,7 +75,7 @@ func UpdateUser(issuerUserID, issuerPassword string, userID uint, username, pass
 		return err
 	}
 
-	issuerUser, err := database.GetDatabase().GetUser(issuerUserID)
+	issuerUser, err := database.GetDatabase().GetUserByUsername(issuerUserID)
 	if err != nil {
 		return err
 	}

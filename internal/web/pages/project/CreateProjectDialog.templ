@@ -1,0 +1,194 @@
+package project
+
+import "tasklify/internal/database"
+import "fmt"
+
+import ()
+
+templ createProjectDialog() {
+	<div id="create-dialog" class="fixed top-0 left-0 w-full h-full bg-gray-900 bg-opacity-50 flex justify-center items-center z-50">
+		<form
+			hx-post="/create-project"
+			hx-target="#dialog"
+			hx-target-400="#validation-error"
+			class="bg-white rounded-lg p-8 shadow-lg w-2/5 h-auto"
+		>
+			<div class="text-center">
+				<h2 class="text-xl font-medium mb-4">Add a new project</h2>
+				<!-- Project title Field -->
+				<div class="mb-4">
+					<label for="title" class="block text-sm font-medium text-gray-700 text-left">Project title</label>
+					<input type="text" id="title" name="title" class="input input-bordered input-primary w-full max-w-s mt-1" required/>
+				</div>
+			</div>
+			<div id="validation-error"></div>
+			<div class="flex justify-end mt-3">
+				<button class="btn btn-ghost btn-sm mr-2" type="button" hx-on:click="dialog_container.close()">Cancel</button>
+				<button class="btn btn-primary btn-sm" type="submit">Create</button>
+			</div>
+		</form>
+	</div>
+	// <div class="flex flex-col lg:basis-10/12 basis-full mx-auto">
+	// 	<div class="mb-6 flex items-center">
+	// 		<div class="flex flex-1">
+	// 			<input
+	// 				type="text"
+	// 				id="title"
+	// 				name="title"
+	// 				class="input input-bordered input-primary mt-1 basis-6/12"
+	// 				placeholder="Project title"
+	// 				required
+	// 			/>
+	// 		</div>
+	// 		<button type="button" class="btn btn-neutral" hx-on:click="add_user_modal.showModal()">Add users to project</button>
+	// 	</div>
+	// 	<dialog id="add_user_modal" class="modal" hx-on:close="resetData()">
+	// 		<div class="modal-box">
+	// 			<div class="flex mb-3">
+	// 				<h3 class="font-bold text-lg flex-1">Add user</h3>
+	// 				<form method="dialog" class="" style="all: unset;">
+	// 					<button class="btn btn-sm btn-circle btn-ghost">✕</button>
+	// 				</form>
+	// 			</div>
+	// 			<form hx-post="/add-project-member" hx-target="#project_members_table" hx-swap="afterend" hx-on::after-request="add_user_modal.close()" style="all: unset;">
+	// 				<div class="py-4 join flex">
+	// 					<select id="projectUser_user" class="select select-bordered select-primary join-item basis-8/12" name="userID" required>
+	// 						<option hidden disabled selected value>Select user</option>
+	// 						for _, user := range d.users {
+	// 							<option value={ fmt.Sprint(user.ID) }>{ user.FirstName } { user.LastName }</option>
+	// 						}
+	// 					</select>
+	// 					<select id="projectUser_role" class="select select-bordered select-primary join-item basis-4/12" name="roleID" required>
+	// 						<option hidden disabled selected value>Select project role</option>
+	// 						<option value={ database.ProjectRoleManager.Val }>Project manager</option>
+	// 						<option value={ database.ProjectRoleMaster.Val }>Project master</option>
+	// 						<option value={ database.ProjectRoleDeveloper.Val }>Project developer</option>
+	// 					</select>
+	// 				</div>
+	// 				<div class="flex justify-end mt-2">
+	// 					<button type="button" class="btn btn-sm btn-neutral mr-2" hx-on:click="add_user_modal.close()">Cancel</button>
+	// 					<button type="submit" class="btn btn-sm btn-neutral">Add</button>
+	// 				</div>
+	// 			</form>
+	// 		</div>
+	// 	</dialog>
+	// 	<h3 class="font-bold text-lg mt-1 mb-3">Project members</h3>
+	// 	<div class="overflow-x-auto">
+	// 		<table class="table" id="project_members_table">
+	// 			<tbody>
+	// 				for _, projectMember := range d.projectMembers {
+	// 					<tr>
+	// 						<td>{ projectMember.Email }</td>
+	// 						<td>{ projectMember.FirstName } { projectMember.LastName }</td>
+	// 						<td>{ projectMember.Username }</td>
+	// 					</tr>
+	// 				}
+	// 			</tbody>
+	// 		</table>
+	// 	</div>
+	// 	<div class="mt-6">
+	// 		<button type="button" class="btn btn-primary">Save project</button>
+	// 	</div>
+	// </div>
+	// <script type="text/javascript">
+	// 	function resetData() {
+	// 		projectUser_user.selectedIndex = 0;
+	// 		projectUser_role.selectedIndex = 0;
+	// 	}
+	// </script>
+}
+
+templ addProjectMembersDialog(projectID uint, users []database.User, projectMembers []database.User) {
+	<div id="create-dialog" class="fixed top-0 left-0 w-full h-full bg-gray-900 bg-opacity-50 flex justify-center items-center z-50">
+		<div class="bg-white rounded-lg p-8 shadow-lg w-2/5 h-auto">
+			<div class="text-center">
+				<h2 class="text-xl font-medium mb-4">Add project members</h2>
+			</div>
+			<div>
+				@projectMemberForm(projectID, users)
+			</div>
+			<div id="member_table_container" class="mt-2">
+				@projectMemberTable(projectMembers)
+			</div>
+			// <div id="validation-error"></div>
+			<div class="mt-3">
+				<button class="btn btn-primary btn-sm" type="submit" hx-on:click="dialog_container.close()">I'll add more later</button>
+			</div>
+		</div>
+	</div>
+}
+
+templ projectMemberForm(projectID uint, users []database.User) {
+	<form hx-post="/project-member" hx-target="#member_table_container" style="all: unset">
+		<input type="hidden" id="projectID" name="projectID" value={ fmt.Sprint(projectID) }/>
+		<div class="pt-4 join flex">
+			<select
+				id="projectUser_user"
+				class="select select-bordered select-primary join-item basis-7/12 block p-2 text-sm"
+				name="userID"
+				if len(users) == 0 {
+					disabled="disabled"
+				}
+				required
+			>
+				<option hidden disabled selected value>
+					if len(users) > 0 {
+						Select user
+					} else {
+						No more users to select
+					}
+				</option>
+				for _, user := range users {
+					<option value={ fmt.Sprint(user.ID) }>{ user.FirstName } { user.LastName }</option>
+				}
+			</select>
+			<select
+				id="projectUser_role"
+				class="select select-bordered select-primary join-item basis-4/12 block p-2 text-sm"
+				name="roleID"
+				if len(users) == 0 {
+					disabled="disabled"
+				}
+				required
+			>
+				<option hidden disabled selected value>
+					if len(users) > 0 {
+						Select project role
+					} else {
+						/
+					}
+				</option>
+				<option value={ database.ProjectRoleManager.Val }>Project manager</option>
+				<option value={ database.ProjectRoleMaster.Val }>Project master</option>
+				<option value={ database.ProjectRoleDeveloper.Val }>Project developer</option>
+			</select>
+			<button
+				class="btn btn-primary text-sm join-item basis-1/12"
+				type="submit"
+				if len(users) == 0 {
+					disabled="disabled"
+				}
+			>Add</button>
+		</div>
+	</form>
+}
+
+templ projectMemberTable(projectMembers []database.User) {
+	<div class="overflow-x-auto">
+		if len(projectMembers) > 0 {
+			<table class="table" id="project_members_table">
+				<tbody>
+					for _, projectMember := range projectMembers {
+						<tr>
+							<td class="text-gray-950">{ projectMember.Email }</td>
+							<td class="text-gray-950">{ projectMember.FirstName } { projectMember.LastName }</td>
+							<td class="text-gray-950">{ projectMember.ProjectRole.GetLabel() }</td>
+						</tr>
+					}
+				</tbody>
+			</table>
+		} else {
+			<span class="flex justify-center mt-1 text-gray-950">No users added yet</span>
+		}
+	</div>
+}
