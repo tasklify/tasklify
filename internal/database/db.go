@@ -20,6 +20,8 @@ type Database interface {
 	CreateSprint(sprint *Sprint) error
 	CreateUserStory(userStory *UserStory) error
 	GetUserStoriesByProject(projectID uint) ([]UserStory, error)
+	GetUserStoryByID(id uint) (*UserStory, error)
+	UserStoryWithTitleExists(title string) bool
 	GetProjectByID(id uint) (*Project, error)
 	CreateProject(project *Project) (uint, error)
 	AddUserToProject(projectID uint, userID uint, projectRole string) error

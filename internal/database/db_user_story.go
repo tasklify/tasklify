@@ -35,3 +35,19 @@ func (db *database) GetUserStoriesByProject(projectID uint) ([]UserStory, error)
 
 	return userStories, nil
 }
+
+func (db *database) GetUserStoryByID(id uint) (*UserStory, error) {
+	var userStory = &UserStory{}
+	err := db.First(userStory, id).Error
+	if err != nil {
+		return nil, err
+	}
+
+	return userStory, nil
+}
+
+func (db *database) UserStoryWithTitleExists(title string) bool {
+	var count int64
+	db.Model(&UserStory{}).Where("title = ?", title).Count(&count)
+	return count > 0
+}
