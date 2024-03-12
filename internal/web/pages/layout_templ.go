@@ -115,7 +115,7 @@ func nav() templ.Component {
 			templ_7745c5c3_Var4 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<nav class=\"bg-blue-600 p-4\"><a class=\"text-gray-200\" href=\"/\">Home</a> <a class=\"text-gray-200\" href=\"/login\">Login</a> <a class=\"text-gray-200\" href=\"/about\">About</a> <a href=\"#\" class=\"text-gray-200\" hx-get=\"/create-project\" hx-target=\"#dialog\">Create project</a></nav>")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div class=\"navbar bg-primary\"><div class=\"navbar-start\"><a class=\"btn btn-ghost text-xxl text-white\" href=\"/\">tasklify</a></div><div class=\"navbar-end\"><a class=\"btn btn-sm m-0.5\" hx-get=\"/login\" hx-target=\"#login-dialog\" hx-swap=\"outerHTML\">Login</a> <a class=\"btn btn-sm m-0.5\" href=\"/register\">Register</a></div></div><div id=\"login-dialog\"></div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -139,7 +139,7 @@ func footer() templ.Component {
 			templ_7745c5c3_Var5 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<footer class=\"bg-blue-600 p-4\"></footer>")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<footer class=\"bg-primary-400 p-4\"></footer>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
