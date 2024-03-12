@@ -91,7 +91,7 @@ func projectMemberForm(projectID uint, users []database.User) templ.Component {
 			templ_7745c5c3_Var3 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<form hx-post=\"/project-member\" hx-target=\"#member_table_container\" style=\"all: unset\"><input type=\"hidden\" id=\"projectID\" name=\"projectID\" value=\"")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<form hx-post=\"/project-member\" hx-target=\"#dialog\" style=\"all: unset\"><input type=\"hidden\" id=\"projectID\" name=\"projectID\" value=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
