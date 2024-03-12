@@ -23,13 +23,16 @@ templ header(title string) {
 		<title>{ title }</title>
 		<meta charset="UTF-8"/>
 		<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+		// If responseTargetUnsetsError=True, then response-targets extension always marks the request as successful even if it's not (e.g. because of validation error)
+		// Read https://htmx.org/extensions/response-targets/ for further explanation
+		<meta name="htmx-config" content='{"responseTargetUnsetsError": false}'/>
 		<script src="static/script/htmx.min.js"></script>
 		<script src="static/script/response-targets.js"></script>
 		<link rel="stylesheet" href="static/css/style.css"/>
 	</head>
 }
 
-templ nav(){
+templ nav() {
 	<div class="navbar bg-primary">
 		<div class="navbar-start">
 			<a class="btn btn-ghost text-xxl text-white" href="/">tasklify</a>
