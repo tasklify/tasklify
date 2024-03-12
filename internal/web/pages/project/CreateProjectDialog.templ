@@ -119,7 +119,7 @@ templ addProjectMembersDialog(projectID uint, users []database.User, projectMemb
 }
 
 templ projectMemberForm(projectID uint, users []database.User) {
-	<form hx-post="/project-member" hx-target="#member_table_container" style="all: unset">
+	<form hx-post="/project-member" hx-target="#dialog" style="all: unset">
 		<input type="hidden" id="projectID" name="projectID" value={ fmt.Sprint(projectID) }/>
 		<div class="pt-4 join flex">
 			<select

@@ -30,7 +30,7 @@ func about() templ.Component {
 			templ_7745c5c3_Var1 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<p>About page content</p><button hx-get=\"/createsprint\" hx-target=\"#dialog\">Create sprint</button> <button hx-get=\"/createuserstory\" hx-target=\"#dialog\">Create user story</button>")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<p>About page content</p><button hx-get=\"/createsprint\" hx-target=\"#dialog\">Create sprint</button> <button hx-get=\"/createuserstory\" hx-target=\"#dialog\">Create user story</button> <button hx-get=\"/create-project\" hx-target=\"#dialog\">Create project</button>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
