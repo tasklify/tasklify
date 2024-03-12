@@ -14,15 +14,5 @@ func InitialUsers() {
 		log.Panic(err)
 	}
 
-	err = CreateUser(ptr.Uint(9998), "test", "test", "testni", "uporabnik", "test@mail.com", database.SystemRoleUser.Val)
-	if err != nil {
-		log.Panic(err)
-	}
-
-	err = CreateUser(ptr.Uint(9997), "test1", "test1", "testni1", "uporabnik", "test1@mail.com", database.SystemRoleUser.Val)
-	if err != nil {
-		log.Panic(err)
-	}
-
 	log.Println("Created initial users")
 }
