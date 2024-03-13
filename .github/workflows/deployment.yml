@@ -58,19 +58,36 @@ jobs:
 
     needs: build-and-push-image
 
+    env:
+      TASKLIFY_ADMIN_USERNAME: ${{ secrets.TASKLIFY_ADMIN_USERNAME }}
+      TASKLIFY_ADMIN_PASSWORD: ${{ secrets.TASKLIFY_ADMIN_PASSWORD }}
+
+      TASKLIFY_AUTH_SESSION_HASH_KEY: ${{ secrets.TASKLIFY_AUTH_SESSION_HASH_KEY }}
+      TASKLIFY_AUTH_SESSION_ENCRYPTION_KEY: ${{ secrets.TASKLIFY_AUTH_SESSION_ENCRYPTION_KEY }}
+
+      TASKLIFY_DATABASE_HOST: tasklify-postgres
+      TASKLIFY_DATABASE_NAME: tasklify
+      TASKLIFY_DATABASE_USER: ${{ secrets.TASKLIFY_DATABASE_USER }}
+      TASKLIFY_DATABASE_PASSWORD: ${{ secrets.TASKLIFY_DATABASE_PASSWORD }}
+
+      # user login: user@mail.com
+      TASKLIFY_PGADMIN_EMAIL_USER: ${{ secrets.TASKLIFY_PGADMIN_EMAIL_USER }}
+      TASKLIFY_PGADMIN_EMAIL_DOMAIN: ${{ secrets.TASKLIFY_PGADMIN_EMAIL_DOMAIN }}
+      TASKLIFY_PGADMIN_PASSWORD: ${{ secrets.TASKLIFY_PGADMIN_PASSWORD }}
+
     steps:
-      # https://shihadeh.dev/actions/Docker-Deployment/
       - name: Deploy to Docker Host
-        uses: wshihadeh/docker-deployment-action@v1
+        uses: wshihadeh/docker-deployment-action@v2
         with:
           remote_docker_host: ${{ secrets.DOCKER_HOST }}
           ssh_private_key: ${{ secrets.DOCKER_SSH_PRIVATE_KEY }}
           ssh_public_key: ${{ secrets.DOCKER_SSH_PUBLIC_KEY }}
+          remote_docker_port: ${{ secrets.DOCKER_SSH_PORT }}
           deployment_mode: docker-compose
           copy_stack_file: true
           deploy_path: ~/repos/tasklify
-          stack_file_name: docker-compose.yaml
+          stack_file_name: deployments/docker-compose.yml
           keep_files: 5
-          args: up -d
+          args: -p tasklify up -d --profile prod
           docker_prune: "false"
           pull_images_first: "true"
