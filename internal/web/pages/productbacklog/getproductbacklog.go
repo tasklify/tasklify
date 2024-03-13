@@ -29,7 +29,7 @@ func GetProductBacklog(w http.ResponseWriter, r *http.Request, params handlers.R
 func filterBacklog(userStories []database.UserStory) (inBacklog []database.UserStory, inSprint []database.UserStory) {
 
 	for _, us := range userStories {
-		if us.UserID == 0 && *us.Realized == false && us.SprintID == nil {
+		if us.UserID == nil && *us.Realized == false && us.SprintID == nil {
 			inBacklog = append(inBacklog, us)
 		} else {
 			inSprint = append(inSprint, us)

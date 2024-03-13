@@ -36,7 +36,6 @@ func PostUserStory(w http.ResponseWriter, r *http.Request, params handlers.Reque
 		return err
 	}
 
-	userID := params.UserID 
 	projectID := uint(1)
 
 	userStory := &database.UserStory{
@@ -45,7 +44,6 @@ func PostUserStory(w http.ResponseWriter, r *http.Request, params handlers.Reque
 		BusinessValue: userStoryData.BusinessValue,
 		Priority:      userStoryData.Priority,
 		ProjectID:     projectID,
-		UserID:        userID,
 		Realized:      new(bool), // Defaults to false
 	}
 
