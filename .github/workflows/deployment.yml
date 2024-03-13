@@ -9,9 +9,7 @@ jobs:
     runs-on: ubuntu-latest
 
     env:
-      REGISTRY: ghcr.io
-      ORGANIZATION_NAME: ${{ github.repository_owner }}
-      IMAGE_NAME: ${{ github.repository }}
+      REGISTRY:
 
     # Sets the permissions granted to the `GITHUB_TOKEN` for the actions in this job.
     permissions:
@@ -41,8 +39,8 @@ jobs:
         uses: docker/metadata-action@v5
         with:
           images: |
-            ${{ env.IMAGE_NAME }}/${{ env.IMAGE_NAME }}
-            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/${{ env.IMAGE_NAME }}
+            tasklify/tasklify
+            ghcr.io/tasklify/tasklify
           tags: |
             type=ref,event=branch
             type=ref,event=pr
