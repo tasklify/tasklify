@@ -7,6 +7,7 @@ import (
 type Project struct {
 	gorm.Model
 	Title       string      `gorm:"unique"`
+	Description string      `gorm:"type:text"`
 	Users       []User      `gorm:"many2many:project_has_users;"` // m:n (Project:User)
 	Sprints     []Sprint    // 1:n (Project:Sprint)
 	UserStories []UserStory // 1:n (Project:UserStory)
@@ -31,4 +32,24 @@ func (db *database) ProjectWithTitleExists(title string) bool {
 	var count int64
 	db.Model(&Project{}).Where("title = ?", title).Count(&count)
 	return count > 0
+}
+
+func (db *database) GetUserProjects(userID uint) ([]Project, error) {
+	user, err := db.GetUserByID(userID)
+	if err != nil {
+		return []Project{}, err
+	}
+
+	if user.SystemRole == SystemRoleAdmin {
+		var projects []Project
+		if err := db.Find(&projects).Error; err != nil {
+			return []Project{}, err
+		}
+		return projects, nil
+	} else {
+		if err := db.Preload("Projects").First(&user, userID).Error; err != nil {
+			return []Project{}, err
+		}
+		return user.Projects, nil
+	}
 }

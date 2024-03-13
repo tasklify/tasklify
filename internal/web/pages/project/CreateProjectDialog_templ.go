@@ -27,7 +27,7 @@ func createProjectDialog() templ.Component {
 			templ_7745c5c3_Var1 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div id=\"create-dialog\" class=\"fixed top-0 left-0 w-full h-full bg-gray-900 bg-opacity-50 flex justify-center items-center z-50\"><form hx-post=\"/create-project\" hx-target=\"#dialog\" hx-target-400=\"#validation-error\" class=\"bg-white rounded-lg p-8 shadow-lg w-2/5 h-auto\"><div class=\"text-center\"><h2 class=\"text-xl font-medium mb-4\">Add a new project</h2><!-- Project title Field --><div class=\"mb-4\"><label for=\"title\" class=\"block text-sm font-medium text-gray-700 text-left\">Project title</label> <input type=\"text\" id=\"title\" name=\"title\" class=\"input input-bordered input-primary w-full max-w-s mt-2\" required></div></div><div id=\"validation-error\"></div><div class=\"flex justify-end mt-3\"><button class=\"btn btn-ghost btn-sm mr-2\" type=\"button\" hx-on:click=\"dialog_container.close()\">Cancel</button> <button class=\"btn btn-primary btn-sm\" type=\"submit\">Create</button></div></form></div>")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div id=\"create-dialog\" class=\"fixed top-0 left-0 w-full h-full bg-gray-900 bg-opacity-50 flex justify-center items-center z-50\"><form hx-post=\"/create-project\" hx-target=\"#dialog\" hx-target-400=\"#validation-error\" class=\"bg-white rounded-lg p-8 shadow-lg w-2/5 h-auto\"><div class=\"text-center\"><h2 class=\"text-xl font-medium mb-4\">Add a new project</h2><!-- Project title Field --><div class=\"mb-5\"><label for=\"title\" class=\"block text-sm font-medium text-gray-700 text-left\">Project title</label> <input type=\"text\" id=\"title\" name=\"title\" class=\"input input-bordered input-primary w-full max-w-s mt-2\" required></div><div class=\"mb-4\"><label for=\"description\" class=\"block text-sm font-medium text-gray-700 text-left\">Short description</label> <textarea rows=\"2\" id=\"description\" name=\"description\" class=\"input input-bordered input-primary w-full h-auto max-w-s mt-2\" style=\"max-height: 200px\"></textarea></div></div><div id=\"validation-error\"></div><div class=\"flex justify-end mt-3\"><button class=\"btn btn-ghost btn-sm mr-2\" type=\"button\" hx-on:click=\"dialog_container.close()\">Cancel</button> <button class=\"btn btn-primary btn-sm\" type=\"submit\">Create</button></div></form></div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -144,7 +144,7 @@ func projectMemberForm(projectID uint, users []database.User) templ.Component {
 			var templ_7745c5c3_Var4 string
 			templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs(user.FirstName)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/web/pages/project/CreateProjectDialog.templ`, Line: 141, Col: 59}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/web/pages/project/CreateProjectDialog.templ`, Line: 145, Col: 59}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var4))
 			if templ_7745c5c3_Err != nil {
@@ -157,7 +157,7 @@ func projectMemberForm(projectID uint, users []database.User) templ.Component {
 			var templ_7745c5c3_Var5 string
 			templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinStringErrs(user.LastName)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/web/pages/project/CreateProjectDialog.templ`, Line: 141, Col: 77}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/web/pages/project/CreateProjectDialog.templ`, Line: 145, Col: 77}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var5))
 			if templ_7745c5c3_Err != nil {
@@ -264,7 +264,7 @@ func projectMemberTable(projectID uint, projectMembers []database.User) templ.Co
 				var templ_7745c5c3_Var7 string
 				templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.JoinStringErrs(projectMember.FirstName)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/web/pages/project/CreateProjectDialog.templ`, Line: 192, Col: 58}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/web/pages/project/CreateProjectDialog.templ`, Line: 196, Col: 58}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var7))
 				if templ_7745c5c3_Err != nil {
@@ -277,7 +277,7 @@ func projectMemberTable(projectID uint, projectMembers []database.User) templ.Co
 				var templ_7745c5c3_Var8 string
 				templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.JoinStringErrs(projectMember.LastName)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/web/pages/project/CreateProjectDialog.templ`, Line: 192, Col: 85}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/web/pages/project/CreateProjectDialog.templ`, Line: 196, Col: 85}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var8))
 				if templ_7745c5c3_Err != nil {
@@ -290,7 +290,7 @@ func projectMemberTable(projectID uint, projectMembers []database.User) templ.Co
 				var templ_7745c5c3_Var9 string
 				templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.JoinStringErrs(projectMember.Email)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/web/pages/project/CreateProjectDialog.templ`, Line: 193, Col: 52}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/web/pages/project/CreateProjectDialog.templ`, Line: 197, Col: 52}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var9))
 				if templ_7745c5c3_Err != nil {
@@ -303,7 +303,7 @@ func projectMemberTable(projectID uint, projectMembers []database.User) templ.Co
 				var templ_7745c5c3_Var10 string
 				templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.JoinStringErrs(projectMember.ProjectRole.GetLabel())
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/web/pages/project/CreateProjectDialog.templ`, Line: 196, Col: 71}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/web/pages/project/CreateProjectDialog.templ`, Line: 200, Col: 71}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var10))
 				if templ_7745c5c3_Err != nil {

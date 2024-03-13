@@ -1,13 +1,14 @@
 package pages
 
 import "net/http"
+import "tasklify/internal/database"
 
 func Home(w http.ResponseWriter, r *http.Request) error {
 	c := GuestIndex()
 	return Layout(c, "Tasklify").Render(r.Context(), w)
 }
 
-templ Index(userID string) {
+templ Index(userID string, myProjects []database.Project) {
 	<div class="bg-base-200 min-h-screen">
 		<div class="p-10">
 			<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -24,6 +25,17 @@ templ Index(userID string) {
 						</div>
 					</div>
 				</div>
+				for _, project := range myProjects {
+					<div class="card card-compact bg-base-100 shadow-xl hover:shadow-2xl transition-shadow">
+						<div class="card-body">
+							<h2 class="card-title">{ project.Title }</h2>
+							<p>{ project.Description }</p>
+							<div class="card-actions justify-end">
+								<button class="btn btn-primary">View Project</button>
+							</div>
+						</div>
+					</div>
+				}
 				<!-- Project 1 -->
 				<div class="card card-compact bg-base-100 shadow-xl hover:shadow-2xl transition-shadow">
 					<div class="card-body">
