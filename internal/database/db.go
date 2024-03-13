@@ -28,6 +28,8 @@ type Database interface {
 	GetUsersOnProject(projectID uint) ([]User, error)
 	GetUsersNotOnProject(projectID uint) ([]User, error)
 	ProjectWithTitleExists(title string) bool
+	RemoveUserFromProject(projectID uint, userID uint) error
+	GetUserProjects(userID uint) ([]Project, error)
 	RawDB() *gorm.DB
 }
 

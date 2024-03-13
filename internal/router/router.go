@@ -63,8 +63,10 @@ func Router() *chi.Mux {
 				"POST": handlers.UnifiedHandler(handlers.AuthenticatedHandlerFunc(project.PostCreateProject)),
 			})
 			r.Handle("/project-member", ghandlers.MethodHandler{
-				// "GET":  handlers.UnifiedHandler(handlers.AuthenticatedHandlerFunc(project.)),
 				"POST": handlers.UnifiedHandler(handlers.AuthenticatedHandlerFunc(project.PostAddProjectMember)),
+			})
+			r.Handle("/remove-project-member", ghandlers.MethodHandler{
+				"POST": handlers.UnifiedHandler(handlers.AuthenticatedHandlerFunc(project.RemoveProjectMember)),
 			})
 			r.Handle("/createsprint", ghandlers.MethodHandler{
 				"GET":  handlers.UnifiedHandler(handlers.AuthenticatedHandlerFunc(sprint.GetCreateSprint)),
@@ -74,13 +76,9 @@ func Router() *chi.Mux {
 				"GET":  handlers.UnifiedHandler(handlers.AuthenticatedHandlerFunc(userstory.GetUserStory)),
 				"POST": handlers.UnifiedHandler(handlers.AuthenticatedHandlerFunc(userstory.PostUserStory)),
 			})
-			r.Handle("/createproject", ghandlers.MethodHandler{
-				"GET": handlers.UnifiedHandler(handlers.AuthenticatedHandlerFunc(project.GetCreateProject)),
-			})
 			r.Handle("/productbacklog", ghandlers.MethodHandler{
 				"GET": handlers.UnifiedHandler(handlers.AuthenticatedHandlerFunc(productbacklog.GetProductBacklog)),
 			})
-
 		})
 	})
 

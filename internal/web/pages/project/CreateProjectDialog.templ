@@ -16,9 +16,13 @@ templ createProjectDialog() {
 			<div class="text-center">
 				<h2 class="text-xl font-medium mb-4">Add a new project</h2>
 				<!-- Project title Field -->
-				<div class="mb-4">
+				<div class="mb-5">
 					<label for="title" class="block text-sm font-medium text-gray-700 text-left">Project title</label>
-					<input type="text" id="title" name="title" class="input input-bordered input-primary w-full max-w-s mt-1" required/>
+					<input type="text" id="title" name="title" class="input input-bordered input-primary w-full max-w-s mt-2" required/>
+				</div>
+				<div class="mb-4">
+					<label for="description" class="block text-sm font-medium text-gray-700 text-left">Short description</label>
+					<textarea rows="2" id="description" name="description" class="input input-bordered input-primary w-full h-auto max-w-s mt-2" style="max-height: 200px"></textarea>
 				</div>
 			</div>
 			<div id="validation-error"></div>
@@ -100,18 +104,18 @@ templ createProjectDialog() {
 
 templ addProjectMembersDialog(projectID uint, users []database.User, projectMembers []database.User) {
 	<div id="create-dialog" class="fixed top-0 left-0 w-full h-full bg-gray-900 bg-opacity-50 flex justify-center items-center z-50">
-		<div class="bg-white rounded-lg p-8 shadow-lg w-2/5 h-auto">
+		<div class="bg-white rounded-lg p-8 shadow-lg md:w-2/5 sm:w-3/5 h-auto">
 			<div class="text-center">
 				<h2 class="text-xl font-medium mb-4">Add project members</h2>
 			</div>
 			<div>
 				@projectMemberForm(projectID, users)
 			</div>
-			<div id="member_table_container" class="mt-2">
-				@projectMemberTable(projectMembers)
+			<div id="member_table_container" class="mt-6">
+				@projectMemberTable(projectID, projectMembers)
 			</div>
 			// <div id="validation-error"></div>
-			<div class="mt-3">
+			<div class="mt-4">
 				<button class="btn btn-primary btn-sm" type="submit" hx-on:click="dialog_container.close()">I'll add more later</button>
 			</div>
 		</div>
@@ -173,22 +177,43 @@ templ projectMemberForm(projectID uint, users []database.User) {
 	</form>
 }
 
-templ projectMemberTable(projectMembers []database.User) {
-	<div class="overflow-x-auto">
-		if len(projectMembers) > 0 {
-			<table class="table" id="project_members_table">
-				<tbody>
+templ projectMemberTable(projectID uint, projectMembers []database.User) {
+	<h3 class="font-medium text-lg mb-1">Project members</h3>
+	<div class="overflow-x-auto block max-h-80">
+		<table class="table table-auto overflow-scroll w-full" id="project_members_table">
+			<thead class="bg-white sticky top-0">
+				<tr>
+					<th>User</th>
+					<th>Project role</th>
+					<th></th>
+				</tr>
+			</thead>
+			<tbody class="max-h-80 overflow-y-auto">
+				if len(projectMembers) > 0 {
 					for _, projectMember := range projectMembers {
-						<tr>
-							<td class="text-gray-950">{ projectMember.Email }</td>
-							<td class="text-gray-950">{ projectMember.FirstName } { projectMember.LastName }</td>
+						<tr class="hover">
+							<td class="text-gray-950">
+								<div class="flex flex-col">
+									<span class="font-bold">{ projectMember.FirstName } { projectMember.LastName }</span>
+									<span class="text-xs">{ projectMember.Email }</span>
+								</div>
+							</td>
 							<td class="text-gray-950">{ projectMember.ProjectRole.GetLabel() }</td>
+							<td style="width: 1%;">
+								<form hx-post="/remove-project-member" style="all: unset" hx-target="#dialog">
+									<button class="btn btn-xs btn-circle btn-ghost" style="font-size: 12px;">✕</button>
+									<input type="hidden" id="removeProjectID" name="projectID" value={ fmt.Sprint(projectID) }/>
+									<input type="hidden" id="removeUserID" name="userID" value={ fmt.Sprint(projectMember.ID) }/>
+								</form>
+							</td>
 						</tr>
 					}
-				</tbody>
-			</table>
-		} else {
-			<span class="flex justify-center mt-1 text-gray-950">No users added yet</span>
-		}
+				} else {
+					<tr>
+						<td colspan="100%" class="text-center mt-3 text-gray-950">No users added yet</td>
+					</tr>
+				}
+			</tbody>
+		</table>
 	</div>
 }
