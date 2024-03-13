@@ -59,6 +59,8 @@ jobs:
     needs: build-and-push-image
 
     env:
+      REGISTRY: ghcr.io/
+
       TASKLIFY_ADMIN_USERNAME: ${{ secrets.TASKLIFY_ADMIN_USERNAME }}
       TASKLIFY_ADMIN_PASSWORD: ${{ secrets.TASKLIFY_ADMIN_PASSWORD }}
 

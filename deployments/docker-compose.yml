@@ -2,7 +2,7 @@ version: "3"
 
 services:
   tasklify:
-    image: tasklify:latest
+    image: ${REGISTRY}tasklify:latest
     container_name: tasklify
     restart: on-failure:5
     profiles: ["prod"]
