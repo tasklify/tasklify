@@ -17,7 +17,7 @@ type UserStory struct {
 	SprintID         *uint           // 1:n (Sprint:UserStory)
 	ProjectID        uint            // 1:n (Project:UserStory)
 	Tasks            []Task          // 1:n (UserStory:Task)
-	UserID           uint            // 1:n (ProjectHasUser:UserStory)
+	UserID           *uint            // 1:n (ProjectHasUser:UserStory)
 	ProjectHasUser   *ProjectHasUser `gorm:"foreignKey:ProjectID,UserID"` // 1:n (ProjectHasUser:UserStory)
 }
 
