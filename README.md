@@ -26,12 +26,12 @@ task build
 
 Session management:
 
-- https://github.com/gorilla/sessions
-- https://github.com/alexedwards/scs
-- https://github.com/gin-contrib/sessions
+- <https://github.com/gorilla/sessions>
+- <https://github.com/alexedwards/scs>
+- <https://github.com/gin-contrib/sessions>
 
 Template created from:
 
-- https://github.com/tomdoesTech/gotth
-- https://github.com/bnprtr/go-templ-htmx-template
-- https://github.com/jritsema/go-htmx-tailwind-example
+- <https://github.com/tomdoesTech/gotth>
+- <https://github.com/bnprtr/go-templ-htmx-template>
+- <https://github.com/jritsema/go-htmx-tailwind-example>
