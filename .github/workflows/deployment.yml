@@ -36,7 +36,6 @@ jobs:
         uses: docker/metadata-action@v5
         with:
           images: |
-            tasklify/tasklify
             ghcr.io/tasklify/tasklify
           tags: |
             type=ref,event=branch
