@@ -24,3 +24,30 @@ type UserStory struct {
 func (db *database) CreateUserStory(userStory *UserStory) error {
 	return db.Create(userStory).Error
 }
+
+func (db *database) GetUserStoriesByProject(projectID uint) ([]UserStory, error) {
+	var userStories []UserStory
+
+	err := db.Find(&userStories, "user_stories.project_id = ?", projectID).Error
+	if err != nil {
+		return nil, err
+	}
+
+	return userStories, nil
+}
+
+func (db *database) GetUserStoryByID(id uint) (*UserStory, error) {
+	var userStory = &UserStory{}
+	err := db.First(userStory, id).Error
+	if err != nil {
+		return nil, err
+	}
+
+	return userStory, nil
+}
+
+func (db *database) UserStoryWithTitleExists(title string) bool {
+	var count int64
+	db.Model(&UserStory{}).Where("title = ?", title).Count(&count)
+	return count > 0
+}
