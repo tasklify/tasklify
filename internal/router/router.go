@@ -11,6 +11,7 @@ import (
 	"tasklify/internal/web/pages/productbacklog"
 	"tasklify/internal/web/pages/project"
 	"tasklify/internal/web/pages/sprint"
+	"tasklify/internal/web/pages/sprintbacklog"
 	"tasklify/internal/web/pages/userstory"
 
 	ghandlers "github.com/gorilla/handlers"
@@ -78,6 +79,9 @@ func Router() *chi.Mux {
 			})
 			r.Handle("/productbacklog", ghandlers.MethodHandler{
 				"GET": handlers.UnifiedHandler(handlers.AuthenticatedHandlerFunc(productbacklog.GetProductBacklog)),
+			})
+			r.Handle("/sprintbacklog", ghandlers.MethodHandler{
+				"GET": handlers.UnifiedHandler(handlers.AuthenticatedHandlerFunc(sprintbacklog.GetSprintBacklog)),
 			})
 		})
 	})

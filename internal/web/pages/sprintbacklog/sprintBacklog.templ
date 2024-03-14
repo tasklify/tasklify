@@ -1,0 +1,105 @@
+package sprintbacklog
+
+import "tasklify/internal/database"
+
+templ sprintBacklog(userStories []database.UserStory, unassignedTasks []TaskWithUserStory, assignedTasks []TaskWithUserStory, completedTasks []TaskWithUserStory, activeTasks []TaskWithUserStory) {
+    <div class="bg-base-100 min-h-screen">
+        <div>
+            <div class="flex flex-col w-full lg:flex-row">
+
+              <!-- Unassigned Tasks -->
+              <div class="card card-compact bg-base-200 transition-shadow w-2/5 mt-2 ml-2">
+                  <div class="card-title collapse-title text-xl font-medium bg-base-300 border-base-300">Unassigned Tasks</div>
+                  <div class="card-body">
+                    for _, task := range unassignedTasks {
+                           <div class="card card-compact bg-base-100 shadow-xl hover:shadow-2xl transition-shadow w-full">
+                             <div class="card-body">
+                               <h2 class="card-title">{*task.Title}</h2>
+                               <p>{*task.Description}</p>
+                             </div>
+                           </div>
+                       }
+                  </div>
+               </div>
+
+              <!-- Divide -->
+              <div class="divider lg:divider-horizontal"></div>
+
+              <!-- Task Categories: Assigned, Active, Done -->
+              <div class="bg-base-100 join join-vertical w-full mt-2 mr-2">
+
+                 <!-- Assigned Tasks -->
+                 @taskCategory("Assigned Tasks", assignedTasks)
+
+                 <!-- Active Tasks -->
+                 @taskCategory("Active Tasks", activeTasks)
+
+                 <!-- Done Tasks -->
+                 @taskCategory("Done Tasks", completedTasks)
+
+              </div>
+
+            </div>
+        </div>
+    </div>
+}
+
+templ taskCategory(categoryName string, tasks []TaskWithUserStory) {
+    <div class="collapse collapse-arrow join-item border border-base-300">
+      <input type="checkbox" name="{categoryName}" checked="checked" />
+      <div class="collapse-title text-xl font-medium">
+        {categoryName}
+      </div>
+      <div class="collapse-content">
+
+        <!-- Task list -->
+        <div class="overflow-x-auto">
+          <table class="table w-full">
+            <!-- Table head -->
+            <thead>
+              <tr>
+                <th>Title</th>
+                <th>Description</th>
+                <th>User Story</th>
+                <th>Details</th>
+              </tr>
+            </thead>
+            <tbody>
+                <!-- Task rows -->
+                for _, task := range tasks {
+                    @taskRow(task)
+                }
+            </tbody>
+          </table>
+        </div>
+
+      </div>
+    </div>
+}
+templ taskRow(task TaskWithUserStory) {
+    <tr class="hover">
+      <td>{*task.Title}</td> <!-- Assuming Title is dereferenced properly -->
+      <td>{*task.Description}</td> <!-- Assuming Description is dereferenced properly -->
+      <td>{task.UserStoryTitle}</td> <!-- Displaying the user story title -->
+      <td>
+        <button class="btn btn-xs">details</button>
+      </td>
+    </tr>
+}
+
+templ taskStatus(task database.Task) {
+    // Ensure task.Status is not nil before dereferencing to avoid runtime panic
+    if task.Status != nil {
+        if *task.Status == database.StatusTodo {
+            <span class="badge badge-info">Todo</span>
+        } else if *task.Status == database.StatusInProgress {
+            <span class="badge badge-warning">In Progress</span>
+        } else if *task.Status == database.StatusDone {
+            <span class="badge badge-success">Done</span>
+        }
+    } else {
+        // Handle the case where task.Status is nil, if applicable
+        <span class="badge badge-secondary">Unknown</span>
+    }
+}
+

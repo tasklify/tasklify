@@ -36,6 +36,17 @@ func (db *database) GetUserStoriesByProject(projectID uint) ([]UserStory, error)
 	return userStories, nil
 }
 
+func (db *database) GetUserStoriesBySprint(sprintID uint) ([]UserStory, error) {
+	var userStories []UserStory
+
+	err := db.Find(&userStories, "user_stories.sprint_id = ?", sprintID).Error
+	if err != nil {
+		return nil, err
+	}
+
+	return userStories, nil
+}
+
 func (db *database) GetUserStoryByID(id uint) (*UserStory, error) {
 	var userStory = &UserStory{}
 	err := db.First(userStory, id).Error
