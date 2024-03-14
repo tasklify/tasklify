@@ -106,6 +106,10 @@ jobs:
           eval $(ssh-agent)
           ssh-add "$HOME/.ssh/private_key"
 
+          echo "Add host key"
+
+          ssh-keyscan -p "$INPUT_SSH_PORT" "$INPUT_SSH_HOST" >> ~/.ssh/known_hosts
+
           echo "create remote context in docker and switch to it"
 
           docker context create remote --docker "host=ssh://$INPUT_SSH_USER@$INPUT_SSH_HOST:$INPUT_SSH_PORT"
