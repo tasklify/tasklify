@@ -2,7 +2,7 @@ name: Docker Build and Deploy
 
 on:
   release:
-    types: [published, prereleased]
+    types: [published]
 
 jobs:
   build-and-push-image:
@@ -82,13 +82,12 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Deploy to Docker Host
-        uses: astappiev/docker-compose-remote-action@master
+        uses: alex-ac/github-action-ssh-docker-compose@master
         with:
           ssh_user: ${{ secrets.SSH_USER }}
           ssh_host: ${{ secrets.SSH_HOST }}
           ssh_private_key: ${{ secrets.SSH_PRIVATE_KEY }}
-          ssh_host_public_key: ${{ secrets.SSH_PUBLIC_KEY }}
           ssh_port: ${{ secrets.SSH_PORT }}
           docker_compose_prefix: tasklify
           docker_compose_filename: deployments/docker-compose.yml
-          args: -d --profile prod --pull always
+#          args: -d --profile prod --pull always
