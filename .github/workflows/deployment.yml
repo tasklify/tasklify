@@ -82,11 +82,13 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Deploy to Docker Host
-        uses: TapTap21/docker-remote-deployment-action@v1.0
+        uses: astappiev/docker-compose-remote-action@master
         with:
-          remote_docker_host: ${{ secrets.DOCKER_HOST }}
-          ssh_private_key: ${{ secrets.DOCKER_SSH_PRIVATE_KEY }}
-          ssh_public_key: ${{ secrets.DOCKER_SSH_PUBLIC_KEY }}
-          ssh_port: ${{ secrets.DOCKER_SSH_PORT }}
-          stack_file_name: deployments/docker-compose.yml
-          args: -p tasklify up -d --profile prod --pull always
+          ssh_user: ${{ secrets.SSH_USER }}
+          ssh_host: ${{ secrets.SSH_HOST }}
+          ssh_private_key: ${{ secrets.SSH_PRIVATE_KEY }}
+          ssh_host_public_key: ${{ secrets.SSH_PUBLIC_KEY }}
+          ssh_port: ${{ secrets.SSH_PORT }}
+          docker_compose_prefix: tasklify
+          docker_compose_filename: deployments/docker-compose.yml
+          args: -d --profile prod --pull always
