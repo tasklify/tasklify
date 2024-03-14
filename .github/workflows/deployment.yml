@@ -2,7 +2,7 @@ name: Docker Build and Deploy
 
 on:
   release:
-    types: [published]
+    types: [published, prereleased]
 
 jobs:
   build-and-push-image:
@@ -78,6 +78,9 @@ jobs:
       TASKLIFY_PGADMIN_PASSWORD: ${{ secrets.TASKLIFY_PGADMIN_PASSWORD }}
 
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
       - name: Deploy to Docker Host
         uses: TapTap21/docker-remote-deployment-action@v1.0
         with:
