@@ -8,7 +8,7 @@ jobs:
   build-and-push-image:
     runs-on: ubuntu-latest
 
-    if: false
+    # if: false
 
     # Sets the permissions granted to the `GITHUB_TOKEN` for the actions in this job.
     permissions:
@@ -58,7 +58,7 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
 
-    # needs: build-and-push-image
+    needs: build-and-push-image
 
     steps:
       - name: Checkout repository
