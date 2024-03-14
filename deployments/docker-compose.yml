@@ -7,6 +7,7 @@ services:
     restart: on-failure:5
     profiles: ["prod"]
     networks:
+      - reverse-proxy
       - tasklify-internal
     ports:
       - "8080:8080"
@@ -92,6 +93,8 @@ configs:
       }}}
 
 networks:
+  reverse-proxy:
+    external: true
   tasklify-internal:
     name: tasklify-internal
 
