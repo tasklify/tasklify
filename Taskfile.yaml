@@ -53,7 +53,7 @@ tasks:
 
   up:
     cmds:
-      - docker compose -f deployments/docker-compose.yml -p tasklify up -d --profile prod
+      - docker compose -f deployments/docker-compose.yml -p tasklify --profile prod up -d {{.CLI_ARGS}}
 
   down:
     cmds:

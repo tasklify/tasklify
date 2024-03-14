@@ -8,6 +8,8 @@ jobs:
   build-and-push-image:
     runs-on: ubuntu-latest
 
+    if: false
+
     # Sets the permissions granted to the `GITHUB_TOKEN` for the actions in this job.
     permissions:
       contents: read
@@ -56,38 +58,63 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
 
-    needs: build-and-push-image
-
-    env:
-      REGISTRY: ghcr.io/
-
-      TASKLIFY_ADMIN_USERNAME: ${{ secrets.TASKLIFY_ADMIN_USERNAME }}
-      TASKLIFY_ADMIN_PASSWORD: ${{ secrets.TASKLIFY_ADMIN_PASSWORD }}
-
-      TASKLIFY_AUTH_SESSION_HASH_KEY: ${{ secrets.TASKLIFY_AUTH_SESSION_HASH_KEY }}
-      TASKLIFY_AUTH_SESSION_ENCRYPTION_KEY: ${{ secrets.TASKLIFY_AUTH_SESSION_ENCRYPTION_KEY }}
-
-      TASKLIFY_DATABASE_HOST: tasklify-postgres
-      TASKLIFY_DATABASE_NAME: tasklify
-      TASKLIFY_DATABASE_USER: ${{ secrets.TASKLIFY_DATABASE_USER }}
-      TASKLIFY_DATABASE_PASSWORD: ${{ secrets.TASKLIFY_DATABASE_PASSWORD }}
-
-      # user login: user@mail.com
-      TASKLIFY_PGADMIN_EMAIL_USER: ${{ secrets.TASKLIFY_PGADMIN_EMAIL_USER }}
-      TASKLIFY_PGADMIN_EMAIL_DOMAIN: ${{ secrets.TASKLIFY_PGADMIN_EMAIL_DOMAIN }}
-      TASKLIFY_PGADMIN_PASSWORD: ${{ secrets.TASKLIFY_PGADMIN_PASSWORD }}
+    # needs: build-and-push-image
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Deploy to Docker Host
-        uses: chaplyk/docker-compose-remote-action@v1.1
-        with:
-          ssh_user: ${{ secrets.SSH_USER }}
-          ssh_host: ${{ secrets.SSH_HOST }}
-          ssh_key: ${{ secrets.SSH_PRIVATE_KEY }}
-          ssh_port: ${{ secrets.SSH_PORT }}
-          docker_compose_prefix: tasklify
-          compose_file: deployments/docker-compose.yml
-          options: --profile prod --pull always
+      - name: Install deps
+        run: |
+          go install github.com/go-task/task/v3/cmd/task@latest
+          export PATH=${PATH}:`go env GOPATH`/bin
+
+      - name: Deploy
+        env:
+          INPUT_SSH_USER: ${{ secrets.SSH_USER }}
+          INPUT_SSH_HOST: ${{ secrets.SSH_HOST }}
+          INPUT_SSH_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+          INPUT_SSH_PORT: ${{ secrets.SSH_PORT }}
+
+          ## docker compose env ##
+
+          REGISTRY: ghcr.io/
+
+          TASKLIFY_ADMIN_USERNAME: ${{ secrets.TASKLIFY_ADMIN_USERNAME }}
+          TASKLIFY_ADMIN_PASSWORD: ${{ secrets.TASKLIFY_ADMIN_PASSWORD }}
+
+          TASKLIFY_AUTH_SESSION_HASH_KEY: ${{ secrets.TASKLIFY_AUTH_SESSION_HASH_KEY }}
+          TASKLIFY_AUTH_SESSION_ENCRYPTION_KEY: ${{ secrets.TASKLIFY_AUTH_SESSION_ENCRYPTION_KEY }}
+
+          TASKLIFY_DATABASE_HOST: tasklify-postgres
+          TASKLIFY_DATABASE_NAME: tasklify
+          TASKLIFY_DATABASE_USER: ${{ secrets.TASKLIFY_DATABASE_USER }}
+          TASKLIFY_DATABASE_PASSWORD: ${{ secrets.TASKLIFY_DATABASE_PASSWORD }}
+
+          # user login: user@mail.com
+          TASKLIFY_PGADMIN_EMAIL_USER: ${{ secrets.TASKLIFY_PGADMIN_EMAIL_USER }}
+          TASKLIFY_PGADMIN_EMAIL_DOMAIN: ${{ secrets.TASKLIFY_PGADMIN_EMAIL_DOMAIN }}
+          TASKLIFY_PGADMIN_PASSWORD: ${{ secrets.TASKLIFY_PGADMIN_PASSWORD }}
+
+        run: |
+          echo "create private key and add it to authentication agent"
+
+          mkdir -p $HOME/.ssh
+          printf '%s\n' "$INPUT_SSH_KEY" > "$HOME/.ssh/private_key"
+          chmod 600 "$HOME/.ssh/private_key"
+          eval $(ssh-agent)
+          ssh-add "$HOME/.ssh/private_key"
+
+          echo "create remote context in docker and switch to it"
+
+          docker context create remote --docker "host=ssh://$INPUT_SSH_USER@$INPUT_SSH_HOST:$INPUT_SSH_PORT"
+          docker context use remote
+
+          echo "docker-compose"
+
+          task up -- --pull always
+
+          echo "cleanup context"
+
+          docker context use default 
+          docker context rm remote
