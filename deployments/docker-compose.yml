@@ -2,14 +2,26 @@ version: "3"
 
 services:
   tasklify:
-    image: tasklify:latest
+    image: ${REGISTRY}tasklify/tasklify:latest
     container_name: tasklify
     restart: on-failure:5
     profiles: ["prod"]
     networks:
+      - reverse-proxy
       - tasklify-internal
     ports:
-      - "80:8080"
+      - "8080:8080"
+    environment:
+      TASKLIFY_ADMIN_USERNAME: ${TASKLIFY_ADMIN_USERNAME}
+      TASKLIFY_ADMIN_PASSWORD: ${TASKLIFY_ADMIN_PASSWORD}
+
+      TASKLIFY_AUTH_SESSION_HASH_KEY: ${TASKLIFY_AUTH_SESSION_HASH_KEY}
+      TASKLIFY_AUTH_SESSION_ENCRYPTION_KEY: ${TASKLIFY_AUTH_SESSION_ENCRYPTION_KEY}
+
+      TASKLIFY_DATABASE_HOST: ${TASKLIFY_DATABASE_HOST}
+      TASKLIFY_DATABASE_NAME: ${TASKLIFY_DATABASE_NAME}
+      TASKLIFY_DATABASE_USER: ${TASKLIFY_DATABASE_USER}
+      TASKLIFY_DATABASE_PASSWORD: ${TASKLIFY_DATABASE_PASSWORD}
     depends_on:
       tasklify-postgres:
         condition: service_healthy
@@ -92,6 +104,8 @@ configs:
       }}}
 
 networks:
+  reverse-proxy:
+    external: true
   tasklify-internal:
     name: tasklify-internal
 
