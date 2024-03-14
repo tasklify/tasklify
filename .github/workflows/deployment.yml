@@ -67,7 +67,6 @@ jobs:
       - name: Install deps
         run: |
           go install github.com/go-task/task/v3/cmd/task@latest
-          export PATH=${PATH}:`go env GOPATH`/bin
 
       - name: Deploy
         env:
@@ -97,6 +96,8 @@ jobs:
           TASKLIFY_PGADMIN_PASSWORD: ${{ secrets.TASKLIFY_PGADMIN_PASSWORD }}
 
         run: |
+          export PATH=${PATH}:`go env GOPATH`/bin
+
           echo "create private key and add it to authentication agent"
 
           mkdir -p $HOME/.ssh
