@@ -1,6 +1,7 @@
 package userstory
 
 import (
+	"fmt"
 	"net/http"
 	"reflect"
 	"tasklify/internal/database"
@@ -23,27 +24,28 @@ func priorityConverter(value string) reflect.Value {
     return reflect.ValueOf(*priorityPtr)
 }
 
-type UserStoryFormData struct {
-	Title         string `schema:"title,required"`
-	Description   string `schema:"description,required"`
-	Priority      database.Priority  `schema:"priority,required"`
-	BusinessValue int    `schema:"business_value,required"`
-}
 
 func PostUserStory(w http.ResponseWriter, r *http.Request, params handlers.RequestParams) error {
+	type UserStoryFormData struct {
+		Title         string `schema:"title,required"`
+		Description   string `schema:"description,required"`
+		Priority      database.Priority  `schema:"priority,required"`
+		BusinessValue int    `schema:"business_value,required"`
+		ProjectID    uint   `schema:"projectID,required"`
+	}
 	var userStoryData UserStoryFormData
 	if err := decoder.Decode(&userStoryData, r.PostForm); err != nil {
 		return err
 	}
 
-	projectID := uint(1)
+	ProjectID := userStoryData.ProjectID
 
 	userStory := &database.UserStory{
 		Title:         userStoryData.Title,
 		Description:   &userStoryData.Description,
 		BusinessValue: userStoryData.BusinessValue,
 		Priority:      userStoryData.Priority,
-		ProjectID:     projectID,
+		ProjectID:     ProjectID,
 		Realized:      new(bool), // Defaults to false
 	}
 
@@ -51,13 +53,25 @@ func PostUserStory(w http.ResponseWriter, r *http.Request, params handlers.Reque
 		return err
 	}
 
-	w.Header().Set("HX-Redirect", "/about")
+    redirectURL := fmt.Sprintf("/productbacklog?projectID=%d", userStoryData.ProjectID)
+    w.Header().Set("HX-Redirect", redirectURL)
 	w.WriteHeader(http.StatusSeeOther)
 
 	return nil
 }
 
 func GetUserStory(w http.ResponseWriter, r *http.Request, params handlers.RequestParams) error {
-	c := CreateUserStoryDialog()
+	type RequestData struct {
+		ProjectID uint `schema:"projectID,required"`
+	}
+	var requestData RequestData
+	err := decoder.Decode(&requestData, r.URL.Query())
+	if err != nil {
+		return err
+	}
+
+	ProjectID := requestData.ProjectID
+
+	c := CreateUserStoryDialog(ProjectID)
 	return c.Render(r.Context(), w)
 }

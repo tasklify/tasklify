@@ -1,6 +1,7 @@
 package pages
 
 import "net/http"
+import "fmt"
 import "tasklify/internal/database"
 
 func Home(w http.ResponseWriter, r *http.Request) error {
@@ -30,36 +31,20 @@ templ Index(userID string, myProjects []database.Project) {
 						<div class="card-body">
 							<h2 class="card-title">{ project.Title }</h2>
 							<p>{ project.Description }</p>
-							<div class="card-actions justify-end">
-								<button class="btn btn-primary">View Project</button>
+              <div class="card-actions justify-end">
+              	<form hx-get="/productbacklog" hx-target="#whole" hx-swap="innerHTML">
+                  <input type="hidden" id="projectID" name="projectID" value={ fmt.Sprint(project.ID) }/>
+                  <button class="btn btn-primary">View project</button>
+                  
+                </form>
 							</div>
 						</div>
 					</div>
 				}
-				<!-- Project 1 -->
-				<div class="card card-compact bg-base-100 shadow-xl hover:shadow-2xl transition-shadow">
-					<div class="card-body">
-						<h2 class="card-title">Project 1</h2>
-						<p>Description of Project 1.</p>
-						<div class="card-actions justify-end">
-							<button class="btn btn-primary">View Project</button>
-						</div>
-					</div>
-				</div>
-				<!-- Project 2 -->
-				<div class="card card-compact bg-base-100 shadow-xl hover:shadow-2xl transition-shadow">
-					<div class="card-body">
-						<h2 class="card-title">Project 2</h2>
-						<p>Description of Project 2.</p>
-						<div class="card-actions justify-end">
-							<button class="btn btn-primary">View Project</button>
-						</div>
-					</div>
-				</div>
 			</div>
 		</div>
 		<div id="project-dialog"></div>
-	</div>
+    </div>
 }
 
 templ GuestIndex() {

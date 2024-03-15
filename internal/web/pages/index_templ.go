@@ -10,6 +10,7 @@ import "io"
 import "bytes"
 
 import "net/http"
+import "fmt"
 import "tasklify/internal/database"
 
 func Home(w http.ResponseWriter, r *http.Request) error {
@@ -42,7 +43,7 @@ func Index(userID string, myProjects []database.Project) templ.Component {
 			var templ_7745c5c3_Var2 string
 			templ_7745c5c3_Var2, templ_7745c5c3_Err = templ.JoinStringErrs(project.Title)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/web/pages/index.templ`, Line: 30, Col: 45}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/web/pages/index.templ`, Line: 31, Col: 45}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var2))
 			if templ_7745c5c3_Err != nil {
@@ -55,18 +56,26 @@ func Index(userID string, myProjects []database.Project) templ.Component {
 			var templ_7745c5c3_Var3 string
 			templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinStringErrs(project.Description)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/web/pages/index.templ`, Line: 31, Col: 31}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/web/pages/index.templ`, Line: 32, Col: 31}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var3))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</p><div class=\"card-actions justify-end\"><button class=\"btn btn-primary\">View Project</button></div></div></div>")
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</p><div class=\"card-actions justify-end\"><form hx-get=\"/productbacklog\" hx-target=\"#whole\" hx-swap=\"innerHTML\"><input type=\"hidden\" id=\"projectID\" name=\"projectID\" value=\"")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(fmt.Sprint(project.ID)))
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("\"> <button class=\"btn btn-primary\">View project</button></form></div></div></div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<!-- Project 1 --><div class=\"card card-compact bg-base-100 shadow-xl hover:shadow-2xl transition-shadow\"><div class=\"card-body\"><h2 class=\"card-title\">Project 1</h2><p>Description of Project 1.</p><div class=\"card-actions justify-end\"><button class=\"btn btn-primary\">View Project</button></div></div></div><!-- Project 2 --><div class=\"card card-compact bg-base-100 shadow-xl hover:shadow-2xl transition-shadow\"><div class=\"card-body\"><h2 class=\"card-title\">Project 2</h2><p>Description of Project 2.</p><div class=\"card-actions justify-end\"><button class=\"btn btn-primary\">View Project</button></div></div></div></div></div><div id=\"project-dialog\"></div></div>")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</div></div><div id=\"project-dialog\"></div></div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

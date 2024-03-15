@@ -30,3 +30,7 @@ func (db *database) GetSprintByProject(projectID uint) ([]Sprint, error) {
 
 	return sprints, nil
 }
+
+func (sprint *Sprint) IsSprintActive() bool {
+	return sprint.StartDate.Before(time.Now()) && sprint.EndDate.After(time.Now())
+}

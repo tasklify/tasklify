@@ -1,8 +1,9 @@
 package userstory
 
 import "tasklify/internal/web/components/common"
+import "fmt"
 
-templ CreateUserStoryDialog() {
+templ CreateUserStoryDialog(projectID uint) {
     @common.CreateDialog("Create user story", "/createuserstory") {
 
     		<!-- Title Field -->
@@ -33,6 +34,8 @@ templ CreateUserStoryDialog() {
             <label for="business_value" class="block text-sm font-medium text-gray-700">Business Value:</label>
             <input type="number" id="business_value" name="business_value" class="input mt-1 p-2 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50" required></input>
         </div>
+
+        <input type="hidden" id="projectID" name="projectID" value={ fmt.Sprint(projectID) }/>
 
     }
 }
