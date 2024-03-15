@@ -14,7 +14,6 @@ type Sprint struct {
 	Velocity    *float32
 	ProjectID   uint        // 1:n (Project:Sprint)
 	UserStories []UserStory // 1:n (Sprint:UserStory)
-	Status	  *Status
 }
 
 func (db *database) CreateSprint(sprint *Sprint) error {
