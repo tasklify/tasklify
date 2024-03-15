@@ -1,68 +1,128 @@
 package sprintbacklog
 
 import (
-	"net/http"
-	"tasklify/internal/database"
-	"tasklify/internal/handlers"
-	"tasklify/internal/web/pages"
+    "net/http"
+    "tasklify/internal/database"
+    "tasklify/internal/handlers"
+    "tasklify/internal/web/pages"
+    "sort"
 )
 
+// TaskWithUserStory enriches the Task with its User Story title.
 type TaskWithUserStory struct {
     database.Task
     UserStoryTitle string
+    AssignedTo string
 }
 
+// GetSprintBacklog handles the request for fetching and displaying the sprint backlog.
 func GetSprintBacklog(w http.ResponseWriter, r *http.Request, params handlers.RequestParams) error {
-    var sprintID uint = 1 // Example sprint ID
+    //hardcode the sprint ID for now
+    sprintID := uint(1)
+
     userStories, err := database.GetDatabase().GetUserStoriesBySprint(sprintID)
     if err != nil {
         return err
     }
 
-    // Map to store user story titles by ID for quick lookup
-    userStoryTitles := make(map[uint]string)
+    userStoryTitles, err := fetchUserStoryTitles(userStories)
+    if err != nil {
+        return err
+    }
+
+    allTasks, err := categorizeTasks(userStories, userStoryTitles)
+    if err != nil {
+        return err
+    }
+
+
+
+    // Get sort parameter from query
+    sortParam := r.URL.Query().Get("sort")
+    sortTasks(allTasks, sortParam)
+
+
+    return pages.Layout(
+        sprintBacklog(userStories, allTasks),
+        "Sprint Backlog",
+    ).Render(r.Context(), w)
+}
+
+// fetchUserStoryTitles creates a map of user story IDs to their titles.
+func fetchUserStoryTitles(userStories []database.UserStory) (map[uint]string, error) {
+    titles := make(map[uint]string)
     for _, us := range userStories {
-        userStoryTitles[us.ID] = us.Title
+        titles[us.ID] = us.Title
     }
+    return titles, nil
+}
 
-    taskGroups := map[string][]TaskWithUserStory{
-        "unassigned": {},
-        "assigned":   {},
-        "completed":  {},
-        "active":     {},
-    }
 
-    // Iterate over user stories to fetch tasks and assign user story titles
+// Assume this function categorizes tasks correctly and assigns the status string to each task.
+func categorizeTasks(userStories []database.UserStory, titles map[uint]string) ([]TaskWithUserStory, error) {
+    var allTasks []TaskWithUserStory
     for _, us := range userStories {
         tasks, err := database.GetDatabase().GetTasksByUserStory(us.ID)
         if err != nil {
-            return err
+            return nil, err
         }
-
         for _, task := range tasks {
-            taskWithUS := TaskWithUserStory{
-                Task:           task,
-                UserStoryTitle: userStoryTitles[task.UserStoryID],
+            assignedTo := "Unassigned" // Default to Unassigned
+            if task.UserID != nil {
+                user, err := database.GetDatabase().GetUserByID(*task.UserID)
+                if err == nil && user != nil {
+                    // Safely assign username if user exists
+                    assignedTo = user.Username
+                }
             }
+            allTasks = append(allTasks, TaskWithUserStory{
+                Task:           task,
+                UserStoryTitle: titles[task.UserStoryID],
+                AssignedTo:     assignedTo,
+            })
+        }
+    }
+    return allTasks, nil
+}
 
-			status := *task.Status // Assuming task.Status is of type database.Status and is always non-nil
+func sortTasks(allTasks []TaskWithUserStory, sortParam string) {
+    switch sortParam {
+    case "title":
+        sort.Slice(allTasks, func(i, j int) bool {
+            if allTasks[i].Title != nil && allTasks[j].Title != nil {
+                return *allTasks[i].Title < *allTasks[j].Title
+            }
+            return false
+        })
+    case "status":
+        sort.Slice(allTasks, func(i, j int) bool {
+            return statusPriority(allTasks[i].Status) < statusPriority(allTasks[j].Status)
+        })
+    case "user_story":
+        sort.Slice(allTasks, func(i, j int) bool {
+            return allTasks[i].UserStoryTitle < allTasks[j].UserStoryTitle
+        })
+    case "assignee":
+        sort.Slice(allTasks, func(i, j int) bool {
+            return allTasks[i].AssignedTo < allTasks[j].AssignedTo
+        })
+    }
 
-			switch status {
-			case database.StatusTodo:
-				if task.UserID == nil {
-					taskGroups["unassigned"] = append(taskGroups["unassigned"], taskWithUS)
-				} else {
-					taskGroups["assigned"] = append(taskGroups["assigned"], taskWithUS)
-				}
-			case database.StatusInProgress:
-				taskGroups["active"] = append(taskGroups["active"], taskWithUS)
-			case database.StatusDone:
-				taskGroups["completed"] = append(taskGroups["completed"], taskWithUS)
-			}
-		}
-	}
+}
 
-	content := sprintBacklog(userStories, taskGroups["unassigned"], taskGroups["assigned"], taskGroups["completed"], taskGroups["active"])
 
-	return pages.Layout(content, "Sprint Backlog").Render(r.Context(), w)
+func statusPriority(status *database.Status) int {
+    if status == nil || *status == (database.Status{}) {
+        return -1 // or some value that represents "undefined"
+    }
+    switch *status {
+    case database.StatusTodo:
+        return 1
+    case database.StatusInProgress:
+        return 2
+    case database.StatusDone:
+        return 3
+    default:
+        return -1 // Handle unknown status
+    }
 }
