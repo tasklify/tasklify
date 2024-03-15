@@ -99,15 +99,15 @@ func mapSprintsToSprintIds(sprints []database.Sprint) (sprintMap map[string]data
 	return
 }
 
-func mapActivityToSprints(sprints []database.Sprint) (activityMap map[string]bool) {
+func mapActivityToSprints(sprints []database.Sprint) (activityMap map[string]database.Status) {
 
-	activityMap = make(map[string]bool)
+	activityMap = make(map[string]database.Status)
 
 
 	for _, sprint := range sprints {
 		var sprintID = strconv.FormatUint(uint64(sprint.ID), 10)
 
-		activityMap[sprintID] = sprint.IsSprintActive()
+		activityMap[sprintID], _ = sprint.DetermineStatus()
 	}
 
 	return

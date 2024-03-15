@@ -3,7 +3,7 @@ package productbacklog
 import "tasklify/internal/database"
 import "fmt"
 
-templ productBacklog(backlogUserStories []database.UserStory, sprintUserStories map[string][]database.UserStory, sprints map[string]database.Sprint, activity map[string]bool, projectID uint) {
+templ productBacklog(backlogUserStories []database.UserStory, sprintUserStories map[string][]database.UserStory, sprints map[string]database.Sprint, activity map[string]database.Status, projectID uint) {
   <div id="dialog">
     <div class="bg-base-100 min-h-screen">
          <div>
@@ -51,20 +51,30 @@ templ productBacklog(backlogUserStories []database.UserStory, sprintUserStories 
 
                     <div class="collapse collapse-arrow border border-base-300 mb-4">
                       <input type="checkbox" checked /> 
-                      if activity[k] == true {
+                      if activity[k] == database.StatusInProgress {
                       <div class="collapse-title text-xl font-medium bg-primary">
-                        {sprints[k].Title} (active)
+                        {sprints[k].Title} <span class="ml-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-300">
+                            Active
+                          </span>
                       </div>}
-                      else {
-                        <div class="collapse-title text-xl font-medium bg-base-300">
-                        {sprints[k].Title}
+                      else if activity[k] == database.StatusDone {
+                        <div class="collapse-title text-xl font-medium bg-base-300 text-base-500">
+                        {sprints[k].Title} <span class="ml-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-300">
+                            Done
+                          </span>
+                      </div>
+                      } else {
+                       <div class="collapse-title text-xl font-medium bg-base-300">
+                        {sprints[k].Title} <span class="ml-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-300">
+                            Done
+                          </span>
                       </div>
                       }
                       
                       <div class="collapse-content card-body bg-base-100">
                        <div class="flex justify-end"> <!-- Places the button nicely -->
                           <!-- Sprint Backlog Button -->
-                          if activity[k] == true {
+                          if activity[k] == database.StatusInProgress {
                             <form hx-get="/sprintbacklog" hx-target="#whole" class="ml-auto">
                               <button class="btn btn-sm bg-primary">Sprint Backlog</button>
                               <input type="hidden" id="sprintID" name="sprintID" value={ fmt.Sprint(sprints[k].ID) }/>
