@@ -1,10 +1,16 @@
 package productbacklog
 
 import "tasklify/internal/database"
+import "fmt"
 
-templ productBacklog(backlogUserStories []database.UserStory, sprintUserStories map[string][]database.UserStory) {
+templ productBacklog(backlogUserStories []database.UserStory, sprintUserStories map[string][]database.UserStory, sprints map[string]database.Sprint, activity map[string]bool) {
+  <div id="dialog">
     <div class="bg-base-100 min-h-screen">
-        <div>
+         <div>
+            <!-- Back to Dashboard Button -->
+            <div class="mb-4 pt-2 pl-2">
+                <a href="/dashboard" class="btn btn-primary btn-sm">Back to Dashboard</a>
+            </div>
             <div class="flex flex-col w-full lg:flex-row">
 
               <!-- Backlog - unassigned, unrealized -->
@@ -31,14 +37,29 @@ templ productBacklog(backlogUserStories []database.UserStory, sprintUserStories 
                  <!-- Sprint -->
                  for k, us := range sprintUserStories {
 
-                    <div class="collapse collapse-arrow join-item border border-base-300">
-                      <input type="radio" name="my-accordion-4" checked="checked" />
-                      <div class="collapse-title text-xl font-medium">
-                        Sprint {k}
+                    <div class="collapse collapse-arrow border border-base-300 mb-4">
+                      <input type="checkbox" checked /> 
+                      if activity[k] == true {
+                      <div class="collapse-title text-xl font-medium bg-primary">
+                        {sprints[k].Title} (active)
+                      </div>}
+                      else {
+                        <div class="collapse-title text-xl font-medium bg-base-300">
+                        {sprints[k].Title}
                       </div>
-                      <div class="collapse-content">
-
-                        <!-- user story table -->
+                      }
+                      
+                      <div class="collapse-content card-body bg-base-100">
+                       <div class="flex justify-end"> <!-- Places the button nicely -->
+                          <!-- Sprint Backlog Button -->
+                          if activity[k] == true {
+                            <form hx-get="/sprintbacklog" hx-target="#dialog" class="ml-auto">
+                              <button class="btn btn-sm bg-primary">Sprint Backlog</button>
+                              <input type="hidden" id="sprintID" name="sprintID" value={ fmt.Sprint(sprints[k].ID) }/>
+                            </form>
+                          }
+                        </div>
+                        <!-- user story table and other contents -->
                         <div class="overflow-x-auto">
                           <table class="table">
                             <!-- head -->
@@ -74,6 +95,7 @@ templ productBacklog(backlogUserStories []database.UserStory, sprintUserStories 
 
             </div>
         </div>
+    </div>
     </div>
 
 }

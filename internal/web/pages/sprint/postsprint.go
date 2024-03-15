@@ -1,7 +1,6 @@
 package sprint
 
 import (
-	"github.com/gorilla/schema"
 	"net/http"
 	"reflect"
 	"strconv"
@@ -9,6 +8,8 @@ import (
 	"tasklify/internal/handlers"
 	"tasklify/internal/web/components/common"
 	"time"
+
+	"github.com/gorilla/schema"
 )
 
 type sprintFormData struct {

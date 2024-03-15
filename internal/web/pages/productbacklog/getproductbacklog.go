@@ -1,29 +1,60 @@
 package productbacklog
 
 import (
+	"fmt"
 	"net/http"
+	"sort"
 	"strconv"
 	"tasklify/internal/database"
 	"tasklify/internal/handlers"
-	"tasklify/internal/web/pages"
+
+	"github.com/gorilla/schema"
 )
 
-func GetProductBacklog(w http.ResponseWriter, r *http.Request, params handlers.RequestParams) error {
+var decoder = schema.NewDecoder()
 
-	// get all user stories
-	var projectID uint = 1 // TODO change
+func GetProductBacklog(w http.ResponseWriter, r *http.Request, params handlers.RequestParams) error {
+	type RequestData struct {
+		ProjectID uint `schema:"projectID,required"`
+	}
+	var requestData RequestData
+	err := decoder.Decode(&requestData, r.URL.Query())
+	if err != nil {
+		return err
+	}
+
+	projectID := requestData.ProjectID
+	// log the projectID
+	fmt.Println(projectID)
+
 	userStories, err := database.GetDatabase().GetUserStoriesByProject(projectID)
 	if err != nil {
 		return err
 	}
 
+	sprints, err := database.GetDatabase().GetSprintByProject(projectID)
+	if err != nil {
+		return err
+	}
+
+	// Sort sprints by their ID
+	sort.Slice(sprints, func(i, j int) bool {
+		return sprints[i].ID > sprints[j].ID
+	})
+
+
+	
+
 	// unassigned, unrealized user stories
 	var usInBacklog, usInSprint = filterBacklog(userStories)
 
 	var userStoriesBySprint = groupUserStoriesBySprint(usInSprint)
-	c := productBacklog(usInBacklog, userStoriesBySprint)
+	var sprintMap = mapSprintsToSprintIds(sprints)
+	var activityMap = mapActivityToSprints(sprints)
 
-	return pages.Layout(c, "My website").Render(r.Context(), w)
+	c := productBacklog(usInBacklog, userStoriesBySprint, sprintMap, activityMap)
+
+	return c.Render(r.Context(), w)
 }
 
 func filterBacklog(userStories []database.UserStory) (inBacklog []database.UserStory, inSprint []database.UserStory) {
@@ -57,6 +88,34 @@ func groupUserStoriesBySprint(userStories []database.UserStory) (userStoriesBySp
 			sprintUserStories := []database.UserStory{us}
 			userStoriesBySprint[sprintId] = sprintUserStories
 		}
+	}
+
+	return
+}
+
+func mapSprintsToSprintIds(sprints []database.Sprint) (sprintMap map[string]database.Sprint) {
+
+	sprintMap = make(map[string]database.Sprint)
+
+
+	for _, sprint := range sprints {
+		var sprintID = strconv.FormatUint(uint64(sprint.ID), 10)
+
+		sprintMap[sprintID] = sprint
+	}
+
+	return
+}
+
+func mapActivityToSprints(sprints []database.Sprint) (activityMap map[string]bool) {
+
+	activityMap = make(map[string]bool)
+
+
+	for _, sprint := range sprints {
+		var sprintID = strconv.FormatUint(uint64(sprint.ID), 10)
+
+		activityMap[sprintID] = sprint.IsSprintActive()
 	}
 
 	return

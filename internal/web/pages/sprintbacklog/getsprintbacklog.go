@@ -1,12 +1,15 @@
 package sprintbacklog
 
 import (
-    "net/http"
-    "tasklify/internal/database"
-    "tasklify/internal/handlers"
-    "tasklify/internal/web/pages"
-    "sort"
+	"net/http"
+	"sort"
+	"tasklify/internal/database"
+	"tasklify/internal/handlers"
+
+	"github.com/gorilla/schema"
 )
+
+var decoder = schema.NewDecoder()
 
 // TaskWithUserStory enriches the Task with its User Story title.
 type TaskWithUserStory struct {
@@ -17,8 +20,16 @@ type TaskWithUserStory struct {
 
 // GetSprintBacklog handles the request for fetching and displaying the sprint backlog.
 func GetSprintBacklog(w http.ResponseWriter, r *http.Request, params handlers.RequestParams) error {
-    //hardcode the sprint ID for now
-    sprintID := uint(1)
+	type RequestData struct {
+		SprintID uint `schema:"sprintID,required"`
+	}
+	var requestData RequestData
+	err := decoder.Decode(&requestData, r.URL.Query())
+	if err != nil {
+		return err
+	}
+
+	sprintID := requestData.SprintID
 
     userStories, err := database.GetDatabase().GetUserStoriesBySprint(sprintID)
     if err != nil {
@@ -40,12 +51,11 @@ func GetSprintBacklog(w http.ResponseWriter, r *http.Request, params handlers.Re
     // Get sort parameter from query
     sortParam := r.URL.Query().Get("sort")
     sortTasks(allTasks, sortParam)
+	//get project id
+	projectID := userStories[0].ProjectID
 
 
-    return pages.Layout(
-        sprintBacklog(userStories, allTasks),
-        "Sprint Backlog",
-    ).Render(r.Context(), w)
+    return sprintBacklog(userStories, allTasks, projectID).Render(r.Context(), w)
 }
 
 // fetchUserStoryTitles creates a map of user story IDs to their titles.
