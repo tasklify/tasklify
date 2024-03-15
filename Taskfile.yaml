@@ -4,11 +4,11 @@ dotenv:
   - configs/dev/.env
 
 vars:
+  organization_name: tasklify
   container_name: tasklify
   container_tag: latest
 
 tasks:
-
   ## Golang, HTMX, Templ, TailwindCSS, YARN
 
   dev:
@@ -24,7 +24,7 @@ tasks:
       - task: deps
       - task: generate
     cmds:
-      - docker build -t {{.container_name}}:{{.container_tag}} build/server/Dockerfile
+      - docker buildx build -t {{.organization_name}}/{{.container_name}}:{{.container_tag}} -f build/server/Dockerfile .
 
   deps:
     internal: true
@@ -53,7 +53,7 @@ tasks:
 
   up:
     cmds:
-      - docker compose -f deployments/docker-compose.yml -p tasklify up -d --profile prod
+      - docker compose -f deployments/docker-compose.yml -p tasklify --profile prod up -d {{.CLI_ARGS}}
 
   down:
     cmds:

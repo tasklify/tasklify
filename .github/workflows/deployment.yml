@@ -1,0 +1,125 @@
+name: Docker Build and Deploy
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  build-and-push-image:
+    runs-on: ubuntu-latest
+
+    # if: false
+
+    # Sets the permissions granted to the `GITHUB_TOKEN` for the actions in this job.
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install deps and generate files
+        run: |
+          go install github.com/go-task/task/v3/cmd/task@latest
+          go install github.com/a-h/templ/cmd/templ@latest
+          export PATH=${PATH}:`go env GOPATH`/bin
+          task build
+
+      - name: Log in to the Container registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Docker meta
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: |
+            ghcr.io/tasklify/tasklify
+          tags: |
+            type=ref,event=branch
+            type=ref,event=pr
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=sha
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v5
+        with:
+          file: "build/server/Dockerfile"
+          context: .
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+
+  deploy:
+    runs-on: ubuntu-latest
+
+    needs: build-and-push-image
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install deps
+        run: |
+          go install github.com/go-task/task/v3/cmd/task@latest
+
+      - name: Deploy
+        env:
+          INPUT_SSH_USER: ${{ secrets.SSH_USER }}
+          INPUT_SSH_HOST: ${{ secrets.SSH_HOST }}
+          INPUT_SSH_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+          INPUT_SSH_PORT: ${{ secrets.SSH_PORT }}
+
+          ## docker compose env ##
+
+          REGISTRY: ghcr.io/
+
+          TASKLIFY_ADMIN_USERNAME: ${{ secrets.TASKLIFY_ADMIN_USERNAME }}
+          TASKLIFY_ADMIN_PASSWORD: ${{ secrets.TASKLIFY_ADMIN_PASSWORD }}
+
+          TASKLIFY_AUTH_SESSION_HASH_KEY: ${{ secrets.TASKLIFY_AUTH_SESSION_HASH_KEY }}
+          TASKLIFY_AUTH_SESSION_ENCRYPTION_KEY: ${{ secrets.TASKLIFY_AUTH_SESSION_ENCRYPTION_KEY }}
+
+          TASKLIFY_DATABASE_HOST: tasklify-postgres
+          TASKLIFY_DATABASE_NAME: tasklify
+          TASKLIFY_DATABASE_USER: ${{ secrets.TASKLIFY_DATABASE_USER }}
+          TASKLIFY_DATABASE_PASSWORD: ${{ secrets.TASKLIFY_DATABASE_PASSWORD }}
+
+          # user login: user@mail.com
+          TASKLIFY_PGADMIN_EMAIL_USER: ${{ secrets.TASKLIFY_PGADMIN_EMAIL_USER }}
+          TASKLIFY_PGADMIN_EMAIL_DOMAIN: ${{ secrets.TASKLIFY_PGADMIN_EMAIL_DOMAIN }}
+          TASKLIFY_PGADMIN_PASSWORD: ${{ secrets.TASKLIFY_PGADMIN_PASSWORD }}
+
+        run: |
+          export PATH=${PATH}:`go env GOPATH`/bin
+
+          echo "create private key and add it to authentication agent"
+
+          mkdir -p $HOME/.ssh
+          printf '%s\n' "$INPUT_SSH_KEY" > "$HOME/.ssh/private_key"
+          chmod 600 "$HOME/.ssh/private_key"
+          eval $(ssh-agent)
+          ssh-add "$HOME/.ssh/private_key"
+
+          echo "Add host key"
+
+          ssh-keyscan -p "$INPUT_SSH_PORT" "$INPUT_SSH_HOST" >> ~/.ssh/known_hosts
+
+          echo "create remote context in docker and switch to it"
+
+          docker context create remote --docker "host=ssh://$INPUT_SSH_USER@$INPUT_SSH_HOST:$INPUT_SSH_PORT"
+          docker context use remote
+
+          echo "docker-compose"
+
+          task up -- --pull always
+
+          echo "cleanup context"
+
+          docker context use default 
+          docker context rm remote

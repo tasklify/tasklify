@@ -16,6 +16,7 @@ WORKDIR /
 
 COPY --chown=nonroot --from=build-stage /entrypoint /entrypoint
 COPY --chown=nonroot --from=build-stage /app/static /static
+COPY --chown=nonroot --from=build-stage /app/configs/rbac* /configs/
 
 ENV PORT 8080
 EXPOSE $PORT
