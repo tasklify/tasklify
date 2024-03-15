@@ -31,6 +31,16 @@ func (db *database) GetSprintByProject(projectID uint) ([]Sprint, error) {
 	return sprints, nil
 }
 
-func (sprint *Sprint) IsSprintActive() bool {
-	return sprint.StartDate.Before(time.Now()) && sprint.EndDate.After(time.Now())
+func (sprint *Sprint) DetermineStatus() (Status, error) {
+    now := time.Now()
+
+    if now.Before(sprint.StartDate) {
+        return StatusTodo, nil
+    } else if now.After(sprint.StartDate) && now.Before(sprint.EndDate) {
+        return StatusInProgress, nil
+    } else if now.After(sprint.EndDate) {
+        return StatusDone, nil
+    } else {
+		return StatusTodo, nil
+	}
 }
