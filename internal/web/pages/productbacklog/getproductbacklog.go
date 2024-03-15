@@ -9,28 +9,11 @@ import (
 	"tasklify/internal/web/pages"
 
 	"github.com/gorilla/schema"
-
-	"github.com/gorilla/schema"
 )
 
 var decoder = schema.NewDecoder()
 
-var decoder = schema.NewDecoder()
-
 func GetProductBacklog(w http.ResponseWriter, r *http.Request, params handlers.RequestParams) error {
-	type RequestData struct {
-		ProjectID uint `schema:"projectID,required"`
-	}
-	var requestData RequestData
-	err := decoder.Decode(&requestData, r.URL.Query())
-	if err != nil {
-		return err
-	}
-
-	projectID := requestData.ProjectID
-	// log the projectID
-	fmt.Println(projectID)
-
 	type RequestData struct {
 		ProjectID uint `schema:"projectID,required"`
 	}
@@ -54,11 +37,6 @@ func GetProductBacklog(w http.ResponseWriter, r *http.Request, params handlers.R
 		return err
 	}
 
-	sprints, err := database.GetDatabase().GetSprintByProject(projectID)
-	if err != nil {
-		return err
-	}
-
 	// unassigned, unrealized user stories
 	var usInBacklog, usInSprint = filterBacklog(userStories)
 
@@ -66,13 +44,9 @@ func GetProductBacklog(w http.ResponseWriter, r *http.Request, params handlers.R
 	var sprintMap = mapSprintsToSprintIds(sprints)
 	var activityMap = mapActivityToSprints(sprints)
 
-	c := productBacklog(usInBacklog, userStoriesBySprint, sprintMap, activityMap, projectID)
-	var sprintMap = mapSprintsToSprintIds(sprints)
-	var activityMap = mapActivityToSprints(sprints)
 
 	c := productBacklog(usInBacklog, userStoriesBySprint, sprintMap, activityMap, projectID)
 
-	return pages.Layout(c, "Backlog").Render(r.Context(), w)
 	return pages.Layout(c, "Backlog").Render(r.Context(), w)
 }
 
