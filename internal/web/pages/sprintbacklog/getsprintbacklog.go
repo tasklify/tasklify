@@ -5,6 +5,7 @@ import (
 	"sort"
 	"tasklify/internal/database"
 	"tasklify/internal/handlers"
+	"tasklify/internal/web/pages"
 
 	"github.com/gorilla/schema"
 )
@@ -54,8 +55,9 @@ func GetSprintBacklog(w http.ResponseWriter, r *http.Request, params handlers.Re
 	//get project id
 	projectID := userStories[0].ProjectID
 
+	c := sprintBacklog(userStories, allTasks, projectID)
 
-    return sprintBacklog(userStories, allTasks, projectID).Render(r.Context(), w)
+    return pages.Layout(c, "Sprint Backlog").Render(r.Context(), w)
 }
 
 // fetchUserStoryTitles creates a map of user story IDs to their titles.

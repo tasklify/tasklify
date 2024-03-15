@@ -3,10 +3,10 @@ package productbacklog
 import (
 	"fmt"
 	"net/http"
-	"sort"
 	"strconv"
 	"tasklify/internal/database"
 	"tasklify/internal/handlers"
+	"tasklify/internal/web/pages"
 
 	"github.com/gorilla/schema"
 )
@@ -37,14 +37,6 @@ func GetProductBacklog(w http.ResponseWriter, r *http.Request, params handlers.R
 		return err
 	}
 
-	// Sort sprints by their ID
-	sort.Slice(sprints, func(i, j int) bool {
-		return sprints[i].ID > sprints[j].ID
-	})
-
-
-	
-
 	// unassigned, unrealized user stories
 	var usInBacklog, usInSprint = filterBacklog(userStories)
 
@@ -52,9 +44,9 @@ func GetProductBacklog(w http.ResponseWriter, r *http.Request, params handlers.R
 	var sprintMap = mapSprintsToSprintIds(sprints)
 	var activityMap = mapActivityToSprints(sprints)
 
-	c := productBacklog(usInBacklog, userStoriesBySprint, sprintMap, activityMap)
+	c := productBacklog(usInBacklog, userStoriesBySprint, sprintMap, activityMap, projectID)
 
-	return c.Render(r.Context(), w)
+	return pages.Layout(c, "Backlog").Render(r.Context(), w)
 }
 
 func filterBacklog(userStories []database.UserStory) (inBacklog []database.UserStory, inSprint []database.UserStory) {

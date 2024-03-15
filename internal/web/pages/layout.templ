@@ -2,7 +2,7 @@ package pages
 
 templ Layout(contents templ.Component, title string) {
 	<!-- <!DOCTYPE html> -->
-	<html>
+	<html><div id="whole">
 		@header(title)
 		<body id="root" class="flex flex-col h-full">
 			@nav()
@@ -15,6 +15,7 @@ templ Layout(contents templ.Component, title string) {
 			</dialog>
 		</body>
 		@footer()
+		</div>
 	</html>
 }
 

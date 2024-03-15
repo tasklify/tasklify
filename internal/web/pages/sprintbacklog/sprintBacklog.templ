@@ -9,7 +9,7 @@ templ sprintBacklog(userStories []database.UserStory, allTasks []TaskWithUserSto
         <div class="container mx-auto p-4">
                     <!-- Back to Product Backlog Button -->
             <div class="mb-4">
-              	<form hx-get="/productbacklog" hx-target="#dialog">
+              	<form hx-get="/productbacklog" hx-target="#whole">
                   <input type="hidden" id="projectID" name="projectID" value={ fmt.Sprint(projectID) }/>
                   <button class="btn btn-primary btn-sm">Back To Product Backlog</button>
                 </form>
