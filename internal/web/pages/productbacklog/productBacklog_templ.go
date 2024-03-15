@@ -11,6 +11,7 @@ import "bytes"
 
 import "tasklify/internal/database"
 import "fmt"
+import "fmt"
 
 func productBacklog(backlogUserStories []database.UserStory, sprintUserStories map[string][]database.UserStory, sprints map[string]database.Sprint, activity map[string]database.Status, projectID uint) templ.Component {
 	return templ.ComponentFunc(func(ctx context.Context, templ_7745c5c3_W io.Writer) (templ_7745c5c3_Err error) {
@@ -34,6 +35,15 @@ func productBacklog(backlogUserStories []database.UserStory, sprintUserStories m
 			return templ_7745c5c3_Err
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("\"> <button class=\"btn btn-primary btn-sm\">Create User Story</button></form><button class=\"btn btn-primary btn-sm ml-2\" hx-get=\"/createsprint\" hx-target=\"#dialog-create\">Create Sprint</button></div></div><div id=\"dialog-create\"></div><div class=\"flex flex-col w-full lg:flex-row\"><!-- Backlog - unassigned, unrealized --><div class=\"card card-compact bg-base-200 transition-shadow w-2/5 mt-2 ml-2\"><div class=\"card-title collapse-title text-xl font-medium bg-base-300 border-base-300\">Product backlog</div><div class=\"card-body\">")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div id=\"dialog\"><div class=\"bg-base-100 min-h-screen\"><div><!-- Buttons Container --><div class=\"flex justify-between items-center mb-4 pt-2 pl-2 pr-2\"><!-- Left Aligned Buttons --><div><a href=\"/dashboard\" class=\"btn btn-primary btn-sm\">Back to Dashboard</a></div><!-- Right Aligned Buttons --><div><form hx-get=\"/createuserstory\" hx-target=\"#dialog-create\"><input type=\"hidden\" id=\"projectID\" name=\"projectID\" value=\"")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(fmt.Sprint(projectID)))
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("\"> <button class=\"btn btn-primary btn-sm\">Create User Story</button></form><button class=\"btn btn-primary btn-sm ml-2\" hx-get=\"/createsprint\" hx-target=\"#dialog-create\">Create Sprint</button></div></div><div id=\"dialog-create\"></div><div class=\"flex flex-col w-full lg:flex-row\"><!-- Backlog - unassigned, unrealized --><div class=\"card card-compact bg-base-200 transition-shadow w-2/5 mt-2 ml-2\"><div class=\"card-title collapse-title text-xl font-medium bg-base-300 border-base-300\">Product backlog</div><div class=\"card-body\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -45,6 +55,7 @@ func productBacklog(backlogUserStories []database.UserStory, sprintUserStories m
 			var templ_7745c5c3_Var2 string
 			templ_7745c5c3_Var2, templ_7745c5c3_Err = templ.JoinStringErrs(us.Title)
 			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/web/pages/productbacklog/productBacklog.templ`, Line: 34, Col: 64}
 				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/web/pages/productbacklog/productBacklog.templ`, Line: 34, Col: 64}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var2))
@@ -58,6 +69,7 @@ func productBacklog(backlogUserStories []database.UserStory, sprintUserStories m
 			var templ_7745c5c3_Var3 string
 			templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinStringErrs(*us.Description)
 			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/web/pages/productbacklog/productBacklog.templ`, Line: 35, Col: 51}
 				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/web/pages/productbacklog/productBacklog.templ`, Line: 35, Col: 51}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var3))
@@ -166,6 +178,7 @@ func productBacklog(backlogUserStories []database.UserStory, sprintUserStories m
 				return templ_7745c5c3_Err
 			}
 		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</div></div></div></div></div>")
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</div></div></div></div></div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
