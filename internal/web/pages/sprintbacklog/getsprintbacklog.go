@@ -46,8 +46,10 @@ func GetSprintBacklog(w http.ResponseWriter, r *http.Request, params handlers.Re
         return err
     }
 
-    projectID := database.GetDatabase().GetSprintByID(sprintID).ProjectID
+    // sortParam := r.URL.Query().Get("sort")
+    // sortTasks(allTasks, sortParam)
 
+    projectID := database.GetDatabase().GetSprintByID(sprintID).ProjectID
 
 	c := sprintBacklog(userStories, allTasks, projectID)
 
@@ -90,3 +92,46 @@ func categorizeTasks(userStories []database.UserStory, titles map[uint]string) (
     }
     return allTasks, nil
 }
+
+
+// func sortTasks(allTasks []TaskWithUserStory, sortParam string) {
+//     switch sortParam {
+//     case "title":
+//         sort.Slice(allTasks, func(i, j int) bool {
+//             if allTasks[i].Title != nil && allTasks[j].Title != nil {
+//                 return *allTasks[i].Title < *allTasks[j].Title
+//             }
+//             return false
+//         })
+//     case "status":
+//         sort.Slice(allTasks, func(i, j int) bool {
+//             return statusPriority(allTasks[i].Status) < statusPriority(allTasks[j].Status)
+//         })
+//     case "user_story":
+//         sort.Slice(allTasks, func(i, j int) bool {
+//             return allTasks[i].UserStoryTitle < allTasks[j].UserStoryTitle
+//         })
+//     case "assignee":
+//         sort.Slice(allTasks, func(i, j int) bool {
+//             return allTasks[i].AssignedTo < allTasks[j].AssignedTo
+//         })
+//     }
+
+// }
+
+
+// func statusPriority(status *database.Status) int {
+//     if status == nil || *status == (database.Status{}) {
+//         return -1 // or some value that represents "undefined"
+//     }
+//     switch *status {
+//     case database.StatusTodo:
+//         return 1
+//     case database.StatusInProgress:
+//         return 2
+//     case database.StatusDone:
+//         return 3
+//     default:
+//         return -1 // Handle unknown status
+//     }
+// }
