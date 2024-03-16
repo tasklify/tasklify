@@ -31,12 +31,11 @@ templ Index(userID string, myProjects []database.Project) {
 						<div class="card-body">
 							<h2 class="card-title">{ project.Title }</h2>
 							<p>{ project.Description }</p>
-              <div class="card-actions justify-end">
-              	<form hx-get="/productbacklog" hx-target="#whole" hx-swap="innerHTML">
-                  <input type="hidden" id="projectID" name="projectID" value={ fmt.Sprint(project.ID) }/>
-                  <button class="btn btn-primary">View project</button>
-                  
-                </form>
+							<div class="card-actions justify-end">
+								<form hx-get="/productbacklog" hx-target="#whole" hx-swap="innerHTML">
+									<input type="hidden" id="projectID" name="projectID" value={ fmt.Sprint(project.ID) }/>
+									<button class="btn btn-primary">View project</button>
+								</form>
 							</div>
 						</div>
 					</div>
@@ -44,7 +43,7 @@ templ Index(userID string, myProjects []database.Project) {
 			</div>
 		</div>
 		<div id="project-dialog"></div>
-    </div>
+	</div>
 }
 
 templ GuestIndex() {

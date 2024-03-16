@@ -46,6 +46,7 @@ tasks:
     internal: true
     cmds:
       - npx tailwindcss -c configs/tailwind.config.js -i configs/input.css -o static/css/style.css --minify
+      - templ fmt .
       - templ generate -include-version=false
       - go generate ./...
 

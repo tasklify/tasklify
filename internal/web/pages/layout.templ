@@ -2,19 +2,20 @@ package pages
 
 templ Layout(contents templ.Component, title string) {
 	<!-- <!DOCTYPE html> -->
-	<html><div id="whole">
-		@header(title)
-		<body id="root" class="flex flex-col h-full">
-			@nav()
-			<main class="flex-1">
-				@contents
-			</main>
-			// Container for all dialogs
-			<dialog id="dialog_container" class="modal">
-				<div id="dialog" class="modal-dialog" hx-on::after-swap="dialog_container.showModal()" hx-ext="response-targets"></div>
-			</dialog>
-		</body>
-		@footer()
+	<html>
+		<div id="whole">
+			@header(title)
+			<body id="root" class="flex flex-col h-full">
+				@nav()
+				<main class="flex-1">
+					@contents
+				</main>
+				// Container for all dialogs
+				<dialog id="dialog_container" class="modal">
+					<div id="dialog" class="modal-dialog" hx-on::after-swap="dialog_container.showModal()" hx-ext="response-targets"></div>
+				</dialog>
+			</body>
+			@footer()
 		</div>
 	</html>
 }

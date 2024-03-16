@@ -13,7 +13,7 @@ type Sprint struct {
 	EndDate     time.Time
 	Velocity    *float32
 	ProjectID   uint        // 1:n (Project:Sprint)
-	UserStories []UserStory // 1:n (Sprint:UserStory)
+	UserStories []UserStory `gorm:"foreignKey:SprintID"` // 1:n (Sprint:UserStory)
 }
 
 func (db *database) CreateSprint(sprint *Sprint) error {
@@ -23,7 +23,7 @@ func (db *database) CreateSprint(sprint *Sprint) error {
 func (db *database) GetSprintByProject(projectID uint) ([]Sprint, error) {
 	var sprints []Sprint
 
-	err := db.Find(&sprints, "sprints.project_id = ?", projectID).Error
+	err := db.Preload("UserStories").Find(&sprints, "sprints.project_id = ?", projectID).Error
 	if err != nil {
 		return nil, err
 	}
@@ -31,16 +31,17 @@ func (db *database) GetSprintByProject(projectID uint) ([]Sprint, error) {
 	return sprints, nil
 }
 
-func (sprint *Sprint) DetermineStatus() (Status, error) {
-    now := time.Now()
+func (sprint *Sprint) DetermineStatus() Status {
+	now := time.Now()
 
-    if now.Before(sprint.StartDate) {
-        return StatusTodo, nil
-    } else if now.After(sprint.StartDate) && now.Before(sprint.EndDate) {
-        return StatusInProgress, nil
-    } else if now.After(sprint.EndDate) {
-        return StatusDone, nil
-    } else {
-		return StatusTodo, nil
+	//todo is this correct be careful of edge conditions
+	if now.Before(sprint.StartDate) {
+		return StatusTodo
+	} else if now.After(sprint.StartDate) && now.Before(sprint.EndDate) {
+		return StatusInProgress
+	} else if now.After(sprint.EndDate) {
+		return StatusDone
+	} else {
+		return StatusTodo
 	}
 }
