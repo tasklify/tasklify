@@ -64,7 +64,7 @@ func PostSprint(w http.ResponseWriter, r *http.Request, params handlers.RequestP
 		return err
 	}
 
-	w.Header().Set("HX-Redirect", "/about")
+	w.Header().Set("HX-Redirect", "/productbacklog?projectID="+strconv.Itoa(int(projectID)))
 	w.WriteHeader(http.StatusSeeOther)
 
 	return nil
