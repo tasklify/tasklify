@@ -1,6 +1,11 @@
 package login
 
 templ login(title string) {
+	<script>
+		document.getElementById('closeDialogButton').addEventListener('click', function() {
+		document.getElementById('create-dialog').style.display = 'none';
+	});
+	</script>
 	<div hx-ext="response-targets">
 		<div id="create-dialog" hx-ext="response-targets" class="fixed top-0 left-0 w-full h-full bg-gray-900 bg-opacity-50 flex justify-center items-center z-50">
 			<form
@@ -25,7 +30,7 @@ templ login(title string) {
 				</div>
 				<div id="validation-error"></div>
 				<div class="flex justify-end mt-3">
-					<button class="btn btn-ghost btn-sm" hx-get="#close-dialog" hx-target="#root" hx-swap="innerhtml">Cancel</button>
+					<button class="btn btn-ghost btn-sm" id="closeDialogButton">Cancel</button>
 					<button class="btn btn-primary btn-sm" type="submit">Sign In</button>
 				</div>
 			</form>
