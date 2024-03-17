@@ -19,7 +19,7 @@ func AuthUser(next http.Handler) http.Handler {
 		if err != nil {
 			log.Printf("Middleware: AuthUser: %v\n", err)
 
-			http.Redirect(w, r, "/login", http.StatusTemporaryRedirect)
+			http.Redirect(w, r, "/", http.StatusTemporaryRedirect)
 			return
 		}
 

@@ -102,3 +102,10 @@ func (db *database) RemoveUserFromProject(projectID uint, userID uint) error {
 
 	return nil
 }
+
+func (db *database) GetProjectRole(userID uint, projectID uint) ProjectRole {
+	var projectHasUser ProjectHasUser
+	db.Where("user_id = ? AND project_id = ?", userID, projectID).First(&projectHasUser)
+
+	return projectHasUser.ProjectRole
+}

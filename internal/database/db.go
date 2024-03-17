@@ -27,6 +27,7 @@ type Database interface {
 	UserStoryWithTitleExists(title string) bool
 	GetTasksByUserStory(userStoryID uint) ([]Task, error)
 	GetProjectByID(id uint) (*Project, error)
+	GetProjectRole(userID uint, projectID uint) ProjectRole
 	CreateProject(project *Project) (uint, error)
 	AddUserToProject(projectID uint, userID uint, projectRole string) error
 	GetUsersOnProject(projectID uint) ([]User, error)
@@ -34,6 +35,7 @@ type Database interface {
 	ProjectWithTitleExists(title string) bool
 	RemoveUserFromProject(projectID uint, userID uint) error
 	GetUserProjects(userID uint) ([]Project, error)
+	CreateAcceptanceTest(acceptanceTest *AcceptanceTest) error
 	RawDB() *gorm.DB
 }
 
@@ -73,7 +75,7 @@ func connectDatabase(config config.Database) *database {
 
 func registerTables(db *database) {
 	// Migrate the schema
-	err := db.AutoMigrate(&User{}, &Project{}, &UserStory{}, &Task{}, &ProjectHasUser{}, &Sprint{}, &WorkflowStep{})
+	err := db.AutoMigrate(&User{}, &Project{}, &UserStory{}, &Task{}, &AcceptanceTest{}, &ProjectHasUser{}, &Sprint{}, &WorkflowStep{})
 	if err != nil {
 		log.Fatal("Schema migration error: ", err)
 	}
