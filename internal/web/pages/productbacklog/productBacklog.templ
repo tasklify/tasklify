@@ -88,7 +88,7 @@ templ productBacklog(backlogUserStories []database.UserStory, sprints map[string
 											<tbody>
 												<!-- User stories rows -->
 												for _, v := range sprint.UserStories {
-													@userStoryTableRow(v)
+													@userStoryTableRow(v, sprint.DetermineStatus(), projectRole, "/productbacklog?projectID="+strconv.Itoa(int(projectID)))
 												}
 											</tbody>
 										</table>
@@ -160,7 +160,7 @@ func getLatestSprint(sprints map[string]database.Sprint) database.Sprint {
 	return latestSprint
 }
 
-templ userStoryTableRow(us database.UserStory) {
+templ userStoryTableRow(us database.UserStory, status database.Status, projectRole database.ProjectRole, callback string) {
 	<!-- row 1 -->
 	<tr class="hover">
 		<td>
@@ -211,6 +211,12 @@ templ userStoryTableRow(us database.UserStory) {
 		</td>
 		<th>
 			<button class="btn btn-xs">details</button>
+			if (us.AllAcceptanceTestsRealized() == true && *us.Realized == false && projectRole == database.ProjectRoleManager && status == database.StatusDone) {
+			<form hx-post="/userstory/realized" id="backlogForm">
+				<input type="hidden" name="userStoryID" id="userStoryID" value={ strconv.Itoa(int(us.ID)) }/>
+				<input type="hidden" name="callback" value={ callback }/>
+				<button type="submit" class="btn btn-success btn-xs">confirm</button>
+			</form>}
 		</th>
 	</tr>
 }

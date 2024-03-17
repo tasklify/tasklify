@@ -84,6 +84,9 @@ func Router() *chi.Mux {
 			r.Handle("/sprintbacklog", ghandlers.MethodHandler{
 				"GET": handlers.UnifiedHandler(handlers.AuthenticatedHandlerFunc(sprintbacklog.GetSprintBacklog)),
 			})
+			r.Handle("/userstory/realized", ghandlers.MethodHandler{
+				"POST": handlers.UnifiedHandler(handlers.AuthenticatedHandlerFunc(userstory.PostUserStoryRealized)),
+			})
 		})
 	})
 
