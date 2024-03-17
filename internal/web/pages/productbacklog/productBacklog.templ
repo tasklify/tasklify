@@ -15,8 +15,14 @@ templ productBacklog(backlogUserStories []database.UserStory, sprints map[string
 						<a href="/dashboard" class="btn btn-primary btn-sm">Back to Dashboard</a>
 					</div>
 					<!-- Right Aligned Buttons -->
-					if projectRole == database.ProjectRoleDeveloper {
-					} else {
+					if projectRole == database.ProjectRoleManager {
+						<div>
+							<form hx-get="/createuserstory" hx-target="#dialog-create">
+								<input type="hidden" id="projectID" name="projectID" value={ fmt.Sprint(projectID) }/>
+								<button class="btn btn-primary btn-sm">Create User Story</button>
+							</form>
+						</div>
+					} else if projectRole == database.ProjectRoleMaster {
 						<div>
 							<form hx-get="/createuserstory" hx-target="#dialog-create">
 								<input type="hidden" id="projectID" name="projectID" value={ fmt.Sprint(projectID) }/>
