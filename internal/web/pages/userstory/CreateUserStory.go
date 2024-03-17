@@ -32,6 +32,7 @@ func PostUserStory(w http.ResponseWriter, r *http.Request, params handlers.Reque
 		Priority      database.Priority  `schema:"priority,required"`
 		BusinessValue int    `schema:"business_value,required"`
 		ProjectID    uint   `schema:"projectID,required"`
+		AcceptanceTests []string `schema:"acceptanceTests"`
 	}
 	var userStoryData UserStoryFormData
 	if err := decoder.Decode(&userStoryData, r.PostForm); err != nil {
@@ -47,10 +48,22 @@ func PostUserStory(w http.ResponseWriter, r *http.Request, params handlers.Reque
 		Priority:      userStoryData.Priority,
 		ProjectID:     ProjectID,
 		Realized:      new(bool), // Defaults to false
+		AcceptanceTests: []database.AcceptanceTest{},
 	}
 
 	if err := database.GetDatabase().CreateUserStory(userStory); err != nil {
 		return err
+	}
+
+	for _, testDescription := range userStoryData.AcceptanceTests {
+		acceptanceTest := &database.AcceptanceTest{
+			Description:   &testDescription,
+			Realized:      new(bool), // Defaults to false
+			UserStoryID:   userStory.ID,
+		}
+		if err := database.GetDatabase().CreateAcceptanceTest(acceptanceTest); err != nil {
+			return err
+		}
 	}
 
     redirectURL := fmt.Sprintf("/productbacklog?projectID=%d", userStoryData.ProjectID)

@@ -4,7 +4,7 @@ import "tasklify/internal/database"
 import "fmt"
 import "strconv"
 
-templ productBacklog(backlogUserStories []database.UserStory, sprints map[string]database.Sprint, projectID uint) {
+templ productBacklog(backlogUserStories []database.UserStory, sprints map[string]database.Sprint, projectID uint, projectRole database.ProjectRole) {
 	<div id="dialog">
 		<div class="bg-base-100 min-h-screen">
 			<div>
@@ -15,13 +15,16 @@ templ productBacklog(backlogUserStories []database.UserStory, sprints map[string
 						<a href="/dashboard" class="btn btn-primary btn-sm">Back to Dashboard</a>
 					</div>
 					<!-- Right Aligned Buttons -->
-					<div>
-						<form hx-get="/createuserstory" hx-target="#dialog-create">
-							<input type="hidden" id="projectID" name="projectID" value={ fmt.Sprint(projectID) }/>
-							<button class="btn btn-primary btn-sm">Create User Story</button>
-						</form>
-						<button class="btn btn-primary btn-sm ml-2" hx-get="/createsprint" hx-target="#dialog-create">Create Sprint</button>
-					</div>
+					if projectRole == database.ProjectRoleDeveloper {
+					} else {
+						<div>
+							<form hx-get="/createuserstory" hx-target="#dialog-create">
+								<input type="hidden" id="projectID" name="projectID" value={ fmt.Sprint(projectID) }/>
+								<button class="btn btn-primary btn-sm">Create User Story</button>
+							</form>
+							<button class="btn btn-primary btn-sm ml-2" hx-get="/createsprint" hx-target="#dialog-create">Create Sprint</button>
+						</div>
+					}
 				</div>
 				<div id="dialog-create"></div>
 				<div class="flex flex-col w-full lg:flex-row">

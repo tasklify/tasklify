@@ -4,6 +4,18 @@ import "tasklify/internal/web/components/common"
 import "fmt"
 
 templ CreateUserStoryDialog(projectID uint) {
+	<script>
+document.getElementById('addAcceptanceTest').addEventListener('click', function() {
+    const container = document.getElementById('acceptanceTestsContainer');
+    const newFieldNumber = container.children.length;
+    const newField = document.createElement('input');
+    newField.setAttribute('type', 'text');
+    newField.setAttribute('name', 'acceptanceTests');
+    newField.setAttribute('class', 'input mt-1 p-2 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50');
+    newField.setAttribute('placeholder', 'Acceptance Test Description');
+    container.appendChild(newField);
+});
+</script>
 	@common.CreateDialog("Create user story", "/createuserstory") {
 		<!-- Title Field -->
 		<div class="mb-4">
@@ -15,6 +27,12 @@ templ CreateUserStoryDialog(projectID uint) {
 			<label for="description" class="block text-sm font-medium text-gray-700">Description:</label>
 			<textarea id="description" name="description" class="textarea mt-1 p-2 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50" required></textarea>
 		</div>
+		<!-- Acceptance Tests Field -->
+		<div id="acceptanceTestsContainer" class="mb-4">
+			<label for="acceptanceTest0" class="block text-sm font-medium text-gray-700">Acceptance Tests:</label>
+			<!-- Placeholder for dynamically added acceptance tests -->
+		</div>
+		<button type="button" id="addAcceptanceTest" class="btn btn-secondary btn-sm">Add Acceptance Test</button>
 		<!-- Priority Field -->
 		<div class="mb-4">
 			<label for="priority" class="block text-sm font-medium text-gray-700">Priority:</label>
