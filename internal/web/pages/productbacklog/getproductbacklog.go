@@ -1,6 +1,7 @@
 package productbacklog
 
 import (
+	"errors"
 	"fmt"
 	"net/http"
 	"strconv"
@@ -38,11 +39,9 @@ func GetProductBacklog(w http.ResponseWriter, r *http.Request, params handlers.R
 
 	// unassigned, unrealized user stories
 	var usInBacklog, _ = filterBacklog(userStories)
-
 	var sprintMap = mapSprintsToSprintIds(sprints)
 
 	c := productBacklog(usInBacklog, sprintMap, projectID)
-
 	return pages.Layout(c, "Backlog").Render(r.Context(), w)
 }
 
@@ -69,4 +68,43 @@ func mapSprintsToSprintIds(sprints []database.Sprint) (sprintMap map[string]data
 	}
 
 	return
+}
+
+func PostAddUserStoryToSprint(w http.ResponseWriter, r *http.Request, params handlers.RequestParams) error {
+	// Parse form data
+	if err := r.ParseForm(); err != nil {
+		return err
+	}
+
+	usIDCount := len(r.Form["selectedTasks"])
+	selectedTaskIds := make([]uint, 0, usIDCount)
+
+	for _, id := range r.Form["selectedTasks"] {
+		if usID, err := strconv.Atoi(id); err == nil {
+			selectedTaskIds = append(selectedTaskIds, uint(usID))
+		}
+	}
+
+	sprintID, err := strconv.Atoi(r.FormValue("sprintID"))
+	if err != nil {
+		return err
+	}
+
+	_, err = database.GetDatabase().AddUserStoryToSprint(uint(sprintID), selectedTaskIds)
+	if err != nil {
+		return err
+	}
+
+	fmt.Println("Sprint ID:", sprintID)
+	fmt.Println("User Story IDs:", selectedTaskIds)
+
+	callbackURL := r.FormValue("callback")
+	if callbackURL != "" {
+		w.Header().Set("HX-Redirect", callbackURL)
+	} else {
+		return errors.New("callback URL not provided")
+	}
+
+	w.WriteHeader(http.StatusSeeOther)
+	return nil
 }

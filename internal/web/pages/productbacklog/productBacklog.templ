@@ -2,6 +2,7 @@ package productbacklog
 
 import "tasklify/internal/database"
 import "fmt"
+import "strconv"
 
 templ productBacklog(backlogUserStories []database.UserStory, sprints map[string]database.Sprint, projectID uint) {
 	<div id="dialog">
@@ -25,19 +26,7 @@ templ productBacklog(backlogUserStories []database.UserStory, sprints map[string
 				<div id="dialog-create"></div>
 				<div class="flex flex-col w-full lg:flex-row">
 					<!-- Backlog - unassigned, unrealized -->
-					<div class="card card-compact bg-base-200 transition-shadow w-2/5 mt-2 ml-2">
-						<div class="card-title collapse-title text-xl font-medium bg-base-300 border-base-300">Product backlog</div>
-						<div class="card-body">
-							for _, us := range backlogUserStories {
-								<div class="card card-compact bg-base-100 shadow-xl hover:shadow-2xl transition-shadow w-full">
-									<div class="card-body">
-										<h2 class="card-title">{ us.Title }</h2>
-										<p>{ *us.Description }</p>
-									</div>
-								</div>
-							}
-						</div>
-					</div>
+					@backlog(backlogUserStories, getLatestSprint(sprints), "/productbacklog?projectID="+strconv.Itoa(int(projectID)))
 					<!-- Divide -->
 					<div class="divider lg:divider-horizontal"></div>
 					<!-- Sprints -->
@@ -113,6 +102,49 @@ templ userStoryCard(name string, description string) {
 			<p>{ description }</p>
 		</div>
 	</div>
+}
+
+templ backlog(backlogUserStories []database.UserStory, sprint database.Sprint, callback string) {
+	<div class="card card-compact bg-base-200 transition-shadow w-2/5 mt-2 ml-2">
+		<div class="card-title collapse-title text-xl font-medium bg-base-300 border-base-300">Product backlog</div>
+		<div class="card-body">
+			<form id="backlogForm" hx-post="/productbacklog">
+				<table class="table w-full">
+					<thead>
+						<tr>
+							<th>Title</th>
+							<th>Description</th>
+							<th>Selected</th>
+						</tr>
+					</thead>
+					<tbody>
+						for _, us := range backlogUserStories {
+							<tr>
+								<td>{ us.Title }</td>
+								<td>{ *us.Description }</td>
+								<td><input type="checkbox" class="checkbox" name="selectedTasks" value={ strconv.Itoa(int(us.ID)) }/></td>
+							</tr>
+						}
+					</tbody>
+				</table>
+				<div class="mt-4 flex justify-end">
+					<input type="hidden" name="sprintID" value={ strconv.Itoa(int(sprint.ID)) }/>
+					<input type="hidden" name="callback" value={ callback }/>
+					<button type="submit" class="btn btn-primary">Submit</button>
+				</div>
+			</form>
+		</div>
+	</div>
+}
+
+func getLatestSprint(sprints map[string]database.Sprint) database.Sprint {
+	var latestSprint database.Sprint
+	for _, sprint := range sprints {
+		if sprint.StartDate.After(latestSprint.StartDate) {
+			latestSprint = sprint
+		}
+	}
+	return latestSprint
 }
 
 templ userStoryTableRow(us database.UserStory) {

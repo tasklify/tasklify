@@ -17,7 +17,7 @@ type UserStory struct {
 	SprintID         *uint           // 1:n (Sprint:UserStory)
 	ProjectID        uint            // 1:n (Project:UserStory)
 	Tasks            []Task          // 1:n (UserStory:Task)
-	UserID           *uint            // 1:n (ProjectHasUser:UserStory)
+	UserID           *uint           // 1:n (ProjectHasUser:UserStory)
 	ProjectHasUser   *ProjectHasUser `gorm:"foreignKey:ProjectID,UserID"` // 1:n (ProjectHasUser:UserStory)
 }
 
@@ -61,4 +61,19 @@ func (db *database) UserStoryWithTitleExists(title string) bool {
 	var count int64
 	db.Model(&UserStory{}).Where("title = ?", title).Count(&count)
 	return count > 0
+}
+
+func (db *database) AddUserStoryToSprint(sprintID uint, userStoryIDs []uint) (*Sprint, error) {
+	// Update user stories with the sprint ID
+	if err := db.Model(&UserStory{}).Where("id IN (?)", userStoryIDs).Update("sprint_id", sprintID).Error; err != nil {
+		return nil, err
+	}
+
+	// Retrieve the sprint
+	var sprint Sprint
+	if err := db.Preload("UserStories").First(&sprint, sprintID).Error; err != nil {
+		return nil, err
+	}
+
+	return &sprint, nil
 }

@@ -29,3 +29,6 @@ tmp
 
 # task file temporary files
 .task
+
+#Templ generated
+*_templ.go
