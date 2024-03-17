@@ -122,7 +122,11 @@ templ backlog(backlogUserStories []database.UserStory, sprint database.Sprint, c
 							<tr>
 								<td>{ us.Title }</td>
 								<td>{ *us.Description }</td>
-								<td><input type="checkbox" class="checkbox" name="selectedTasks" value={ strconv.Itoa(int(us.ID)) }/></td>
+								if us.StoryPoints != 0 {
+									<td><input type="checkbox" class="checkbox" name="selectedTasks" value={ strconv.Itoa(int(us.ID)) }/></td>
+								} else {
+									<td><input type="checkbox" class="checkbox" name="selectedTasks" value={ strconv.Itoa(int(us.ID)) } title="Please add story points" disabled/></td>
+								}
 							</tr>
 						}
 					</tbody>
@@ -130,7 +134,7 @@ templ backlog(backlogUserStories []database.UserStory, sprint database.Sprint, c
 				<div class="mt-4 flex justify-end">
 					<input type="hidden" name="sprintID" value={ strconv.Itoa(int(sprint.ID)) }/>
 					<input type="hidden" name="callback" value={ callback }/>
-					<button type="submit" class="btn btn-primary">Submit</button>
+					<button type="submit" class="btn btn-primary">Add to Sprint</button>
 				</div>
 			</form>
 		</div>

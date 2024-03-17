@@ -218,15 +218,38 @@ func backlog(backlogUserStories []database.UserStory, sprint database.Sprint, ca
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</td><td><input type=\"checkbox\" class=\"checkbox\" name=\"selectedTasks\" value=\"")
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</td>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(strconv.Itoa(int(us.ID))))
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
+			if us.StoryPoints != 0 {
+				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<td><input type=\"checkbox\" class=\"checkbox\" name=\"selectedTasks\" value=\"")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(strconv.Itoa(int(us.ID))))
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("\"></td>")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+			} else {
+				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<td><input type=\"checkbox\" class=\"checkbox\" name=\"selectedTasks\" value=\"")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(strconv.Itoa(int(us.ID))))
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("\" title=\"Please add story points\" disabled></td>")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
 			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("\"></td></tr>")
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</tr>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -247,7 +270,7 @@ func backlog(backlogUserStories []database.UserStory, sprint database.Sprint, ca
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("\"> <button type=\"submit\" class=\"btn btn-primary\">Submit</button></div></form></div></div>")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("\"> <button type=\"submit\" class=\"btn btn-primary\">Add to Sprint</button></div></form></div></div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -288,7 +311,7 @@ func userStoryTableRow(us database.UserStory) templ.Component {
 		var templ_7745c5c3_Var10 string
 		templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.JoinStringErrs(us.Title)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/web/pages/productbacklog/productBacklog.templ`, Line: 153, Col: 36}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/web/pages/productbacklog/productBacklog.templ`, Line: 157, Col: 36}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var10))
 		if templ_7745c5c3_Err != nil {
@@ -301,7 +324,7 @@ func userStoryTableRow(us database.UserStory) templ.Component {
 		var templ_7745c5c3_Var11 string
 		templ_7745c5c3_Var11, templ_7745c5c3_Err = templ.JoinStringErrs(*us.Description)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/web/pages/productbacklog/productBacklog.templ`, Line: 157, Col: 20}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/web/pages/productbacklog/productBacklog.templ`, Line: 161, Col: 20}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var11))
 		if templ_7745c5c3_Err != nil {
