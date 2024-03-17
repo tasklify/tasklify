@@ -27,6 +27,10 @@ func (db *database) CreateUserStory(userStory *UserStory) error {
 	return db.Create(userStory).Error
 }
 
+func (db *database) UpdateUserStory(userStory *UserStory) error {
+	return db.Save(userStory).Error
+}
+
 func (db *database) GetUserStoriesByProject(projectID uint) ([]UserStory, error) {
 	var userStories []UserStory
 
@@ -78,4 +82,13 @@ func (db *database) AddUserStoryToSprint(sprintID uint, userStoryIDs []uint) (*S
 	}
 
 	return &sprint, nil
+}
+
+func (userStory *UserStory) AllAcceptanceTestsRealized() bool {
+	for _, acceptanceTest := range userStory.AcceptanceTests {
+		if *acceptanceTest.Realized == false {
+			return false
+		}
+	}
+	return true
 }

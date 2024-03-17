@@ -43,8 +43,6 @@ func GetProductBacklog(w http.ResponseWriter, r *http.Request, params handlers.R
 	//get user project role
 	projectRole := database.GetDatabase().GetProjectRole(params.UserID, projectID)
 
-	//print project role
-	fmt.Println(projectRole)
 
 	c := productBacklog(usInBacklog, sprintMap, projectID, projectRole)
 	return pages.Layout(c, "Backlog").Render(r.Context(), w)

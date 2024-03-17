@@ -20,6 +20,7 @@ type Database interface {
 	GetSprintByID(id uint) *Sprint
 	CreateSprint(sprint *Sprint) error
 	CreateUserStory(userStory *UserStory) error
+	UpdateUserStory(userStory *UserStory) error
 	AddUserStoryToSprint(sprintID uint, userStories []uint) (*Sprint, error)
 	GetUserStoriesByProject(projectID uint) ([]UserStory, error)
 	GetUserStoriesBySprint(sprintID uint) ([]UserStory, error)
