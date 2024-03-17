@@ -1,11 +1,9 @@
 package userstory
 
 import (
-	"errors"
 	"fmt"
 	"net/http"
 	"reflect"
-	"strconv"
 	"tasklify/internal/database"
 	"tasklify/internal/handlers"
 
@@ -91,36 +89,3 @@ func GetUserStory(w http.ResponseWriter, r *http.Request, params handlers.Reques
 	return c.Render(r.Context(), w)
 }
 
-
-func PostUserStoryRealized(w http.ResponseWriter, r *http.Request, params handlers.RequestParams) error {
-	if err := r.ParseForm(); err != nil {
-		return err
-	}
-
-	userStoryID, err := strconv.Atoi(r.FormValue("userStoryID"))
-	if err != nil {
-		return err
-	}
-
-	userStory, err := database.GetDatabase().GetUserStoryByID(uint(userStoryID))
-	if err != nil {
-		return err
-	}
-
-	*userStory.Realized = true
-	if err := database.GetDatabase().UpdateUserStory(userStory); err != nil {
-		fmt.Println("Error updating user story")
-		return err
-	}
-
-	callbackURL := r.FormValue("callback")
-	fmt.Println(callbackURL)
-	if callbackURL != "" {
-		w.Header().Set("HX-Redirect", callbackURL)
-	} else {
-		return errors.New("callback URL not provided")
-	}
-
-	w.WriteHeader(http.StatusSeeOther)
-	return nil
-}

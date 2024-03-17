@@ -111,3 +111,98 @@ func PostAddUserStoryToSprint(w http.ResponseWriter, r *http.Request, params han
 	w.WriteHeader(http.StatusSeeOther)
 	return nil
 }
+
+
+
+func PostUserStoryAccepted(w http.ResponseWriter, r *http.Request, params handlers.RequestParams) error {
+	if err := r.ParseForm(); err != nil {
+		return err
+	}
+
+	userStoryID, err := strconv.Atoi(r.FormValue("userStoryID"))
+	if err != nil {
+		return err
+	}
+
+	userStory, err := database.GetDatabase().GetUserStoryByID(uint(userStoryID))
+	if err != nil {
+		return err
+	}
+
+	*userStory.Realized = true
+	if err := database.GetDatabase().UpdateUserStory(userStory); err != nil {
+		fmt.Println("Error updating user story")
+		return err
+	}
+
+	callbackURL := r.FormValue("callback")
+	fmt.Println(callbackURL)
+	if callbackURL != "" {
+		w.Header().Set("HX-Redirect", callbackURL)
+	} else {
+		return errors.New("callback URL not provided")
+	}
+
+	w.WriteHeader(http.StatusSeeOther)
+	return nil
+}
+
+
+func PostUserStoryRejected(w http.ResponseWriter, r *http.Request, params handlers.RequestParams) error {
+	if err := r.ParseForm(); err != nil {
+		return err
+	}
+
+	userStoryID, err := strconv.Atoi(r.FormValue("userStoryID"))
+	if err != nil {
+		return err
+	}
+
+	projectID, err := strconv.Atoi(r.FormValue("projectID"))
+	if err != nil {
+		return err
+	}
+
+	c := CreateRejectionCommentDialog(uint(userStoryID), "/productbacklog?projectID="+strconv.Itoa(int(projectID)))
+
+	return c.Render(r.Context(), w)
+
+}
+
+func PostRejectionComment(w http.ResponseWriter, r *http.Request, params handlers.RequestParams) error {
+	if err := r.ParseForm(); err != nil {
+		return err
+	}
+
+	userStoryID, err := strconv.Atoi(r.FormValue("userStoryID"))
+	if err != nil {
+		return err
+	}
+
+	comment := r.FormValue("comment")
+
+
+	userStory, err := database.GetDatabase().GetUserStoryByID(uint(userStoryID))
+	if err != nil {
+		return err
+	}
+
+	userStory.RejectionComment = &comment
+	userStory.SprintID = nil
+	*userStory.Realized = false
+	if err := database.GetDatabase().UpdateUserStory(userStory); err != nil {
+		fmt.Println("Error updating user story")
+		return err
+	}
+
+	callbackURL := r.FormValue("callback")
+	fmt.Println(callbackURL)
+	if callbackURL != "" {
+		w.Header().Set("HX-Redirect", callbackURL)
+	} else {
+		return errors.New("callback URL not provided")
+	}
+
+	w.WriteHeader(http.StatusSeeOther)
+	return nil
+}

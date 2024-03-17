@@ -92,3 +92,12 @@ func (userStory *UserStory) AllAcceptanceTestsRealized() bool {
 	}
 	return true
 }
+
+func (userStory *UserStory) AllTasksRealized() bool {
+	for _, task := range userStory.Tasks {
+		if *task.Status != StatusDone {
+			return false
+		}
+	}
+	return true
+}
