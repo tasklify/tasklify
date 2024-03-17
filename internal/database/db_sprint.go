@@ -45,3 +45,13 @@ func (sprint *Sprint) DetermineStatus() Status {
 		return StatusTodo
 	}
 }
+
+func (db *database) GetSprintByID(id uint) (*Sprint) {
+	var sprint = &Sprint{}
+	err := db.First(sprint, id).Error
+	if err != nil {
+		return nil
+	}
+
+	return sprint
+}
