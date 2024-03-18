@@ -36,7 +36,7 @@ func GetSprintBacklog(w http.ResponseWriter, r *http.Request, params handlers.Re
 	//map users to user ids
 	userMap := mapUserstoUserIDs(users)
 
-	c := sprintBacklog(sprintID, sprint, userMap)
+	c := sprintBacklog(sprint, userMap)
 
 	return pages.Layout(c, "Sprint Backlog").Render(r.Context(), w)
 }

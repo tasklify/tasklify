@@ -5,3 +5,33 @@
 .btn-container {
   cursor: not-allowed;
 }
+
+.bg-done-300 {
+  --tw-bg-opacity: 1;
+  background-color: rgb(255 223 186 / var(--tw-bg-opacity));
+}
+
+.bg-done-100 {
+  --tw-bg-opacity: 1;
+  background-color: rgb(255 247 237 / var(--tw-bg-opacity));
+}
+
+.bg-active-300 {
+  --tw-bg-opacity: 1;
+  background-color: rgb(162 210 182 / var(--tw-bg-opacity));
+}
+
+.bg-active-100 {
+  --tw-bg-opacity: 1;
+  background-color: rgb(209 228 217 / var(--tw-bg-opacity));
+}
+
+.bg-assigned-100 {
+  --tw-bg-opacity: 1;
+  background-color: rgb(217 228 234 / var(--tw-bg-opacity));
+}
+
+.bg-unassigned-100 {
+  --tw-bg-opacity: 1;
+  background-color: rgb(216 216 216 / var(--tw-bg-opacity));
+}
