@@ -49,7 +49,7 @@ func connectAuthorization() *authorization {
 }
 
 func (a *authorization) HasSystemPermission(systemRole database.SystemRole, object string, action Action) error {
-	ok, err := a.Enforce(systemRole, object, action)
+	ok, err := a.Enforce(systemRole.Val, object, action.Val)
 	if err != nil {
 		return err
 	}
@@ -62,7 +62,7 @@ func (a *authorization) HasSystemPermission(systemRole database.SystemRole, obje
 }
 
 func (a *authorization) HasProjectPermission(systemRole database.ProjectRole, object string, action Action) error {
-	ok, err := a.Enforce(systemRole, object, action)
+	ok, err := a.Enforce(systemRole.Val, object, action.Val)
 	if err != nil {
 		return err
 	}
