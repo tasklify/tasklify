@@ -216,7 +216,7 @@ templ userStoryTableRow(us database.UserStory, status database.Status, projectRo
 							<div class="btn-container" title="Not all tasks were realized and not all acceptance tests were passed for this user story.">
 								<button type="submit" class="btn btn-xs" disabled>Accept</button>
 							</div>
-							<form hx-post="/userstory/reject" hx-target="#rejection-dialog">
+							<form hx-post="/userstory/reject" hx-target="#dialog">
 								<input type="hidden" name="userStoryID" id="userStoryID" value={ strconv.Itoa(int(us.ID)) }/>
 								<input type="hidden" name="callback" value={ callback }/>
 								<input type="hidden" name="projectID" id="projectID" value={ strconv.Itoa(int(us.ProjectID)) }/>
@@ -226,7 +226,7 @@ templ userStoryTableRow(us database.UserStory, status database.Status, projectRo
 							<div class="btn-container" title="Not all tasks were realized for this user story.">
 								<button type="submit" class="btn btn-xs" disabled>Accept</button>
 							</div>
-							<form hx-post="/userstory/reject" hx-target="#rejection-dialog">
+							<form hx-post="/userstory/reject" hx-target="#dialog">
 								<input type="hidden" name="userStoryID" id="userStoryID" value={ strconv.Itoa(int(us.ID)) }/>
 								<input type="hidden" name="projectID" id="projectID" value={ strconv.Itoa(int(us.ProjectID)) }/>
 								<input type="hidden" name="callback" value={ callback }/>
@@ -236,7 +236,7 @@ templ userStoryTableRow(us database.UserStory, status database.Status, projectRo
 							<div class="btn-container" title="Not all acceptance tests were passed for this user story.">
 								<button type="submit" class="btn btn-xs" disabled>Accept</button>
 							</div>
-							<form hx-post="/userstory/reject" hx-target="#rejection-dialog">
+							<form hx-post="/userstory/reject" hx-target="#dialog">
 								<input type="hidden" name="userStoryID" id="userStoryID" value={ strconv.Itoa(int(us.ID)) }/>
 								<input type="hidden" name="projectID" id="projectID" value={ strconv.Itoa(int(us.ProjectID)) }/>
 								<input type="hidden" name="callback" value={ callback }/>
@@ -248,7 +248,7 @@ templ userStoryTableRow(us database.UserStory, status database.Status, projectRo
 								<input type="hidden" name="callback" value={ callback }/>
 								<button type="submit" class="btn bg-green-600 btn-xs">Accept</button>
 							</form>
-							<form hx-post="/userstory/reject" hx-target="#rejection-dialog">
+							<form hx-post="/userstory/reject" hx-target="#dialog">
 								<input type="hidden" name="userStoryID" id="userStoryID" value={ strconv.Itoa(int(us.ID)) }/>
 								<input type="hidden" name="projectID" id="projectID" value={ strconv.Itoa(int(us.ProjectID)) }/>
 								<input type="hidden" name="callback" value={ callback }/>
@@ -258,7 +258,6 @@ templ userStoryTableRow(us database.UserStory, status database.Status, projectRo
 					}
 				</div>
 			</div>
-			<div id="rejection-dialog"></div>
 		</th>
 	</tr>
 }
