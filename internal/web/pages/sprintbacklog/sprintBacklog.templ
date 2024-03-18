@@ -15,15 +15,14 @@ templ sprintBacklog(sprint *database.Sprint, userMap map[uint]database.User) {
 					<button class="btn btn-primary btn-xs">Back To Product Backlog</button>
 				</form>
 				<!-- Sprint Details -->
-				<div class="sprint-details mb-4 p-4 shadow-lg rounded-lg bg-white">
-					<h2 class="font-bold text-xl mb-2">{ sprint.Title }</h2>
-					<p class="mb-1"><span class="text-sm font-medium">Start Date: { sprint.StartDate.Format("January 2, 2006") }</span></p>
-					<p><span class="text-sm font-medium">End Date: { sprint.EndDate.Format("January 2, 2006") }</span></p>
-				</div>
+				<div class="sprint-details flex justify-between items-center mb-4 p-2 shadow-lg bg-white rounded-lg">
+                    <h2 class="font-bold text-lg">{ sprint.Title }</h2>
+                    <p class="text-sm">({ sprint.StartDate.Format("Mon Jan _2 2006") } - { sprint.EndDate.Format("Mon Jan _2 2006") })</p>
+                </div>
 			</div>
 			<!-- User Stories -->
 			for _, story := range sprint.UserStories {
-				<div class="border border-base-300 mb-2" style="max-height: 400px; overflow-y: auto;">
+				<div class="border border-base-300 mb-2 rounded-lg" style="max-height: 400px; overflow-y: auto;">
 					<div class="flex justify-between items-center bg-base-300 p-2">
 						<div>
 							<div class="font-medium text-lg">{ story.Title }</div>
