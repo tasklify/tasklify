@@ -12,81 +12,105 @@ import (
 
 var decoder = schema.NewDecoder()
 
-type ProjectUserDetails struct {
-	Username    string
-	Email       string
-	FirstName   string
-	LastName    string
-	ProjectRole string
-}
-
 func GetCreateProject(w http.ResponseWriter, r *http.Request, params handlers.RequestParams) error {
-	c := createProjectDialog()
+	users, err := database.GetDatabase().GetUsers()
+	if err != nil {
+		return err
+	}
+	c := createProjectDialog(users)
 	return c.Render(r.Context(), w)
 }
 
 func PostCreateProject(w http.ResponseWriter, r *http.Request, params handlers.RequestParams) error {
-	var projectData database.Project
-	err := decoder.Decode(&projectData, r.PostForm)
+	type RequestData struct {
+		Title          string `schema:"title,required"`
+		Description    string `schema:"description"`
+		ProductOwnerID uint   `schema:"productOwner,required"`
+		ScrumMasterID  uint   `schema:"scrumMaster,required"`
+	}
+
+	var req RequestData
+	err := decoder.Decode(&req, r.PostForm)
 	if err != nil {
 		return err
 	}
 
 	// Check if a project with the same title already exists
-	projectExists := database.GetDatabase().ProjectWithTitleExists(projectData.Title)
+	projectExists := database.GetDatabase().ProjectWithTitleExists(req.Title)
 	if projectExists {
 		w.WriteHeader(http.StatusBadRequest)
-		c := common.ValidationError("Project with same title already exists.")
+		c := common.ValidationError("Project with the same title already exists.")
 		return c.Render(r.Context(), w)
 	}
 
-	pID, err := database.GetDatabase().CreateProject(&projectData)
+	// Product owner should not be SCRUM master
+	if req.ProductOwnerID == req.ScrumMasterID {
+		w.WriteHeader(http.StatusBadRequest)
+		c := common.ValidationError("Product owner and SCRUM master should not be the same person!")
+		return c.Render(r.Context(), w)
+	}
+
+	newProject := database.Project{
+		Title:       req.Title,
+		Description: req.Description,
+	}
+
+	pID, err := database.GetDatabase().CreateProject(&newProject)
 	if err != nil {
 		fmt.Println(err)
 		return err
 	}
 
-	users, err := database.GetDatabase().GetUsers()
+	// Add Product owner
+	if err := database.GetDatabase().AddUserToProject(pID, req.ProductOwnerID, database.ProjectRoleManager.Val); err != nil {
+		return err
+	}
+
+	// Add SCRUM master
+	if err := database.GetDatabase().AddUserToProject(pID, req.ScrumMasterID, database.ProjectRoleMaster.Val); err != nil {
+		return err
+	}
+
+	users, err := database.GetDatabase().GetUsersNotOnProject(pID)
 	if err != nil {
 		return err
 	}
 
-	c := addProjectMembersDialog(pID, users, []database.User{})
+	c := addProjectDevelopersDialog(pID, users, []database.User{})
 	return c.Render(r.Context(), w)
 }
 
-func PostAddProjectMember(w http.ResponseWriter, r *http.Request, params handlers.RequestParams) error {
-	type ProjectMemberData struct {
-		ProjectID uint   `schema:"projectID,required"`
-		UserID    uint   `schema:"userID,required"`
-		RoleID    string `schema:"roleID,required"`
+func PostAddProjectDeveloper(w http.ResponseWriter, r *http.Request, params handlers.RequestParams) error {
+	type RequestData struct {
+		ProjectID uint `schema:"projectID,required"`
+		UserID    uint `schema:"userID,required"`
 	}
 
-	var projectMemberData ProjectMemberData
-	err := decoder.Decode(&projectMemberData, r.PostForm)
+	var req RequestData
+	err := decoder.Decode(&req, r.PostForm)
 	if err != nil {
 		return err
 	}
 
-	if err := database.GetDatabase().AddUserToProject(projectMemberData.ProjectID, projectMemberData.UserID, projectMemberData.RoleID); err != nil {
+	if err := database.GetDatabase().AddUserToProject(req.ProjectID, req.UserID, database.ProjectRoleDeveloper.Val); err != nil {
 		return err
 	}
 
-	users, err := database.GetDatabase().GetUsersNotOnProject(projectMemberData.ProjectID)
+	users, err := database.GetDatabase().GetUsersNotOnProject(req.ProjectID)
 	if err != nil {
 		return err
 	}
 
-	projectMembers, err := database.GetDatabase().GetUsersOnProject(projectMemberData.ProjectID)
+	projectDevelopers, err := database.GetDatabase().GetDevelopersOnProject(req.ProjectID)
 	if err != nil {
 		return err
 	}
 
-	c := addProjectMembersDialog(projectMemberData.ProjectID, users, projectMembers)
+	c := addProjectDevelopersDialog(req.ProjectID, users, projectDevelopers)
 	return c.Render(r.Context(), w)
 }
 
-func RemoveProjectMember(w http.ResponseWriter, r *http.Request, params handlers.RequestParams) error {
+func RemoveProjectDeveloper(w http.ResponseWriter, r *http.Request, params handlers.RequestParams) error {
 	type RequestData struct {
 		ProjectID uint `schema:"projectID,required"`
 		UserID    uint `schema:"userID,required"`
@@ -107,11 +131,11 @@ func RemoveProjectMember(w http.ResponseWriter, r *http.Request, params handlers
 		return err
 	}
 
-	projectMembers, err := database.GetDatabase().GetUsersOnProject(requestData.ProjectID)
+	projectDevelopers, err := database.GetDatabase().GetDevelopersOnProject(requestData.ProjectID)
 	if err != nil {
 		return err
 	}
 
-	c := addProjectMembersDialog(requestData.ProjectID, users, projectMembers)
+	c := addProjectDevelopersDialog(requestData.ProjectID, users, projectDevelopers)
 	return c.Render(r.Context(), w)
 }

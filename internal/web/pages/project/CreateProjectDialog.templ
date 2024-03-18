@@ -5,7 +5,7 @@ import "fmt"
 
 import ()
 
-templ createProjectDialog() {
+templ createProjectDialog(users []database.User) {
 	<div id="create-dialog" class="fixed top-0 left-0 w-full h-full bg-gray-900 bg-opacity-50 flex justify-center items-center z-50">
 		<form
 			hx-post="/create-project"
@@ -16,13 +16,54 @@ templ createProjectDialog() {
 			<div class="text-center">
 				<h2 class="text-xl font-medium mb-4">Add a new project</h2>
 				<!-- Project title Field -->
-				<div class="mb-5">
-					<label for="title" class="block text-sm font-medium text-gray-700 text-left">Project title</label>
-					<input type="text" id="title" name="title" class="input input-bordered input-primary w-full max-w-s mt-2" required/>
+				<div class="mb-4">
+					<label for="title" class="block text-sm font-medium text-gray-700">Project title</label>
+					<input type="text" id="title" name="title" class="input input-bordered input-primary w-full max-w-s mt-1" required/>
+				</div>
+				<!-- Project description Field -->
+				<div class="mb-4">
+					<label for="description" class="block text-sm font-medium text-gray-700">Short description</label>
+					<textarea rows="3" id="description" name="description" class="input input-bordered input-primary w-full h-auto max-w-s mt-1 p-2 px-4" style="max-height: 200px"></textarea>
 				</div>
 				<div class="mb-4">
-					<label for="description" class="block text-sm font-medium text-gray-700 text-left">Short description</label>
-					<textarea rows="2" id="description" name="description" class="input input-bordered input-primary w-full h-auto max-w-s mt-2" style="max-height: 200px"></textarea>
+					<label for="product_owner" class="block text-sm font-medium text-gray-700">Select product owner</label>
+					<select
+						id="product_owner"
+						class="select select-bordered select-primary w-full max-w-s mt-1 px-4"
+						name="productOwner"
+						required
+					>
+						<option hidden disabled selected value>
+							if len(users) > 0 {
+								Select user
+							} else {
+								No users to select
+							}
+						</option>
+						for _, user := range users {
+							<option value={ fmt.Sprint(user.ID) }>{ user.FirstName } { user.LastName }</option>
+						}
+					</select>
+				</div>
+				<div class="mb-5 text-center">
+					<label for="scrum_master" class="block text-sm font-medium text-gray-700">Select SCRUM master</label>
+					<select
+						id="scrum_master"
+						class="select select-bordered select-primary w-full max-w-s mt-1 px-4"
+						name="scrumMaster"
+						required
+					>
+						<option hidden disabled selected value>
+							if len(users) > 0 {
+								Select user
+							} else {
+								No users to select
+							}
+						</option>
+						for _, user := range users {
+							<option value={ fmt.Sprint(user.ID) }>{ user.FirstName } { user.LastName }</option>
+						}
+					</select>
 				</div>
 			</div>
 			<div id="validation-error"></div>
@@ -102,17 +143,17 @@ templ createProjectDialog() {
 	// </script>
 }
 
-templ addProjectMembersDialog(projectID uint, users []database.User, projectMembers []database.User) {
+templ addProjectDevelopersDialog(projectID uint, users []database.User, projectDevelopers []database.User) {
 	<div id="create-dialog" class="fixed top-0 left-0 w-full h-full bg-gray-900 bg-opacity-50 flex justify-center items-center z-50">
 		<div class="bg-white rounded-lg p-8 shadow-lg md:w-2/5 sm:w-3/5 h-auto">
 			<div class="text-center">
-				<h2 class="text-xl font-medium mb-4">Add project members</h2>
+				<h2 class="text-xl font-medium mb-4">Add project developers</h2>
 			</div>
 			<div>
-				@projectMemberForm(projectID, users)
+				@projectDeveloperForm(projectID, users)
 			</div>
-			<div id="member_table_container" class="mt-6">
-				@projectMemberTable(projectID, projectMembers)
+			<div id="developer_table_container" class="mt-6">
+				@projectDeveloperTable(projectID, projectDevelopers)
 			</div>
 			// <div id="validation-error"></div>
 			<div class="mt-4">
@@ -122,13 +163,13 @@ templ addProjectMembersDialog(projectID uint, users []database.User, projectMemb
 	</div>
 }
 
-templ projectMemberForm(projectID uint, users []database.User) {
-	<form hx-post="/project-member" hx-target="#dialog" style="all: unset">
+templ projectDeveloperForm(projectID uint, users []database.User) {
+	<form hx-post="/project-developer" hx-target="#dialog" style="all: unset">
 		<input type="hidden" id="projectID" name="projectID" value={ fmt.Sprint(projectID) }/>
 		<div class="pt-4 join flex">
 			<select
 				id="projectUser_user"
-				class="select select-bordered select-primary join-item basis-7/12 block p-2 text-sm"
+				class="select select-bordered select-primary join-item basis-full block p-2 px-4"
 				name="userID"
 				if len(users) == 0 {
 					disabled="disabled"
@@ -146,26 +187,6 @@ templ projectMemberForm(projectID uint, users []database.User) {
 					<option value={ fmt.Sprint(user.ID) }>{ user.FirstName } { user.LastName }</option>
 				}
 			</select>
-			<select
-				id="projectUser_role"
-				class="select select-bordered select-primary join-item basis-4/12 block p-2 text-sm"
-				name="roleID"
-				if len(users) == 0 {
-					disabled="disabled"
-				}
-				required
-			>
-				<option hidden disabled selected value>
-					if len(users) > 0 {
-						Select project role
-					} else {
-						/
-					}
-				</option>
-				<option value={ database.ProjectRoleManager.Val }>Project manager</option>
-				<option value={ database.ProjectRoleMaster.Val }>Project master</option>
-				<option value={ database.ProjectRoleDeveloper.Val }>Project developer</option>
-			</select>
 			<button
 				class="btn btn-primary text-sm join-item basis-1/12"
 				type="submit"
@@ -177,33 +198,33 @@ templ projectMemberForm(projectID uint, users []database.User) {
 	</form>
 }
 
-templ projectMemberTable(projectID uint, projectMembers []database.User) {
-	<h3 class="font-medium text-lg mb-1">Project members</h3>
+templ projectDeveloperTable(projectID uint, projectDevelopers []database.User) {
+	<h3 class="font-medium text-lg mb-1">Project developers</h3>
 	<div class="overflow-x-auto block max-h-80">
-		<table class="table table-auto overflow-scroll w-full" id="project_members_table">
+		<table class="table table-auto overflow-scroll w-full" id="project_developers_table">
 			<thead class="bg-white sticky top-0">
 				<tr>
 					<th>User</th>
-					<th>Project role</th>
+					<th>Email</th>
 					<th></th>
 				</tr>
 			</thead>
 			<tbody class="max-h-80 overflow-y-auto">
-				if len(projectMembers) > 0 {
-					for _, projectMember := range projectMembers {
+				if len(projectDevelopers) > 0 {
+					for _, projectDeveloper := range projectDevelopers {
 						<tr class="hover">
 							<td class="text-gray-950">
 								<div class="flex flex-col">
-									<span class="font-bold">{ projectMember.FirstName } { projectMember.LastName }</span>
-									<span class="text-xs">{ projectMember.Email }</span>
+									<span class="font-bold">{ projectDeveloper.FirstName } { projectDeveloper.LastName }</span>
+									<span class="text-xs">{ projectDeveloper.Username }</span>
 								</div>
 							</td>
-							<td class="text-gray-950">{ projectMember.ProjectRole.GetLabel() }</td>
+							<td class="text-gray-950">{ projectDeveloper.Email }</td>
 							<td style="width: 1%;">
-								<form hx-post="/remove-project-member" style="all: unset" hx-target="#dialog">
+								<form hx-post="/remove-project-developer" style="all: unset" hx-target="#dialog">
 									<button class="btn btn-xs btn-circle btn-ghost" style="font-size: 12px;">✕</button>
 									<input type="hidden" id="removeProjectID" name="projectID" value={ fmt.Sprint(projectID) }/>
-									<input type="hidden" id="removeUserID" name="userID" value={ fmt.Sprint(projectMember.ID) }/>
+									<input type="hidden" id="removeUserID" name="userID" value={ fmt.Sprint(projectDeveloper.ID) }/>
 								</form>
 							</td>
 						</tr>
