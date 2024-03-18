@@ -12,7 +12,7 @@ type Task struct {
 	UserAccepted   *bool
 	Status         *Status
 	ProjectID      uint            // 1:n (ProjectHasUser:Task)
-	UserID         *uint            // 1:n (ProjectHasUser:Task)
+	UserID         *uint           // 1:n (ProjectHasUser:Task)
 	ProjectHasUser *ProjectHasUser `gorm:"foreignKey:ProjectID,UserID"` // 1:n (ProjectHasUser:Task)
 	UserStoryID    uint            // 1:n (UserStory:Task)
 }
@@ -26,4 +26,8 @@ func (db *database) GetTasksByUserStory(userStoryID uint) ([]Task, error) {
 	}
 
 	return tasks, nil
+}
+
+func (db *database) CreateTask(task *Task) error {
+	return db.Create(task).Error
 }

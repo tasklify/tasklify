@@ -1,6 +1,7 @@
 package task
 
 import (
+	"fmt"
 	"net/http"
 	"tasklify/internal/database"
 	"tasklify/internal/handlers"
@@ -14,6 +15,8 @@ func GetCreateTask(w http.ResponseWriter, r *http.Request, params handlers.Reque
 
 	type RequestData struct {
 		UserStoryID uint `schema:"userStoryID,required"`
+		SprintID    uint `schema:"sprintID,required"`
+		ProjectID   uint `schema:"projectID,required"`
 	}
 
 	var requestData RequestData
@@ -22,7 +25,9 @@ func GetCreateTask(w http.ResponseWriter, r *http.Request, params handlers.Reque
 		return err
 	}
 
-	UserStoryID := requestData.UserStoryID
+	userStoryID := requestData.UserStoryID
+	sprintID := requestData.SprintID
+	projectID := requestData.ProjectID
 
 	// TODO samo člani razvojne skupine
 	users, err := database.GetDatabase().GetUsers()
@@ -30,7 +35,7 @@ func GetCreateTask(w http.ResponseWriter, r *http.Request, params handlers.Reque
 		return err
 	}
 
-	c := createTaskDialog(UserStoryID, users)
+	c := createTaskDialog(projectID, sprintID, userStoryID, users)
 	return c.Render(r.Context(), w)
 
 }
@@ -42,11 +47,37 @@ type TaskFormData struct {
 	UserID       uint     `schema:"user_id"`
 	UserStoryID  uint     `schema:"user_story_id,required"`
 	ProjectID    uint     `schema:"project_id,required"`
+	SprintID     uint     `schema:"sprint_id,required"`
 }
 
 func PostTask(w http.ResponseWriter, r *http.Request, params handlers.RequestParams) error {
 
-	// TODO
+	var taskFormData TaskFormData
+	if err := decoder.Decode(&taskFormData, r.PostForm); err != nil {
+		return err
+	}
+
+	// TODO get ProjectHasUser if user is selected
+	// and add user
+
+	var task = &database.Task{
+		Title:        &taskFormData.Title,
+		Description:  &taskFormData.Description,
+		TimeEstimate: taskFormData.TimeEstimate,
+		UserAccepted: new(bool),
+		Status:       &database.StatusTodo,
+		ProjectID:    taskFormData.ProjectID,
+		//UserID:       &taskFormData.UserID,
+		UserStoryID: taskFormData.UserStoryID,
+	}
+
+	if err := database.GetDatabase().CreateTask(task); err != nil {
+		return err
+	}
+
+	redirectURL := fmt.Sprintf("/sprintbacklog?sprintID=%d", taskFormData.SprintID)
+	w.Header().Set("HX-Redirect", redirectURL)
+	w.WriteHeader(http.StatusSeeOther)
 
 	return nil
 }
