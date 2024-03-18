@@ -57,18 +57,26 @@ func PostTask(w http.ResponseWriter, r *http.Request, params handlers.RequestPar
 		return err
 	}
 
-	// TODO get ProjectHasUser if user is selected
-	// and add user
-
 	var task = &database.Task{
-		Title:        &taskFormData.Title,
-		Description:  &taskFormData.Description,
-		TimeEstimate: taskFormData.TimeEstimate,
-		UserAccepted: new(bool),
-		Status:       &database.StatusTodo,
-		ProjectID:    taskFormData.ProjectID,
-		//UserID:       &taskFormData.UserID,
-		UserStoryID: taskFormData.UserStoryID,
+		Title:          &taskFormData.Title,
+		Description:    &taskFormData.Description,
+		TimeEstimate:   taskFormData.TimeEstimate,
+		UserAccepted:   new(bool),
+		Status:         &database.StatusTodo,
+		ProjectID:      taskFormData.ProjectID,
+		UserID:         nil,
+		ProjectHasUser: nil,
+		UserStoryID:    taskFormData.UserStoryID,
+	}
+
+	if taskFormData.UserID != 0 {
+		projectHasUser, err := database.GetDatabase().GetProjectHasUserByProjectAndUser(taskFormData.UserID, taskFormData.ProjectID)
+		if err != nil {
+			return err
+		}
+
+		task.ProjectHasUser = projectHasUser
+		task.UserID = &taskFormData.UserID
 	}
 
 	if err := database.GetDatabase().CreateTask(task); err != nil {

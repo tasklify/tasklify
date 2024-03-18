@@ -41,7 +41,7 @@ func sprintBacklog(sprintID uint, userStories []database.UserStory, allTasks []T
 			return templ_7745c5c3_Err
 		}
 		for _, story := range userStories {
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<details class=\"mb-4 p-2 bg-base-200 rounded-box shadow-lg\" open><summary class=\"cursor-pointer text-xl font-bold hover:bg-base-300 rounded p-2\"><div>")
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div class=\"collapse collapse-arrow border border-base-300 mb-4\"><div class=\"collapse-title text-xl font-medium bg-base-300 text-base-500\"><div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -67,7 +67,7 @@ func sprintBacklog(sprintID uint, userStories []database.UserStory, allTasks []T
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</div></summary><form hx-get=\"/create-task\" hx-target=\"#dialog\"><input type=\"hidden\" id=\"userStoryID\" name=\"userStoryID\" value=\"")
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</div></div><div class=\"card-body bg-base-100\"><div class=\"flex justify-end\"><!-- Create task Button --><form hx-get=\"/create-task\" hx-target=\"#dialog\"><input type=\"hidden\" id=\"userStoryID\" name=\"userStoryID\" value=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -91,7 +91,7 @@ func sprintBacklog(sprintID uint, userStories []database.UserStory, allTasks []T
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("\"> <button class=\"btn btn-primary btn-sm ml-2\">Create Task</button></form><div class=\"mt-2 pl-4\"><div class=\"overflow-x-auto\"><table class=\"table w-full table-zebra\"><!-- Table head for tasks --><thead><tr><th>Title</th><th>Description</th><th><a href=\"/sprintbacklog?sort=status\">Status</a></th><th>Assignee</th><th>Details</th></tr></thead> <tbody><!-- Task rows associated with this user story -->")
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("\"> <button class=\"btn btn-primary btn-sm ml-2\">create Task</button></form></div><div class=\"overflow-x-auto\"><table class=\"table w-full table-zebra\"><!-- Table head for tasks --><thead><tr><th>Title</th><th>Description</th><th><a href=\"/sprintbacklog?sort=status\">Status</a></th><th>Assignee</th><th>Details</th></tr></thead> <tbody><!-- Task rows associated with this user story -->")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -103,7 +103,7 @@ func sprintBacklog(sprintID uint, userStories []database.UserStory, allTasks []T
 					}
 				}
 			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</tbody></table></div></div></details>")
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</tbody></table></div></div></div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -139,7 +139,7 @@ func taskRow(task TaskWithUserStory) templ.Component {
 		var templ_7745c5c3_Var5 string
 		templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinStringErrs(*task.Title)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal\web\pages\sprintbacklog\sprintBacklog.templ`, Line: 62, Col: 19}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal\web\pages\sprintbacklog\sprintBacklog.templ`, Line: 65, Col: 19}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var5))
 		if templ_7745c5c3_Err != nil {
@@ -152,7 +152,7 @@ func taskRow(task TaskWithUserStory) templ.Component {
 		var templ_7745c5c3_Var6 string
 		templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.JoinStringErrs(*task.Description)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal\web\pages\sprintbacklog\sprintBacklog.templ`, Line: 63, Col: 25}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal\web\pages\sprintbacklog\sprintBacklog.templ`, Line: 66, Col: 25}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var6))
 		if templ_7745c5c3_Err != nil {
@@ -202,7 +202,7 @@ func taskRow(task TaskWithUserStory) templ.Component {
 			var templ_7745c5c3_Var7 string
 			templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.JoinStringErrs(task.AssignedTo)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal\web\pages\sprintbacklog\sprintBacklog.templ`, Line: 81, Col: 27}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal\web\pages\sprintbacklog\sprintBacklog.templ`, Line: 84, Col: 27}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var7))
 			if templ_7745c5c3_Err != nil {
@@ -213,7 +213,7 @@ func taskRow(task TaskWithUserStory) templ.Component {
 				return templ_7745c5c3_Err
 			}
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</td><td><button class=\"btn btn-xs btn-primary\">details</button></td></tr>")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</td><td><button class=\"btn btn-xs\">Details</button></td></tr>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
