@@ -6,98 +6,95 @@ import "fmt"
 import "strconv"
 
 templ productBacklog(backlogUserStories []database.UserStory, sprints map[string]database.Sprint, projectID uint, projectRole database.ProjectRole) {
-	<div id="dialog">
-		<div class="bg-base-100 min-h-screen">
-			<div>
-				<!-- Buttons Container -->
-				<div class="flex justify-between items-center mb-4 pt-2 pl-2 pr-2">
-					<!-- Left Aligned Buttons -->
-					<div>
-						<a href="/dashboard" class="btn btn-primary btn-sm">Back to Dashboard</a>
-					</div>
-					<!-- Right Aligned Buttons -->
-					if projectRole == database.ProjectRoleManager {
-						<div>
-							<form hx-get="/createuserstory" hx-target="#dialog-create">
-								<input type="hidden" id="projectID" name="projectID" value={ fmt.Sprint(projectID) }/>
-								<button class="btn btn-primary btn-sm">Create User Story</button>
-							</form>
-						</div>
-					} else if projectRole == database.ProjectRoleMaster {
-						<div>
-							<form hx-get="/createuserstory" hx-target="#dialog-create">
-								<input type="hidden" id="projectID" name="projectID" value={ fmt.Sprint(projectID) }/>
-								<button class="btn btn-primary btn-sm">Create User Story</button>
-							</form>
-							<button class="btn btn-primary btn-sm ml-2" hx-get="/createsprint" hx-target="#dialog-create">Create Sprint</button>
-						</div>
-					}
+	<div class="bg-base-100 min-h-screen">
+		<div>
+			<!-- Buttons Container -->
+			<div class="flex justify-between items-center mb-4 pt-2 pl-2 pr-2">
+				<!-- Left Aligned Buttons -->
+				<div>
+					<a href="/dashboard" class="btn btn-primary btn-sm">Back to Dashboard</a>
 				</div>
-				<div id="dialog-create"></div>
-				<div class="flex flex-col w-full lg:flex-row">
-					<!-- Backlog - unassigned, unrealized -->
-					@backlog(backlogUserStories, getLatestSprint(sprints), "/productbacklog?projectID="+strconv.Itoa(int(projectID)))
-					<!-- Divide -->
-					<div class="divider lg:divider-horizontal"></div>
-					<!-- Sprints -->
-					<div class="bg-base-100 join join-vertical w-full mt-2 mr-2">
-						<!-- Sprint -->
-						for _,sprint := range sprints {
-							<div class="collapse collapse-arrow border border-base-300 mb-4">
-								<input type="checkbox" checked/>
-								<div class="collapse-title text-xl font-medium bg-base-300 text-base-500">
-									{ sprint.Title }
+				<!-- Right Aligned Buttons -->
+				if projectRole == database.ProjectRoleManager {
+				<div>
+					<form hx-get="/createuserstory" hx-target="#dialog">
+						<input type="hidden" id="projectID" name="projectID" value={ fmt.Sprint(projectID) }/>
+						<button class="btn btn-primary btn-sm">Create User Story</button>
+					</form>
+				</div>
+				} else if projectRole == database.ProjectRoleMaster {
+				<div>
+					<form hx-get="/createuserstory" hx-target="#dialog">
+						<input type="hidden" id="projectID" name="projectID" value={ fmt.Sprint(projectID) }/>
+						<button class="btn btn-primary btn-sm">Create User Story</button>
+					</form>
+					<button class="btn btn-primary btn-sm ml-2" hx-get="/createsprint" hx-target="#dialog">Create Sprint</button>
+				</div>
+				}
+			</div>
+			<div class="flex flex-col w-full lg:flex-row">
+				<!-- Backlog - unassigned, unrealized -->
+				@backlog(backlogUserStories, getLatestSprint(sprints), "/productbacklog?projectID="+strconv.Itoa(int(projectID)))
+				<!-- Divide -->
+				<div class="divider lg:divider-horizontal"></div>
+				<!-- Sprints -->
+				<div class="bg-base-100 join join-vertical w-full mt-2 mr-2">
+					<!-- Sprint -->
+					for _,sprint := range sprints {
+						<div class="collapse collapse-arrow border border-base-300 mb-4">
+							<input type="checkbox" checked/>
+							<div class="collapse-title text-xl font-medium bg-base-300 text-base-500">
+								{ sprint.Title }
+								if sprint.DetermineStatus() == database.StatusInProgress {
+									<span class="ml-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-300">
+										Active
+									</span>
+								} else if sprint.DetermineStatus() == database.StatusDone {
+									<span class="ml-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-300">
+										Done
+									</span>
+								} else {
+									<span class="ml-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-300">
+										Upcoming
+									</span>
+								}
+							</div>
+							<div class="collapse-content card-body bg-base-100">
+								<div class="flex justify-end">
+									<!-- Places the button nicely -->
+									<!-- Sprint Backlog Button -->
 									if sprint.DetermineStatus() == database.StatusInProgress {
-										<span class="ml-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-300">
-											Active
-										</span>
-									} else if sprint.DetermineStatus() == database.StatusDone {
-										<span class="ml-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-300">
-											Done
-										</span>
-									} else {
-										<span class="ml-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-300">
-											Upcoming
-										</span>
+										<form hx-get="/sprintbacklog" hx-target="#whole" class="ml-auto">
+											<button class="btn btn-sm bg-primary">Sprint Backlog</button>
+											<input type="hidden" id="sprintID" name="sprintID" value={ fmt.Sprint(sprint.ID) }/>
+										</form>
 									}
 								</div>
-								<div class="collapse-content card-body bg-base-100">
-									<div class="flex justify-end">
-										<!-- Places the button nicely -->
-										<!-- Sprint Backlog Button -->
-										if sprint.DetermineStatus() == database.StatusInProgress {
-											<form hx-get="/sprintbacklog" hx-target="#whole" class="ml-auto">
-												<button class="btn btn-sm bg-primary">Sprint Backlog</button>
-												<input type="hidden" id="sprintID" name="sprintID" value={ fmt.Sprint(sprint.ID) }/>
-											</form>
-										}
-									</div>
-									<!-- user story table and other contents -->
-									<div class="overflow-x-auto">
-										<table class="table">
-											<!-- head -->
-											<thead>
-												<tr>
-													<th>Title</th>
-													<th>Description</th>
-													<th>Priority</th>
-													<th>Assigned</th>
-													<th>Realized</th>
-													<th></th>
-												</tr>
-											</thead>
-											<tbody>
-												<!-- User stories rows -->
-												for _, v := range sprint.UserStories {
-													@userStoryTableRow(v, sprint.DetermineStatus(), projectRole, "/productbacklog?projectID="+strconv.Itoa(int(projectID)))
-												}
-											</tbody>
-										</table>
-									</div>
+								<!-- user story table and other contents -->
+								<div class="overflow-x-auto">
+									<table class="table">
+										<!-- head -->
+										<thead>
+											<tr>
+												<th>Title</th>
+												<th>Description</th>
+												<th>Priority</th>
+												<th>Assigned</th>
+												<th>Realized</th>
+												<th></th>
+											</tr>
+										</thead>
+										<tbody>
+											<!-- User stories rows -->
+											for _, v := range sprint.UserStories {
+												@userStoryTableRow(v, sprint.DetermineStatus(), projectRole, "/productbacklog?projectID="+strconv.Itoa(int(projectID)))
+											}
+										</tbody>
+									</table>
 								</div>
 							</div>
-						}
-					</div>
+						</div>
+					}
 				</div>
 			</div>
 		</div>
