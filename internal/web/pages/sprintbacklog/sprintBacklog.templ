@@ -5,54 +5,46 @@ import "fmt"
 import "strconv"
 
 // sprintBacklog.templ:
-templ sprintBacklog(sprintID uint, userStories []database.UserStory, allTasks []TaskWithUserStory, projectID uint) {
+templ sprintBacklog(sprint *database.Sprint, userMap map[uint]database.User) {
 	<div class="bg-base-100 min-h-screen">
-		<div class="container mx-auto p-4">
+		<div class="container mx-auto p-2">
 			<!-- Back to Product Backlog Button -->
-			<div class="mb-4">
+			<div class="mb-2">
 				<form hx-get="/productbacklog" hx-target="#whole">
-					<input type="hidden" id="projectID" name="projectID" value={ fmt.Sprint(projectID) }/>
-					<button class="btn btn-primary btn-sm">Back To Product Backlog</button>
+					<input type="hidden" id="projectID" name="projectID" value={ fmt.Sprint(sprint.ProjectID) }/>
+					<button class="btn btn-primary btn-xs">Back To Product Backlog</button>
 				</form>
+				<!-- Sprint Details -->
+				<div class="sprint-details flex justify-between items-center mb-4 p-2 shadow-lg bg-white rounded-lg">
+                    <h2 class="font-bold text-lg">{ sprint.Title }</h2>
+                    <p class="text-sm">({ sprint.StartDate.Format("Mon Jan _2 2006") } - { sprint.EndDate.Format("Mon Jan _2 2006") })</p>
+                </div>
 			</div>
 			<!-- User Stories -->
-			for _, story := range userStories {
-				<div class="collapse collapse-arrow border border-base-300 mb-4">
-					<div class="collapse-title text-xl font-medium bg-base-300 text-base-500">
-						<div>{ story.Title }</div>
-						<div class="text-sm text-gray-600">{ *story.Description }</div>
-					</div>
-					<div class="card-body bg-base-100">
-						<div class="flex justify-end">
+			for _, story := range sprint.UserStories {
+				<div class="border border-base-300 mb-2 rounded-lg" style="max-height: 400px; overflow-y: auto;">
+					<div class="flex justify-between items-center bg-base-300 p-2">
+						<div>
+							<div class="font-medium text-lg">{ story.Title }</div>
+						</div>
+						<div class="flex gap-2">
+							<button class="btn btn-xs">Details</button>
 							<!-- Create task Button -->
 							<form hx-get="/create-task" hx-target="#dialog">
 								<input type="hidden" id="userStoryID" name="userStoryID" value={ strconv.Itoa(int(story.ID)) }/>
-								<input type="hidden" id="sprintID" name="sprintID" value={ strconv.Itoa(int(sprintID)) }/>
-								<input type="hidden" id="projectID" name="projectID" value={ strconv.Itoa(int(projectID)) }/>
-								<button class="btn btn-primary btn-sm ml-2">create Task</button>
+								<input type="hidden" id="sprintID" name="sprintID" value={ strconv.Itoa(int(sprint.ID)) }/>
+								<input type="hidden" id="projectID" name="projectID" value={ strconv.Itoa(int(story.ProjectID)) }/>
+								<button class="btn btn-xs btn-primary">Create Task</button>
 							</form>
 						</div>
-						<div class="overflow-x-auto">
-							<table class="table w-full table-zebra">
-								<!-- Table head for tasks -->
-								<thead>
-									<tr>
-										<th>Title</th>
-										<th>Description</th>
-										<th><a href="/sprintbacklog?sort=status">Status</a></th>
-										<th>Assignee</th>
-										<th>Details</th>
-									</tr>
-								</thead>
-								<tbody>
-									<!-- Task rows associated with this user story -->
-									for _, task := range allTasks {
-										if task.UserStoryID == story.ID {
-											@taskRow(task)
-										}
-									}
-								</tbody>
-							</table>
+					</div>
+					<div class="collapse-body card-body bg-base-100 p-2">
+						<div class="task-status-columns" style="display: flex; flex-direction: row; justify-content: space-between;">
+							<!-- Generate a column for each task status category -->
+							@taskStatusCategories(mapTasksToStatuses(story.Tasks)["Unassigned"], userMap, "Unassigned")
+							@taskStatusCategories(mapTasksToStatuses(story.Tasks)["Assigned"], userMap, "Assigned")
+							@taskStatusCategories(mapTasksToStatuses(story.Tasks)["Active"], userMap, "Active")
+							@taskStatusCategories(mapTasksToStatuses(story.Tasks)["Done"], userMap, "Done")
 						</div>
 					</div>
 				</div>
@@ -61,32 +53,124 @@ templ sprintBacklog(sprintID uint, userStories []database.UserStory, allTasks []
 	</div>
 }
 
-templ taskRow(task TaskWithUserStory) {
-	<tr>
-		<td>{ *task.Title }</td>
-		<td>{ *task.Description }</td>
-		<td>
-			switch *task.Status {
-				case database.StatusTodo:
-					<div class="badge badge-error">To do</div>
-				case database.StatusInProgress:
-					<div class="badge badge-warning">In Progress</div>
-				case database.StatusDone:
-					<div class="badge badge-success">Done</div>
-				default:
-					<span class="badge badge-ghost">Unknown</span>
+templ taskStatusCategories(tasks []database.Task, userMap map[uint]database.User, category string) {
+	<style>
+	.collapse-title,
+	:where(.collapse > input[type="checkbox"]),
+	:where(.collapse > input[type="radio"]) {
+	width: 100%;
+	padding: 0.5rem;
+	padding-inline-end: 1rem;
+	min-height: 2.75rem;
+	transition: background-color 0.2s ease-out;
+	}
+	.table :where(thead, tfoot) {
+		white-space: nowrap;
+		font-size: 0.75rem;
+		line-height: 0rem;
+		font-weight: 700;
+		color: var(--fallback-bc,oklch(var(--bc)/0.6));
+		}
+	</style>
+	if category == "Unassigned" {
+		<div class="collapse collapse-arrow border border-unassigned-300 bg-base-100 mb-0" style="margin-left: 3px;margin-right: 3px;">
+			<input type="checkbox" checked/>
+			<div class="collapse-title text-sm font-medium">{ category } Tasks</div>
+			<div class="collapse-content p-0">
+				<div class="card-body bg-base-100 p-0 m-0">
+					<div class="task-cards-container" style="display: flex; flex-direction: column; gap: 10px;">
+						for _, task := range tasks {
+							<div class="task-card bg-base-300 shadow-lg rounded-lg p-4">
+								@TaskRowSmall(task, userMap)
+							</div>
+						}
+					</div>
+				</div>
+			</div>
+		</div>
+	} else if category == "Assigned" {
+		<div class="collapse collapse-arrow border border-assigned-300 bg-base-100 mb-0" style="margin-left: 3px;margin-right: 3px;">
+			<input type="checkbox" checked/>
+			<div class="collapse-title text-sm font-medium p-2">{ category } Tasks</div>
+			<div class="collapse-content p-0">
+				<div class="card-body bg-base-100 p-0 m-0">
+					<div class="task-cards-container" style="display: flex; flex-direction: column; gap: 10px;">
+						for _, task := range tasks {
+							<div class="task-card bg-assigned-100 shadow-lg rounded-lg p-4">
+								@TaskRowSmall(task, userMap)
+							</div>
+						}
+					</div>
+				</div>
+			</div>
+		</div>
+	} else if category == "Active" {
+		<div class="collapse collapse-arrow border border-active-300 bg-base-100 mb-0" style="margin-left: 3px;margin-right: 3px;">
+			<input type="checkbox" checked/>
+			<div class="collapse-title text-sm font-medium p-2">{ category } Tasks</div>
+			<div class="collapse-content p-0">
+				<div class="card-body bg-base-100 p-0 m-0">
+					<div class="task-cards-container" style="display: flex; flex-direction: column; gap: 10px;">
+						for _, task := range tasks {
+							<div class="task-card bg-active-100 shadow-lg rounded-lg p-4">
+								@TaskRowSmall(task, userMap)
+							</div>
+						}
+					</div>
+				</div>
+			</div>
+		</div>
+	} else if category == "Done" {
+		<div class="collapse collapse-arrow border border-done-300 bg-base-100 mb-0" style="margin-left: 3px;margin-right: 3px;">
+			<input type="checkbox" checked/>
+			<div class="collapse-title text-sm font-medium p-2">{ category } Tasks</div>
+			<div class="collapse-content p-0">
+				<div class="card-body bg-base-100 p-0 m-0">
+					<div class="task-cards-container" style="display: flex; flex-direction: column; gap: 10px;">
+						for _, task := range tasks {
+							<div class="task-card bg-done-100 shadow-lg rounded-lg p-4">
+								@TaskRowSmall(task, userMap)
+							</div>
+						}
+					</div>
+				</div>
+			</div>
+		</div>
+	}
+}
+
+templ TaskRowSmall(task database.Task, userMap map[uint]database.User) {
+	<div class="task-title font-bold text-md mb-2">{ *task.Title }</div>
+	<div class="task-description text-sm mb-4">{ *task.Description }</div>
+	<!-- Flex container for aligning assignee and details button -->
+	<div class="flex justify-between items-center">
+		<div class="task-assignee">
+			if task.UserID == nil {
+				<span class="badge badge-ghost">Assign</span>
+			} else {
+				<span class="badge bg-primary">{ userMap[*task.UserID].Username }</span>
 			}
-		</td>
-		<td>
-			switch task.AssignedTo {
-				case "Unassigned":
-					<div class="text-red-500">Unassigned</div>
-				default:
-					<div>{ task.AssignedTo }</div>
-			}
-		</td>
-		<td>
+		</div>
+		<div class="task-details">
 			<button class="btn btn-xs">Details</button>
-		</td>
-	</tr>
+		</div>
+	</div>
+}
+
+func mapTasksToStatuses(tasks []database.Task) (statusMap map[string][]database.Task) {
+	statusMap = make(map[string][]database.Task)
+	for _, task := range tasks {
+		if task.UserID == nil {
+			statusMap["Unassigned"] = append(statusMap["Unassigned"], task)
+		} else {
+			if *task.Status == database.StatusInProgress {
+				statusMap["Active"] = append(statusMap["Active"], task)
+			} else if *task.Status == database.StatusDone {
+				statusMap["Done"] = append(statusMap["Done"], task)
+			} else {
+				statusMap["Assigned"] = append(statusMap["Assigned"], task)
+			}
+		}
+	}
+	return
 }

@@ -48,7 +48,7 @@ func (sprint *Sprint) DetermineStatus() Status {
 
 func (db *database) GetSprintByID(id uint) (*Sprint) {
 	var sprint = &Sprint{}
-	err := db.First(sprint, id).Error
+	err := db.Preload("UserStories.AcceptanceTests").Preload("UserStories.Tasks").Preload("UserStories").First(sprint, id).Error
 	if err != nil {
 		return nil
 	}

@@ -11,8 +11,23 @@ import (
 	"time"
 )
 
+var decoder = schema.NewDecoder()
+
 func GetCreateSprint(w http.ResponseWriter, r *http.Request, params handlers.RequestParams) error {
-	c := createSprintDialog()
+
+	type RequestData struct {
+		ProjectID uint `schema:"projectID,required"`
+	}
+
+	var requestData RequestData
+	err := decoder.Decode(&requestData, r.URL.Query())
+	if err != nil {
+		return err
+	}
+
+	projectID := requestData.ProjectID
+
+	c := createSprintDialog(projectID)
 	return c.Render(r.Context(), w)
 }
 
@@ -20,9 +35,8 @@ type sprintFormData struct {
 	StartDate time.Time `schema:"start_date,required"`
 	EndDate   time.Time `schema:"end_date,required"`
 	Velocity  *float32  `schema:"velocity,required"`
+	ProjectID uint      `schema:"project_id,required"`
 }
-
-var decoder = schema.NewDecoder()
 
 // source: https://stackoverflow.com/questions/49285635/golang-gorilla-parse-date-with-specific-format-from-form
 var timeConverter = func(value string) reflect.Value {
@@ -43,8 +57,7 @@ func PostSprint(w http.ResponseWriter, r *http.Request, params handlers.RequestP
 		return err
 	}
 
-	var projectID uint = 1 // TODO change
-	sprints, err := database.GetDatabase().GetSprintByProject(projectID)
+	sprints, err := database.GetDatabase().GetSprintByProject(sprintFormData.ProjectID)
 	if err != nil {
 		return err
 	}
@@ -60,7 +73,7 @@ func PostSprint(w http.ResponseWriter, r *http.Request, params handlers.RequestP
 		StartDate: sprintFormData.StartDate,
 		EndDate:   sprintFormData.EndDate,
 		Velocity:  sprintFormData.Velocity,
-		ProjectID: projectID, // Todo, when projects are implemented, change this
+		ProjectID: sprintFormData.ProjectID,
 	}
 
 	err = database.GetDatabase().CreateSprint(sprint)
@@ -68,7 +81,7 @@ func PostSprint(w http.ResponseWriter, r *http.Request, params handlers.RequestP
 		return err
 	}
 
-	w.Header().Set("HX-Redirect", "/productbacklog?projectID="+strconv.Itoa(int(projectID)))
+	w.Header().Set("HX-Redirect", "/productbacklog?projectID="+strconv.Itoa(int(sprintFormData.ProjectID)))
 	w.WriteHeader(http.StatusSeeOther)
 
 	return nil
