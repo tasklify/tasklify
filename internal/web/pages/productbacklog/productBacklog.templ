@@ -16,20 +16,20 @@ templ productBacklog(backlogUserStories []database.UserStory, sprints map[string
 				</div>
 				<!-- Right Aligned Buttons -->
 				if projectRole == database.ProjectRoleManager {
-				<div>
-					<form hx-get="/createuserstory" hx-target="#dialog">
-						<input type="hidden" id="projectID" name="projectID" value={ fmt.Sprint(projectID) }/>
-						<button class="btn btn-primary btn-sm">Create User Story</button>
-					</form>
-				</div>
+					<div>
+						<form hx-get="/createuserstory" hx-target="#dialog">
+							<input type="hidden" id="projectID" name="projectID" value={ fmt.Sprint(projectID) }/>
+							<button class="btn btn-primary btn-sm">Create User Story</button>
+						</form>
+					</div>
 				} else if projectRole == database.ProjectRoleMaster {
-				<div>
-					<form hx-get="/createuserstory" hx-target="#dialog">
-						<input type="hidden" id="projectID" name="projectID" value={ fmt.Sprint(projectID) }/>
-						<button class="btn btn-primary btn-sm">Create User Story</button>
-					</form>
-					<button class="btn btn-primary btn-sm ml-2" hx-get="/createsprint" hx-target="#dialog">Create Sprint</button>
-				</div>
+					<div>
+						<form hx-get="/createuserstory" hx-target="#dialog">
+							<input type="hidden" id="projectID" name="projectID" value={ fmt.Sprint(projectID) }/>
+							<button class="btn btn-primary btn-sm">Create User Story</button>
+						</form>
+						<button class="btn btn-primary btn-sm ml-2" hx-get="/createsprint" hx-target="#dialog">Create Sprint</button>
+					</div>
 				}
 			</div>
 			<div class="flex flex-col w-full lg:flex-row">
@@ -71,27 +71,31 @@ templ productBacklog(backlogUserStories []database.UserStory, sprints map[string
 									}
 								</div>
 								<!-- user story table and other contents -->
-								<div class="overflow-x-auto">
-									<table class="table">
-										<!-- head -->
-										<thead>
-											<tr>
-												<th>Title</th>
-												<th>Description</th>
-												<th>Priority</th>
-												<th>Assigned</th>
-												<th>Realized</th>
-												<th></th>
-											</tr>
-										</thead>
-										<tbody>
-											<!-- User stories rows -->
-											for _, v := range sprint.UserStories {
-												@userStoryTableRow(v, sprint.DetermineStatus(), projectRole, "/productbacklog?projectID="+strconv.Itoa(int(projectID)))
-											}
-										</tbody>
-									</table>
-								</div>
+								if len(sprint.UserStories) > 0 {
+									<div class="overflow-x-auto">
+										<table class="table">
+											<!-- head -->
+											<thead>
+												<tr>
+													<th>Title</th>
+													<th>Description</th>
+													<th>Priority</th>
+													<th>Assigned</th>
+													<th>Realized</th>
+													<th></th>
+												</tr>
+											</thead>
+											<tbody>
+												<!-- User stories rows -->
+												for _, v := range sprint.UserStories {
+													@userStoryTableRow(v, sprint.DetermineStatus(), projectRole, "/productbacklog?projectID="+strconv.Itoa(int(projectID)))
+												}
+											</tbody>
+										</table>
+									</div>
+								} else {
+									<div>No user stories in sprint yet</div>
+								}
 							</div>
 						</div>
 					}
