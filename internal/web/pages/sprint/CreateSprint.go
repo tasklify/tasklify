@@ -1,13 +1,13 @@
 package sprint
 
 import (
+	"errors"
 	"github.com/gorilla/schema"
 	"net/http"
 	"reflect"
 	"strconv"
 	"tasklify/internal/database"
 	"tasklify/internal/handlers"
-	"tasklify/internal/web/components/common"
 	"time"
 )
 
@@ -49,7 +49,10 @@ var timeConverter = func(value string) reflect.Value {
 }
 
 func PostSprint(w http.ResponseWriter, r *http.Request, params handlers.RequestParams) error {
+	return postSprint(w, r, database.GetDatabase())
+}
 
+func postSprint(w http.ResponseWriter, r *http.Request, db database.Database) error {
 	var sprintFormData sprintFormData
 	decoder.RegisterConverter(time.Time{}, timeConverter)
 	err := decoder.Decode(&sprintFormData, r.PostForm)
@@ -57,15 +60,17 @@ func PostSprint(w http.ResponseWriter, r *http.Request, params handlers.RequestP
 		return err
 	}
 
-	sprints, err := database.GetDatabase().GetSprintByProject(sprintFormData.ProjectID)
+	sprints, err := db.GetSprintByProject(sprintFormData.ProjectID)
 	if err != nil {
 		return err
 	}
 
-	err2, fieldsInvalid := fieldValidation(w, r, sprintFormData, sprints)
+	valid, validationErr := fieldValidation(sprintFormData, sprints)
 
-	if fieldsInvalid {
-		return err2
+	if !valid {
+		w.WriteHeader(http.StatusBadRequest)
+		http.Error(w, validationErr.Error(), http.StatusBadRequest)
+		return nil
 	}
 
 	var sprint = &database.Sprint{
@@ -76,7 +81,7 @@ func PostSprint(w http.ResponseWriter, r *http.Request, params handlers.RequestP
 		ProjectID: sprintFormData.ProjectID,
 	}
 
-	err = database.GetDatabase().CreateSprint(sprint)
+	err = db.CreateSprint(sprint)
 	if err != nil {
 		return err
 	}
@@ -87,34 +92,24 @@ func PostSprint(w http.ResponseWriter, r *http.Request, params handlers.RequestP
 	return nil
 }
 
-func fieldValidation(w http.ResponseWriter, r *http.Request, sprintFormData sprintFormData, sprints []database.Sprint) (error, bool) {
-
-	// validation: end date before start date
-	if sprintFormData.EndDate.Before(sprintFormData.StartDate) {
-		w.WriteHeader(http.StatusBadRequest)
-		c := common.ValidationError("Start date should be before end date.")
-		return c.Render(r.Context(), w), true
+func fieldValidation(sprintToAdd sprintFormData, sprints []database.Sprint) (bool, error) {
+	// validation: end date should be after start date
+	if sprintToAdd.StartDate.After(sprintToAdd.EndDate) || sprintToAdd.StartDate.Equal(sprintToAdd.EndDate) {
+		return false, errors.New("start date should be before end date")
 	}
 
-	// validation: start date should not be in the past
-	if sprintFormData.StartDate.Before(time.Now().Truncate(24 * time.Hour)) {
-		w.WriteHeader(http.StatusBadRequest)
-		c := common.ValidationError("Start date should not be in the past.")
-
-		return c.Render(r.Context(), w), true
+	// validation: start date should not be in the past or today
+	if sprintToAdd.StartDate.Before(time.Now().Truncate(24 * time.Hour)) {
+		return false, errors.New("start date should not be in the past")
 	}
 
 	// validation: sprint should not overlap with an existing one
 	for _, s := range sprints {
-		// (StartA <= EndB) and (EndA >= StartB)
-		if (s.StartDate.Before(sprintFormData.EndDate) || s.StartDate.Equal(sprintFormData.EndDate)) &&
-			(s.EndDate.After(sprintFormData.StartDate) || s.EndDate.Equal(sprintFormData.StartDate)) {
-			w.WriteHeader(http.StatusBadRequest)
-			c := common.ValidationError("Sprint should not overlap with an existing one.")
-
-			return c.Render(r.Context(), w), true
+		if (s.StartDate.Before(sprintToAdd.EndDate) || s.StartDate.Equal(sprintToAdd.EndDate)) &&
+			(s.EndDate.After(sprintToAdd.StartDate) || s.EndDate.Equal(sprintToAdd.StartDate)) {
+			return false, errors.New("sprint should not overlap with an existing one")
 		}
 	}
 
-	return nil, false
+	return true, nil
 }
