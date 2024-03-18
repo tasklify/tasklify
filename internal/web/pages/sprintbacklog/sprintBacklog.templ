@@ -2,6 +2,7 @@ package sprintbacklog
 
 import "tasklify/internal/database"
 import "fmt"
+import "strconv"
 
 // sprintBacklog.templ:
 templ sprintBacklog(userStories []database.UserStory, allTasks []TaskWithUserStory, projectID uint) {
@@ -21,6 +22,10 @@ templ sprintBacklog(userStories []database.UserStory, allTasks []TaskWithUserSto
 						<div>{ story.Title }</div>
 						<div class="text-sm text-gray-600">{ *story.Description }</div>
 					</summary>
+					<form hx-get="/create-task" hx-target="#dialog">
+						<input type="hidden" id="userStoryID" name="userStoryID" value={ strconv.Itoa(int(story.ID)) }/>
+						<button class="btn btn-primary btn-sm ml-2">Create Task</button>
+					</form>
 					<div class="mt-2 pl-4">
 						<div class="overflow-x-auto">
 							<table class="table w-full table-zebra">

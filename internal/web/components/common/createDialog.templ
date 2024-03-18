@@ -1,11 +1,6 @@
 package common
 
 templ CreateDialog(title string, hxPostPath string) {
-	<script>
-		document.getElementById('closeDialogButton').addEventListener('click', function() {
-		document.getElementById('create-dialog').style.display = 'none';
-	});
-	</script>
 	<div hx-ext="response-targets">
 		<div id="create-dialog" hx-ext="response-targets" class="fixed top-0 left-0 w-full h-full bg-gray-900 bg-opacity-50 flex justify-center items-center z-50">
 			<form
@@ -20,7 +15,7 @@ templ CreateDialog(title string, hxPostPath string) {
 				</div>
 				<div id="validation-error"></div>
 				<div class="flex justify-end mt-3">
-					<button class="btn btn-ghost btn-sm mr-2" type="button" id="closeDialogButton">Cancel</button>
+					<button class="btn btn-ghost btn-sm mr-2" type="button" hx-on:click="dialog_container.close()">Cancel</button>
 					<button class="btn btn-primary btn-sm" type="submit">Create</button>
 				</div>
 			</form>
