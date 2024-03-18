@@ -13,8 +13,12 @@ func Dashboard(w http.ResponseWriter, r *http.Request, params handlers.RequestPa
 	if err != nil {
 		return err
 	}
-	fmt.Println(myProjects)
 
-	c := pages.Index(fmt.Sprint(params.UserID), myProjects)
+	user, err := database.GetDatabase().GetUserByID(params.UserID)
+	if err != nil {
+		return err
+	}
+
+	c := pages.Index(fmt.Sprint(params.UserID), myProjects, user.SystemRole)
 	return pages.Layout(c, "Tasklify").Render(r.Context(), w)
 }
