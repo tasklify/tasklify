@@ -2,9 +2,10 @@ package sprintbacklog
 
 import "tasklify/internal/database"
 import "fmt"
+import "strconv"
 
 // sprintBacklog.templ:
-templ sprintBacklog(userStories []database.UserStory, allTasks []TaskWithUserStory, projectID uint) {
+templ sprintBacklog(sprintID uint, userStories []database.UserStory, allTasks []TaskWithUserStory, projectID uint) {
 	<div class="bg-base-100 min-h-screen">
 		<div class="container mx-auto p-4">
 			<!-- Back to Product Backlog Button -->
@@ -16,12 +17,21 @@ templ sprintBacklog(userStories []database.UserStory, allTasks []TaskWithUserSto
 			</div>
 			<!-- User Stories -->
 			for _, story := range userStories {
-				<details class="mb-4 p-2 bg-base-200 rounded-box shadow-lg" open>
-					<summary class="cursor-pointer text-xl font-bold hover:bg-base-300 rounded p-2">
+				<div class="collapse collapse-arrow border border-base-300 mb-4">
+					<div class="collapse-title text-xl font-medium bg-base-300 text-base-500">
 						<div>{ story.Title }</div>
 						<div class="text-sm text-gray-600">{ *story.Description }</div>
-					</summary>
-					<div class="mt-2 pl-4">
+					</div>
+					<div class="card-body bg-base-100">
+						<div class="flex justify-end">
+							<!-- Create task Button -->
+							<form hx-get="/create-task" hx-target="#dialog">
+								<input type="hidden" id="userStoryID" name="userStoryID" value={ strconv.Itoa(int(story.ID)) }/>
+								<input type="hidden" id="sprintID" name="sprintID" value={ strconv.Itoa(int(sprintID)) }/>
+								<input type="hidden" id="projectID" name="projectID" value={ strconv.Itoa(int(projectID)) }/>
+								<button class="btn btn-primary btn-sm ml-2">create Task</button>
+							</form>
+						</div>
 						<div class="overflow-x-auto">
 							<table class="table w-full table-zebra">
 								<!-- Table head for tasks -->
@@ -45,7 +55,7 @@ templ sprintBacklog(userStories []database.UserStory, allTasks []TaskWithUserSto
 							</table>
 						</div>
 					</div>
-				</details>
+				</div>
 			}
 		</div>
 	</div>
@@ -76,7 +86,7 @@ templ taskRow(task TaskWithUserStory) {
 			}
 		</td>
 		<td>
-			<button class="btn btn-xs btn-primary">details</button>
+			<button class="btn btn-xs">Details</button>
 		</td>
 	</tr>
 }

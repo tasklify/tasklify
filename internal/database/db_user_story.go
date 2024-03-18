@@ -18,12 +18,17 @@ type UserStory struct {
 	SprintID         *uint           // 1:n (Sprint:UserStory)
 	ProjectID        uint            // 1:n (Project:UserStory)
 	Tasks            []Task          // 1:n (UserStory:Task)
+	AcceptanceTests  []AcceptanceTest // 1:n (UserStory:AcceptanceTest)
 	UserID           *uint           // 1:n (ProjectHasUser:UserStory)
 	ProjectHasUser   *ProjectHasUser `gorm:"foreignKey:ProjectID,UserID"` // 1:n (ProjectHasUser:UserStory)
 }
 
 func (db *database) CreateUserStory(userStory *UserStory) error {
 	return db.Create(userStory).Error
+}
+
+func (db *database) UpdateUserStory(userStory *UserStory) error {
+	return db.Save(userStory).Error
 }
 
 func (db *database) GetUserStoriesByProject(projectID uint) ([]UserStory, error) {
@@ -60,7 +65,7 @@ func (db *database) GetUserStoryByID(id uint) (*UserStory, error) {
 
 func (db *database) UserStoryWithTitleExists(title string) bool {
 	var count int64
-	db.Model(&UserStory{}).Where("title = ?", title).Count(&count)
+	db.Model(&UserStory{}).Where("LOWER(title) = LOWER(?)", title).Count(&count)
 	return count > 0
 }
 
@@ -77,4 +82,22 @@ func (db *database) AddUserStoryToSprint(sprintID uint, userStoryIDs []uint) (*S
 	}
 
 	return &sprint, nil
+}
+
+func (userStory *UserStory) AllAcceptanceTestsRealized() bool {
+	for _, acceptanceTest := range userStory.AcceptanceTests {
+		if *acceptanceTest.Realized == false {
+			return false
+		}
+	}
+	return true
+}
+
+func (userStory *UserStory) AllTasksRealized() bool {
+	for _, task := range userStory.Tasks {
+		if *task.Status != StatusDone {
+			return false
+		}
+	}
+	return true
 }

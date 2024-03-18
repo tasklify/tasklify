@@ -30,7 +30,7 @@ func AuthenticateUser(username, password string) (uint, error) {
 	}
 
 	var userLastLogin = &database.User{}
-	userLastLogin.ID = user.ID
+	userLastLogin = user
 	userLastLogin.LastLogin = &loginTime
 	err = database.GetDatabase().UpdateUser(userLastLogin)
 	if err != nil {

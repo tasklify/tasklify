@@ -1,6 +1,7 @@
 package sprint
 
 import (
+	"github.com/gorilla/schema"
 	"net/http"
 	"reflect"
 	"strconv"
@@ -8,9 +9,12 @@ import (
 	"tasklify/internal/handlers"
 	"tasklify/internal/web/components/common"
 	"time"
-
-	"github.com/gorilla/schema"
 )
+
+func GetCreateSprint(w http.ResponseWriter, r *http.Request, params handlers.RequestParams) error {
+	c := createSprintDialog()
+	return c.Render(r.Context(), w)
+}
 
 type sprintFormData struct {
 	StartDate time.Time `schema:"start_date,required"`

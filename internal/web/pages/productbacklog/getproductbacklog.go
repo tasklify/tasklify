@@ -25,7 +25,6 @@ func GetProductBacklog(w http.ResponseWriter, r *http.Request, params handlers.R
 	}
 
 	projectID := requestData.ProjectID
-	fmt.Println(projectID)
 
 	userStories, err := database.GetDatabase().GetUserStoriesByProject(projectID)
 	if err != nil {
@@ -39,9 +38,11 @@ func GetProductBacklog(w http.ResponseWriter, r *http.Request, params handlers.R
 
 	// unassigned, unrealized user stories
 	var usInBacklog, _ = filterBacklog(userStories)
-	var sprintMap = mapSprintsToSprintIds(sprints)
 
-	c := productBacklog(usInBacklog, sprintMap, projectID)
+	//get user project role
+	projectRole := database.GetDatabase().GetProjectRole(params.UserID, projectID)
+
+	c := productBacklog(usInBacklog, sprints, projectID, projectRole)
 	return pages.Layout(c, "Backlog").Render(r.Context(), w)
 }
 
@@ -54,19 +55,6 @@ func filterBacklog(userStories []database.UserStory) (inBacklog []database.UserS
 			inSprint = append(inSprint, us)
 		}
 	}
-	return
-}
-
-func mapSprintsToSprintIds(sprints []database.Sprint) (sprintMap map[string]database.Sprint) {
-
-	sprintMap = make(map[string]database.Sprint)
-
-	for _, sprint := range sprints {
-		var sprintID = strconv.FormatUint(uint64(sprint.ID), 10)
-
-		sprintMap[sprintID] = sprint
-	}
-
 	return
 }
 
@@ -99,6 +87,97 @@ func PostAddUserStoryToSprint(w http.ResponseWriter, r *http.Request, params han
 	fmt.Println("User Story IDs:", selectedTaskIds)
 
 	callbackURL := r.FormValue("callback")
+	if callbackURL != "" {
+		w.Header().Set("HX-Redirect", callbackURL)
+	} else {
+		return errors.New("callback URL not provided")
+	}
+
+	w.WriteHeader(http.StatusSeeOther)
+	return nil
+}
+
+func PostUserStoryAccepted(w http.ResponseWriter, r *http.Request, params handlers.RequestParams) error {
+	if err := r.ParseForm(); err != nil {
+		return err
+	}
+
+	userStoryID, err := strconv.Atoi(r.FormValue("userStoryID"))
+	if err != nil {
+		return err
+	}
+
+	userStory, err := database.GetDatabase().GetUserStoryByID(uint(userStoryID))
+	if err != nil {
+		return err
+	}
+
+	*userStory.Realized = true
+	if err := database.GetDatabase().UpdateUserStory(userStory); err != nil {
+		fmt.Println("Error updating user story")
+		return err
+	}
+
+	callbackURL := r.FormValue("callback")
+	fmt.Println(callbackURL)
+	if callbackURL != "" {
+		w.Header().Set("HX-Redirect", callbackURL)
+	} else {
+		return errors.New("callback URL not provided")
+	}
+
+	w.WriteHeader(http.StatusSeeOther)
+	return nil
+}
+
+func PostUserStoryRejected(w http.ResponseWriter, r *http.Request, params handlers.RequestParams) error {
+	if err := r.ParseForm(); err != nil {
+		return err
+	}
+
+	userStoryID, err := strconv.Atoi(r.FormValue("userStoryID"))
+	if err != nil {
+		return err
+	}
+
+	projectID, err := strconv.Atoi(r.FormValue("projectID"))
+	if err != nil {
+		return err
+	}
+
+	c := CreateRejectionCommentDialog(uint(userStoryID), "/productbacklog?projectID="+strconv.Itoa(int(projectID)))
+
+	return c.Render(r.Context(), w)
+
+}
+
+func PostRejectionComment(w http.ResponseWriter, r *http.Request, params handlers.RequestParams) error {
+	if err := r.ParseForm(); err != nil {
+		return err
+	}
+
+	userStoryID, err := strconv.Atoi(r.FormValue("userStoryID"))
+	if err != nil {
+		return err
+	}
+
+	comment := r.FormValue("comment")
+
+	userStory, err := database.GetDatabase().GetUserStoryByID(uint(userStoryID))
+	if err != nil {
+		return err
+	}
+
+	userStory.RejectionComment = &comment
+	userStory.SprintID = nil
+	*userStory.Realized = false
+	if err := database.GetDatabase().UpdateUserStory(userStory); err != nil {
+		fmt.Println("Error updating user story")
+		return err
+	}
+
+	callbackURL := r.FormValue("callback")
+	fmt.Println(callbackURL)
 	if callbackURL != "" {
 		w.Header().Set("HX-Redirect", callbackURL)
 	} else {

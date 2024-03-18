@@ -4,21 +4,39 @@ import "tasklify/internal/web/components/common"
 import "fmt"
 
 templ CreateUserStoryDialog(projectID uint) {
+	<script>
+document.getElementById('addAcceptanceTest').addEventListener('click', function() {
+    const container = document.getElementById('acceptanceTestsContainer');
+    const newFieldNumber = container.children.length;
+    const newField = document.createElement('input');
+    newField.setAttribute('type', 'text');
+    newField.setAttribute('name', 'acceptanceTests');
+    newField.setAttribute('class', 'input mt-1 p-2 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50');
+    newField.setAttribute('placeholder', 'Acceptance Test Description');
+    container.appendChild(newField);
+});
+</script>
 	@common.CreateDialog("Create user story", "/createuserstory") {
 		<!-- Title Field -->
 		<div class="mb-4">
-			<label for="title" class="block text-sm font-medium text-gray-700">Title:</label>
-			<input type="text" id="title" name="title" class="input mt-1 p-2 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50" required/>
+			<label for="title" class="block text-sm font-medium text-gray-700">Title</label>
+			<input type="text" id="title" name="title" class="input input-bordered input-primary w-full max-w-s mt-1" required/>
 		</div>
 		<!-- Description Field -->
 		<div class="mb-4">
-			<label for="description" class="block text-sm font-medium text-gray-700">Description:</label>
-			<textarea id="description" name="description" class="textarea mt-1 p-2 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50" required></textarea>
+			<label for="description" class="block text-sm font-medium text-gray-700">Description</label>
+			<textarea id="description" name="description" class="textarea textarea-bordered textarea-primary w-full max-w-s mt-1" required></textarea>
 		</div>
+		<!-- Acceptance Tests Field -->
+		<div id="acceptanceTestsContainer" class="mb-4">
+			<label for="acceptanceTest0" class="block text-sm font-medium text-gray-700">Acceptance Tests:</label>
+			<!-- Placeholder for dynamically added acceptance tests -->
+		</div>
+		<button type="button" id="addAcceptanceTest" class="btn btn-secondary btn-sm">Add Acceptance Test</button>
 		<!-- Priority Field -->
 		<div class="mb-4">
-			<label for="priority" class="block text-sm font-medium text-gray-700">Priority:</label>
-			<select id="priority" name="priority" class="select mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50" required>
+			<label for="priority" class="block text-sm font-medium text-gray-700">Priority</label>
+			<select id="priority" name="priority" class="select select-bordered select-primary w-full max-w-s mt-1" required>
 				<option value="priority_must_have">Must have</option>
 				<option value="priority_should_have">Should have</option>
 				<option value="priority_could_have">Could have</option>
@@ -28,7 +46,7 @@ templ CreateUserStoryDialog(projectID uint) {
 		<!-- Business Value Field -->
 		<div class="mb-4">
 			<label for="business_value" class="block text-sm font-medium text-gray-700">Business Value:</label>
-			<input type="number" id="business_value" name="business_value" class="input mt-1 p-2 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50" required/>
+			<input type="number" id="business_value" name="business_value" class="input input-bordered input-primary w-full max-w-s mt-1" required/>
 		</div>
 		<input type="hidden" id="projectID" name="projectID" value={ fmt.Sprint(projectID) }/>
 	}
