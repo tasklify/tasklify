@@ -65,7 +65,7 @@ func (db *database) GetUserStoryByID(id uint) (*UserStory, error) {
 
 func (db *database) UserStoryWithTitleExists(title string) bool {
 	var count int64
-	db.Model(&UserStory{}).Where("title = ?", title).Count(&count)
+	db.Model(&UserStory{}).Where("LOWER(title) = LOWER(?)", title).Count(&count)
 	return count > 0
 }
 

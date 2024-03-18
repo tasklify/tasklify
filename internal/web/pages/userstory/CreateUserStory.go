@@ -6,6 +6,7 @@ import (
 	"reflect"
 	"tasklify/internal/database"
 	"tasklify/internal/handlers"
+	"tasklify/internal/web/components/common"
 
 	"github.com/gorilla/schema"
 )
@@ -37,6 +38,13 @@ func PostUserStory(w http.ResponseWriter, r *http.Request, params handlers.Reque
 	var userStoryData UserStoryFormData
 	if err := decoder.Decode(&userStoryData, r.PostForm); err != nil {
 		return err
+	}
+	// Check if a user story with the same title already exists
+	userStoryExists := database.GetDatabase().UserStoryWithTitleExists(userStoryData.Title)
+	if userStoryExists {
+		w.WriteHeader(http.StatusBadRequest)
+		c := common.ValidationError("User story with same title already exists.")
+		return c.Render(r.Context(), w)
 	}
 
 	ProjectID := userStoryData.ProjectID
