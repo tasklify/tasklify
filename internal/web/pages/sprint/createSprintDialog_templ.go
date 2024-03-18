@@ -10,8 +10,9 @@ import "io"
 import "bytes"
 
 import "tasklify/internal/web/components/common"
+import "strconv"
 
-func createSprintDialog() templ.Component {
+func createSprintDialog(projectID uint) templ.Component {
 	return templ.ComponentFunc(func(ctx context.Context, templ_7745c5c3_W io.Writer) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templ_7745c5c3_W.(*bytes.Buffer)
 		if !templ_7745c5c3_IsBuffer {
@@ -30,7 +31,15 @@ func createSprintDialog() templ.Component {
 				templ_7745c5c3_Buffer = templ.GetBuffer()
 				defer templ.ReleaseBuffer(templ_7745c5c3_Buffer)
 			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<!-- Start Date Field --> <div class=\"mb-4\"><label for=\"start_date\" class=\"block text-sm font-medium text-gray-700\">Start Date</label> <input type=\"date\" id=\"start_date\" name=\"start_date\" class=\"input input-bordered input-primary w-full max-w-s mt-1\" required></div><!-- End Date Field --> <div class=\"mb-4\"><label for=\"end_date\" class=\"block text-sm font-medium text-gray-700\">End Date</label> <input type=\"date\" id=\"end_date\" name=\"end_date\" class=\"input input-bordered input-primary w-full max-w-s mt-1\" required></div><!-- Velocity Field --> <div class=\"mb-4\"><label for=\"velocity\" class=\"block text-sm font-medium text-gray-700\">Velocity</label> <input type=\"number\" id=\"velocity\" name=\"velocity\" class=\"input input-bordered input-primary w-full max-w-s mt-1\" min=\"1\" required></div>")
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<!-- Start Date Field --> <div class=\"mb-4\"><label for=\"start_date\" class=\"block text-sm font-medium text-gray-700\">Start Date</label> <input type=\"date\" id=\"start_date\" name=\"start_date\" class=\"input input-bordered input-primary w-full max-w-s mt-1\" required></div><!-- End Date Field --> <div class=\"mb-4\"><label for=\"end_date\" class=\"block text-sm font-medium text-gray-700\">End Date</label> <input type=\"date\" id=\"end_date\" name=\"end_date\" class=\"input input-bordered input-primary w-full max-w-s mt-1\" required></div><!-- Velocity Field --> <div class=\"mb-4\"><label for=\"velocity\" class=\"block text-sm font-medium text-gray-700\">Velocity</label> <input type=\"number\" id=\"velocity\" name=\"velocity\" class=\"input input-bordered input-primary w-full max-w-s mt-1\" min=\"1\" required></div><!-- ProjectID (hidden) --> <input type=\"hidden\" id=\"project_id\" name=\"project_id\" value=\"")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(strconv.Itoa(int(projectID))))
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
