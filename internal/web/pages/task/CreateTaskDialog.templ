@@ -2,10 +2,11 @@ package task
 
 import "tasklify/internal/web/components/common"
 import "tasklify/internal/database"
+
 import "fmt"
 import "strconv"
 
-templ createTaskDialog(userStoryID uint, users []database.User) {
+templ createTaskDialog(projectID uint, sprintID uint, userStoryID uint, users []database.User) {
 	@common.CreateDialog("Create task", "/create-task") {
 		<!-- Title Field -->
 		<div class="mb-4">
@@ -32,7 +33,6 @@ templ createTaskDialog(userStoryID uint, users []database.User) {
 				if len(users) == 0 {
 					disabled="disabled"
 				}
-				required
 			>
 				<option hidden disabled selected value>
 					Select user
@@ -44,5 +44,9 @@ templ createTaskDialog(userStoryID uint, users []database.User) {
 		</div>
 		<!-- UserStoryID (hidden) -->
 		<input type="hidden" id="user_story_id" name="user_story_id" value={ strconv.Itoa(int(userStoryID)) }/>
+		<!-- SprintID (hidden) -->
+		<input type="hidden" id="sprint_id" name="sprint_id" value={ strconv.Itoa(int(sprintID)) }/>
+		<!-- ProjectID (hidden) -->
+		<input type="hidden" id="project_id" name="project_id" value={ strconv.Itoa(int(projectID)) }/>
 	}
 }

@@ -5,7 +5,7 @@ import "fmt"
 import "strconv"
 
 // sprintBacklog.templ:
-templ sprintBacklog(userStories []database.UserStory, allTasks []TaskWithUserStory, projectID uint) {
+templ sprintBacklog(sprintID uint, userStories []database.UserStory, allTasks []TaskWithUserStory, projectID uint) {
 	<div class="bg-base-100 min-h-screen">
 		<div class="container mx-auto p-4">
 			<!-- Back to Product Backlog Button -->
@@ -24,6 +24,8 @@ templ sprintBacklog(userStories []database.UserStory, allTasks []TaskWithUserSto
 					</summary>
 					<form hx-get="/create-task" hx-target="#dialog">
 						<input type="hidden" id="userStoryID" name="userStoryID" value={ strconv.Itoa(int(story.ID)) }/>
+						<input type="hidden" id="sprintID" name="sprintID" value={ strconv.Itoa(int(sprintID)) }/>
+						<input type="hidden" id="projectID" name="projectID" value={ strconv.Itoa(int(projectID)) }/>
 						<button class="btn btn-primary btn-sm ml-2">Create Task</button>
 					</form>
 					<div class="mt-2 pl-4">
