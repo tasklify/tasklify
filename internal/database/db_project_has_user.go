@@ -77,6 +77,23 @@ func (db *database) GetUsersOnProject(projectID uint) ([]User, error) {
 	return users, nil
 }
 
+func (db *database) GetDevelopersOnProject(projectID uint) ([]User, error) {
+	var users []User
+	if err := db.Model(&User{}).
+		Joins("LEFT JOIN project_has_users ON users.id = project_has_users.user_id").
+		Select("users.*, project_has_users.project_role as project_role_str").
+		Where("project_has_users.project_id = ? AND project_has_users.project_role = ? AND project_has_users.deleted_at IS NULL", projectID, ProjectRoleDeveloper.Val).
+		Find(&users).Error; err != nil {
+		return []User{}, err
+	}
+
+	for i := range users {
+		users[i].ProjectRole = ProjectRoleDeveloper
+	}
+
+	return users, nil
+}
+
 func (db *database) GetUsersNotOnProject(projectID uint) ([]User, error) {
 	var users []User
 

@@ -34,6 +34,7 @@ type Database interface {
 	CreateProject(project *Project) (uint, error)
 	AddUserToProject(projectID uint, userID uint, projectRole string) error
 	GetUsersOnProject(projectID uint) ([]User, error)
+	GetDevelopersOnProject(projectID uint) ([]User, error)
 	GetUsersNotOnProject(projectID uint) ([]User, error)
 	ProjectWithTitleExists(title string) bool
 	RemoveUserFromProject(projectID uint, userID uint) error
