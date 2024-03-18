@@ -1,8 +1,9 @@
 package sprint
 
 import "tasklify/internal/web/components/common"
+import "strconv"
 
-templ createSprintDialog() {
+templ createSprintDialog(projectID uint) {
 	@common.CreateDialog("Create sprint", "/createsprint") {
 		<!-- Start Date Field -->
 		<div class="mb-4">
@@ -19,5 +20,7 @@ templ createSprintDialog() {
 			<label for="velocity" class="block text-sm font-medium text-gray-700">Velocity</label>
 			<input type="number" id="velocity" name="velocity" class="input input-bordered input-primary w-full max-w-s mt-1" min="1" required/>
 		</div>
+		<!-- ProjectID (hidden) -->
+		<input type="hidden" id="project_id" name="project_id" value={ strconv.Itoa(int(projectID)) }/>
 	}
 }
