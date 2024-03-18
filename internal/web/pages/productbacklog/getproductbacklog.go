@@ -38,13 +38,11 @@ func GetProductBacklog(w http.ResponseWriter, r *http.Request, params handlers.R
 
 	// unassigned, unrealized user stories
 	var usInBacklog, _ = filterBacklog(userStories)
-	var sprintMap = mapSprintsToSprintIds(sprints)
 
 	//get user project role
 	projectRole := database.GetDatabase().GetProjectRole(params.UserID, projectID)
 
-
-	c := productBacklog(usInBacklog, sprintMap, projectID, projectRole)
+	c := productBacklog(usInBacklog, sprints, projectID, projectRole)
 	return pages.Layout(c, "Backlog").Render(r.Context(), w)
 }
 
@@ -57,19 +55,6 @@ func filterBacklog(userStories []database.UserStory) (inBacklog []database.UserS
 			inSprint = append(inSprint, us)
 		}
 	}
-	return
-}
-
-func mapSprintsToSprintIds(sprints []database.Sprint) (sprintMap map[string]database.Sprint) {
-
-	sprintMap = make(map[string]database.Sprint)
-
-	for _, sprint := range sprints {
-		var sprintID = strconv.FormatUint(uint64(sprint.ID), 10)
-
-		sprintMap[sprintID] = sprint
-	}
-
 	return
 }
 
@@ -112,8 +97,6 @@ func PostAddUserStoryToSprint(w http.ResponseWriter, r *http.Request, params han
 	return nil
 }
 
-
-
 func PostUserStoryAccepted(w http.ResponseWriter, r *http.Request, params handlers.RequestParams) error {
 	if err := r.ParseForm(); err != nil {
 		return err
@@ -147,7 +130,6 @@ func PostUserStoryAccepted(w http.ResponseWriter, r *http.Request, params handle
 	return nil
 }
 
-
 func PostUserStoryRejected(w http.ResponseWriter, r *http.Request, params handlers.RequestParams) error {
 	if err := r.ParseForm(); err != nil {
 		return err
@@ -180,7 +162,6 @@ func PostRejectionComment(w http.ResponseWriter, r *http.Request, params handler
 	}
 
 	comment := r.FormValue("comment")
-
 
 	userStory, err := database.GetDatabase().GetUserStoryByID(uint(userStoryID))
 	if err != nil {

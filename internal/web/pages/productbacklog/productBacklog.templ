@@ -5,7 +5,7 @@ import "tasklify/internal/web/components/common"
 import "fmt"
 import "strconv"
 
-templ productBacklog(backlogUserStories []database.UserStory, sprints map[string]database.Sprint, projectID uint, projectRole database.ProjectRole) {
+templ productBacklog(backlogUserStories []database.UserStory, sprints []database.Sprint, projectID uint, projectRole database.ProjectRole) {
 	<div class="bg-base-100 min-h-screen">
 		<div>
 			<!-- Buttons Container -->
@@ -43,8 +43,11 @@ templ productBacklog(backlogUserStories []database.UserStory, sprints map[string
 					for _,sprint := range sprints {
 						<div class="collapse collapse-arrow border border-base-300 mb-4">
 							<input type="checkbox" checked/>
-							<div class="collapse-title text-xl font-medium bg-base-300 text-base-500">
-								{ sprint.Title }
+							<div class="collapse-title text-xl font-medium bg-base-300 text-base-500" style="display: flex; justify-content: space-between;">
+								<div>
+									{ sprint.Title }
+									<div class="text-sm text-gray-600">({ sprint.StartDate.Format("Mon Jan _2 2006") } - { sprint.EndDate.Format("Mon Jan _2 2006") })</div>
+								</div>
 								if sprint.DetermineStatus() == database.StatusInProgress {
 									<span class="ml-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-300">
 										Active
@@ -152,7 +155,7 @@ templ backlog(backlogUserStories []database.UserStory, sprint database.Sprint, c
 	</div>
 }
 
-func getLatestSprint(sprints map[string]database.Sprint) database.Sprint {
+func getLatestSprint(sprints []database.Sprint) database.Sprint {
 	var latestSprint database.Sprint
 	for _, sprint := range sprints {
 		if sprint.StartDate.After(latestSprint.StartDate) {
