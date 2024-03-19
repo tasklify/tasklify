@@ -16,9 +16,9 @@ templ sprintBacklog(sprint *database.Sprint, userMap map[uint]database.User) {
 				</form>
 				<!-- Sprint Details -->
 				<div class="sprint-details flex justify-between items-center mb-4 p-2 shadow-lg bg-white rounded-lg">
-                    <h2 class="font-bold text-lg">{ sprint.Title }</h2>
-                    <p class="text-sm">({ sprint.StartDate.Format("Mon Jan _2 2006") } - { sprint.EndDate.Format("Mon Jan _2 2006") })</p>
-                </div>
+					<h2 class="font-bold text-lg">{ sprint.Title }</h2>
+					<p class="text-sm">({ sprint.StartDate.Format("Mon Jan _2 2006") } - { sprint.EndDate.Format("Mon Jan _2 2006") })</p>
+				</div>
 			</div>
 			<!-- User Stories -->
 			for _, story := range sprint.UserStories {
@@ -152,7 +152,12 @@ templ TaskRowSmall(task database.Task, userMap map[uint]database.User) {
 			}
 		</div>
 		<div class="task-details">
-			<button class="btn btn-xs">Details</button>
+			<!--Details button-->
+			<button class="btn btn-xs">
+				<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+					<path stroke-linecap="round" stroke-linejoin="round" d="M6.75 12a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0ZM12.75 12a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0ZM18.75 12a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Z"></path>
+				</svg>
+			</button>
 		</div>
 	</div>
 }
