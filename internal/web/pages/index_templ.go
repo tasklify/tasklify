@@ -69,7 +69,7 @@ func Index(userID string, myProjects []database.Project, user_SystemRole databas
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</p><div class=\"card-actions justify-end\"><form hx-get=\"/productbacklog\" hx-target=\"#whole\" hx-swap=\"innerHTML\"><input type=\"hidden\" id=\"projectID\" name=\"projectID\" value=\"")
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</p><div class=\"card-actions justify-end\"><form hx-get=\"/productbacklog\" hx-target=\"#whole\" hx-swap=\"innerHTML\" hx-push-url=\"true\"><input type=\"hidden\" id=\"projectID\" name=\"projectID\" value=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

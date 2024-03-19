@@ -5,9 +5,27 @@ import "tasklify/internal/web/components/common"
 import "fmt"
 import "strconv"
 
-templ productBacklog(backlogUserStories []database.UserStory, sprints []database.Sprint, projectID uint, projectRole database.ProjectRole) {
+templ productBacklog(backlogUserStories []database.UserStory, sprints []database.Sprint, projectID uint, projectRole database.ProjectRole, project database.Project) {
 	<div class="bg-base-100 min-h-screen">
 		<div>
+			<div class="flex p-4 border-b-2 border-b-gray-300 bg-base-300">
+				<div class="flex-1">
+					<h1 class="font-bold text-3xl">{ project.Title }</h1>
+					<h4>Project board</h4>
+				</div>
+				<div>
+					<details class="dropdown dropdown-bottom dropdown-end">
+						<summary class="m-1 btn">&#8942;</summary>
+						<ul tabindex="0" class="p-2 shadow menu dropdown-content z-[1] bg-base-100 rounded-box w-52">
+							<li><a hx-get={ fmt.Sprint("/edit-project-info/", projectID) } hx-target="#whole" hx-swap="innerHTML" hx-push-url="true">Edit project info</a></li>
+							<li><a>Edit project members</a></li>
+						</ul>
+					</details>
+					// <form hx-get={ fmt.Sprint("/edit-project/", projectID) } hx-target="#whole" hx-swap="innerHTML" hx-push-url="true">
+					// 	<button class="link link-hover underline-offset-4">&#9881;</button>
+					// </form>
+				</div>
+			</div>
 			<!-- Buttons Container -->
 			<div class="flex justify-between items-center mb-4 pt-2 pl-2 pr-2">
 				<!-- Left Aligned Buttons -->
@@ -16,23 +34,23 @@ templ productBacklog(backlogUserStories []database.UserStory, sprints []database
 				</div>
 				<!-- Right Aligned Buttons -->
 				if projectRole == database.ProjectRoleManager {
-				<div>
-					<form hx-get="/createuserstory" hx-target="#dialog">
-						<input type="hidden" id="projectID" name="projectID" value={ fmt.Sprint(projectID) }/>
-						<button class="btn btn-primary btn-sm">Create User Story</button>
-					</form>
-				</div>
+					<div>
+						<form hx-get="/createuserstory" hx-target="#dialog">
+							<input type="hidden" id="projectID" name="projectID" value={ fmt.Sprint(projectID) }/>
+							<button class="btn btn-primary btn-sm">Create User Story</button>
+						</form>
+					</div>
 				} else if projectRole == database.ProjectRoleMaster {
-				<div>
-					<form hx-get="/createuserstory" hx-target="#dialog">
-						<input type="hidden" id="projectID" name="projectID" value={ fmt.Sprint(projectID) }/>
-						<button class="btn btn-primary btn-sm">Create User Story</button>
-					</form>
-					<form hx-get="/createsprint" hx-target="#dialog">
-						<input type="hidden" id="projectID" name="projectID" value={ fmt.Sprint(projectID) }/>
-						<button class="btn btn-primary btn-sm ml-2">Create Sprint</button>
-					</form>
-				</div>
+					<div>
+						<form hx-get="/createuserstory" hx-target="#dialog">
+							<input type="hidden" id="projectID" name="projectID" value={ fmt.Sprint(projectID) }/>
+							<button class="btn btn-primary btn-sm">Create User Story</button>
+						</form>
+						<form hx-get="/createsprint" hx-target="#dialog">
+							<input type="hidden" id="projectID" name="projectID" value={ fmt.Sprint(projectID) }/>
+							<button class="btn btn-primary btn-sm ml-2">Create Sprint</button>
+						</form>
+					</div>
 				}
 			</div>
 			<div class="flex flex-col w-full lg:flex-row">

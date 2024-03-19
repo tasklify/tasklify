@@ -34,11 +34,12 @@ type Database interface {
 	CreateProject(project *Project) (uint, error)
 	AddUserToProject(projectID uint, userID uint, projectRole string) error
 	GetUsersOnProject(projectID uint) ([]User, error)
-	GetDevelopersOnProject(projectID uint) ([]User, error)
+	GetUsersWithRoleOnProject(projectID uint, projectRole ProjectRole) ([]User, error)
 	GetUsersNotOnProject(projectID uint) ([]User, error)
-	ProjectWithTitleExists(title string) bool
+	ProjectWithTitleExists(title string, excludedProjectID *uint) bool
 	RemoveUserFromProject(projectID uint, userID uint) error
 	GetUserProjects(userID uint) ([]Project, error)
+	UpdateProject(projectID uint, projectData Project) error
 	CreateAcceptanceTest(acceptanceTest *AcceptanceTest) error
 	RawDB() *gorm.DB
 }

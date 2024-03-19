@@ -36,7 +36,7 @@ func PostCreateProject(w http.ResponseWriter, r *http.Request, params handlers.R
 	}
 
 	// Check if a project with the same title already exists
-	projectExists := database.GetDatabase().ProjectWithTitleExists(req.Title)
+	projectExists := database.GetDatabase().ProjectWithTitleExists(req.Title, nil)
 	if projectExists {
 		w.WriteHeader(http.StatusBadRequest)
 		c := common.ValidationError("Project with the same title already exists.")
@@ -101,7 +101,7 @@ func PostAddProjectDeveloper(w http.ResponseWriter, r *http.Request, params hand
 		return err
 	}
 
-	projectDevelopers, err := database.GetDatabase().GetDevelopersOnProject(req.ProjectID)
+	projectDevelopers, err := database.GetDatabase().GetUsersWithRoleOnProject(req.ProjectID, database.ProjectRoleDeveloper)
 	if err != nil {
 		return err
 	}
@@ -131,7 +131,7 @@ func RemoveProjectDeveloper(w http.ResponseWriter, r *http.Request, params handl
 		return err
 	}
 
-	projectDevelopers, err := database.GetDatabase().GetDevelopersOnProject(requestData.ProjectID)
+	projectDevelopers, err := database.GetDatabase().GetUsersWithRoleOnProject(requestData.ProjectID, database.ProjectRoleDeveloper)
 	if err != nil {
 		return err
 	}

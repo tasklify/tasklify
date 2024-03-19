@@ -28,9 +28,13 @@ func (db *database) CreateProject(project *Project) (uint, error) {
 	return project.ID, err
 }
 
-func (db *database) ProjectWithTitleExists(title string) bool {
+func (db *database) ProjectWithTitleExists(title string, excludedProjectID *uint) bool {
 	var count int64
-	db.Model(&Project{}).Where("LOWER(title) = LOWER(?)", title).Count(&count)
+	if excludedProjectID != nil {
+		db.Model(&Project{}).Where("LOWER(title) = LOWER(?) AND id != ?", title, excludedProjectID).Count(&count)
+	} else {
+		db.Model(&Project{}).Where("LOWER(title) = LOWER(?)", title).Count(&count)
+	}
 	return count > 0
 }
 
@@ -52,4 +56,8 @@ func (db *database) GetUserProjects(userID uint) ([]Project, error) {
 		}
 		return user.Projects, nil
 	}
+}
+
+func (db *database) UpdateProject(projectID uint, projectData Project) error {
+	return db.Model(&Project{}).Where("id = ?", projectID).Updates(projectData).Error
 }

@@ -70,6 +70,10 @@ func Router() *chi.Mux {
 			r.Handle("/remove-project-developer", ghandlers.MethodHandler{
 				"POST": handlers.UnifiedHandler(handlers.AuthenticatedHandlerFunc(project.RemoveProjectDeveloper)),
 			})
+			r.Handle("/edit-project-info/{projectID}", ghandlers.MethodHandler{
+				"GET":  handlers.UnifiedHandler(handlers.AuthenticatedHandlerFunc(project.GetEditProjectInfo)),
+				"POST": handlers.UnifiedHandler(handlers.AuthenticatedHandlerFunc(project.UpdateProjectInfo)),
+			})
 			r.Handle("/createsprint", ghandlers.MethodHandler{
 				"GET":  handlers.UnifiedHandler(handlers.AuthenticatedHandlerFunc(sprint.GetCreateSprint)),
 				"POST": handlers.UnifiedHandler(handlers.AuthenticatedHandlerFunc(sprint.PostSprint)),

@@ -26,6 +26,11 @@ func GetProductBacklog(w http.ResponseWriter, r *http.Request, params handlers.R
 
 	projectID := requestData.ProjectID
 
+	project, err := database.GetDatabase().GetProjectByID(projectID)
+	if err != nil {
+		return err
+	}
+
 	userStories, err := database.GetDatabase().GetUserStoriesByProject(projectID)
 	if err != nil {
 		return err
@@ -42,7 +47,7 @@ func GetProductBacklog(w http.ResponseWriter, r *http.Request, params handlers.R
 	//get user project role
 	projectRole := database.GetDatabase().GetProjectRole(params.UserID, projectID)
 
-	c := productBacklog(usInBacklog, sprints, projectID, projectRole)
+	c := productBacklog(usInBacklog, sprints, projectID, projectRole, *project)
 	return pages.Layout(c, "Backlog").Render(r.Context(), w)
 }
 
