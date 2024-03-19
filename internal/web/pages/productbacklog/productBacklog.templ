@@ -141,13 +141,19 @@ templ backlog(backlogUserStories []database.UserStory, sprint database.Sprint, c
 						for _, us := range backlogUserStories {
 							<tr>
 								<td>{ us.Title }</td>
-								<td>{ *us.Description }</td>
+								<td class="min-w-[12rem] max-w-[20rem] truncate">
+									{ *us.Description }
+								</td>
 								<td>
-									<button class="btn btn-xs">
-										<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
-											<path stroke-linecap="round" stroke-linejoin="round" d="M6.75 12a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0ZM12.75 12a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0ZM18.75 12a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Z"></path>
-										</svg>
-									</button>
+									<!--Details button-->
+									<form hx-post="/userstory/details" hx-target="#dialog">
+										<input type="hidden" name="userStoryID" id="userStoryID" value={ strconv.Itoa(int(us.ID)) }/>
+										<button class="btn btn-xs">
+											<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+												<path stroke-linecap="round" stroke-linejoin="round" d="M6.75 12a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0ZM12.75 12a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0ZM18.75 12a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Z"></path>
+											</svg>
+										</button>
+									</form>
 								</td>
 								if projectRole == database.ProjectRoleMaster {
 									if us.StoryPoints != 0 {
@@ -189,7 +195,7 @@ templ userStoryTableRow(us database.UserStory, status database.Status, projectRo
 			<div class="font-bold">{ us.Title }</div>
 		</td>
 		<!-- Description -->
-		<td class="min-w-[12rem] max-w-[20rem] whitespace-normal">
+		<td class="min-w-[12rem] max-w-[20rem] truncate">
 			{ *us.Description }
 		</td>
 		<!-- Priority -->
@@ -236,13 +242,14 @@ templ userStoryTableRow(us database.UserStory, status database.Status, projectRo
 			<div class="flex flex-col space-y-2">
 				<div class="flex btn-container space-x-4 max-w-[10rem]">
 					<!--Details button-->
-					<div class="flex-grow">
-						<button class="btn btn-xs flex-grow">
+					<form hx-post="/userstory/details" hx-target="#dialog">
+						<input type="hidden" name="userStoryID" id="userStoryID" value={ strconv.Itoa(int(us.ID)) }/>
+						<button class="btn btn-xs">
 							<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
 								<path stroke-linecap="round" stroke-linejoin="round" d="M6.75 12a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0ZM12.75 12a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0ZM18.75 12a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Z"></path>
 							</svg>
 						</button>
-					</div>
+					</form>
 					<!--Remove from sprint button-->
 					if *us.Realized {
 						<div class="flex-grow">

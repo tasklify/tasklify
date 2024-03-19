@@ -1,0 +1,40 @@
+package userstory
+
+import "tasklify/internal/database"
+
+templ UserStoryDetailsDialog(us database.UserStory) {
+	<div hx-ext="response-targets">
+		<div id="create-dialog" hx-ext="response-targets" class="fixed top-0 left-0 w-full h-full bg-gray-900 bg-opacity-50 flex justify-center items-center z-50">
+			<div class="bg-white rounded-lg p-8 shadow-lg w-2/5 h-auto">
+				<!-- Header with Title -->
+				<div class="mb-4">
+					<h2 class="text-xl font-bold mb-2">User story: { us.Title }</h2>
+				</div>
+				<div class="mb-4">
+					<div class="font-bold">Priority</div>
+					<div>
+						switch us.Priority {
+							case database.PriorityMustHave:
+								<div class="badge badge-error">Must have</div>
+							case database.PriorityCouldHave:
+								<div class="badge badge-warning">Could have</div>
+							case database.PriorityShouldHave:
+								<div class="badge badge-success">Should have</div>
+							case database.PriorityWontHaveThisTime:
+								<div class="badge badge-info">Won't have this time</div>
+							default:
+								<span></span>
+						}
+					</div>
+				</div>
+				<div class="mb-4">
+					<div class="font-bold">Description</div>
+					<div class="text-gray-800 break-words">{ *us.Description }</div>
+				</div>
+				<div class="flex justify-end mt-3 items-center">
+					<button class="btn btn-primary btn-sm" type="button" hx-on:click="dialog_container.close()">Close</button>
+				</div>
+			</div>
+		</div>
+	</div>
+}
