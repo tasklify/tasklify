@@ -26,18 +26,21 @@ func GetSprintBacklog(w http.ResponseWriter, r *http.Request, params handlers.Re
 
 	//fetch sprint
 	sprint := database.GetDatabase().GetSprintByID(sprintID)
-    if sprint == nil {
-        return pages.NotFound(w, r)
-    }
+	if sprint == nil {
+		return pages.NotFound(w, r)
+	}
 
-	c := sprintBacklog(sprint)
+	//get user project role
+	projectRole := database.GetDatabase().GetProjectRole(params.UserID, sprint.ProjectID)
+
+	c := sprintBacklog(sprint, projectRole)
 
 	return pages.Layout(c, "Sprint Backlog", r).Render(r.Context(), w)
 }
 
 func GetUsernameFromID(userID uint) string {
-    user,_ := database.GetDatabase().GetUserByID(userID)
-    return user.Username
+	user, _ := database.GetDatabase().GetUserByID(userID)
+	return user.Username
 }
 
 func mapTasksToStatuses(tasks []database.Task) (statusMap map[string][]database.Task) {

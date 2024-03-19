@@ -5,7 +5,7 @@ import "fmt"
 import "strconv"
 
 // sprintBacklog.templ:
-templ sprintBacklog(sprint *database.Sprint) {
+templ sprintBacklog(sprint *database.Sprint, projectRole database.ProjectRole) {
 	<div class="bg-base-100 min-h-screen">
 		<div class="container mx-auto p-2">
 			<!-- Back to Product Backlog Button -->
@@ -30,12 +30,23 @@ templ sprintBacklog(sprint *database.Sprint) {
 						<div class="flex gap-2 mt-2">
 							<button class="btn btn-xs">Details</button>
 							<!-- Create task Button -->
-							<form hx-get="/create-task" hx-target="#dialog">
-								<input type="hidden" id="userStoryID" name="userStoryID" value={ strconv.Itoa(int(story.ID)) }/>
-								<input type="hidden" id="sprintID" name="sprintID" value={ strconv.Itoa(int(sprint.ID)) }/>
-								<input type="hidden" id="projectID" name="projectID" value={ strconv.Itoa(int(story.ProjectID)) }/>
-								<button class="btn btn-xs btn-primary" style="margin-right: 10px;">Create Task</button>
-							</form>
+							if *story.Realized {
+								<form hx-get="/create-task" hx-target="#dialog" title="Can't add tasks to realized user story">
+									<input type="hidden" id="userStoryID" name="userStoryID" value={ strconv.Itoa(int(story.ID)) }/>
+									<input type="hidden" id="sprintID" name="sprintID" value={ strconv.Itoa(int(sprint.ID)) }/>
+									<input type="hidden" id="projectID" name="projectID" value={ strconv.Itoa(int(story.ProjectID)) }/>
+									<button class="btn btn-xs btn-primary" style="margin-right: 10px;" disabled>Create Task</button>
+								</form>
+							} else {
+								if projectRole == database.ProjectRoleMaster || projectRole == database.ProjectRoleDeveloper {
+									<form hx-get="/create-task" hx-target="#dialog">
+										<input type="hidden" id="userStoryID" name="userStoryID" value={ strconv.Itoa(int(story.ID)) }/>
+										<input type="hidden" id="sprintID" name="sprintID" value={ strconv.Itoa(int(sprint.ID)) }/>
+										<input type="hidden" id="projectID" name="projectID" value={ strconv.Itoa(int(story.ProjectID)) }/>
+										<button class="btn btn-xs btn-primary" style="margin-right: 10px;">Create Task</button>
+									</form>
+								}
+							}
 						</div>
 					</div>
 					<div class="collapse-body card-body bg-base-100 p-2">
