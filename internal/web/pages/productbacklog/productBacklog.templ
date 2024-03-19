@@ -16,28 +16,28 @@ templ productBacklog(backlogUserStories []database.UserStory, sprints []database
 				</div>
 				<!-- Right Aligned Buttons -->
 				if projectRole == database.ProjectRoleManager {
-				<div>
-					<form hx-get="/createuserstory" hx-target="#dialog">
-						<input type="hidden" id="projectID" name="projectID" value={ fmt.Sprint(projectID) }/>
-						<button class="btn btn-primary btn-sm">Create User Story</button>
-					</form>
-				</div>
+					<div>
+						<form hx-get="/createuserstory" hx-target="#dialog">
+							<input type="hidden" id="projectID" name="projectID" value={ fmt.Sprint(projectID) }/>
+							<button class="btn btn-primary btn-sm">Create User Story</button>
+						</form>
+					</div>
 				} else if projectRole == database.ProjectRoleMaster {
-				<div>
-					<form hx-get="/createuserstory" hx-target="#dialog">
-						<input type="hidden" id="projectID" name="projectID" value={ fmt.Sprint(projectID) }/>
-						<button class="btn btn-primary btn-sm">Create User Story</button>
-					</form>
-					<form hx-get="/createsprint" hx-target="#dialog">
-						<input type="hidden" id="projectID" name="projectID" value={ fmt.Sprint(projectID) }/>
-						<button class="btn btn-primary btn-sm ml-2">Create Sprint</button>
-					</form>
-				</div>
+					<div>
+						<form hx-get="/createuserstory" hx-target="#dialog">
+							<input type="hidden" id="projectID" name="projectID" value={ fmt.Sprint(projectID) }/>
+							<button class="btn btn-primary btn-sm">Create User Story</button>
+						</form>
+						<form hx-get="/createsprint" hx-target="#dialog">
+							<input type="hidden" id="projectID" name="projectID" value={ fmt.Sprint(projectID) }/>
+							<button class="btn btn-primary btn-sm ml-2">Create Sprint</button>
+						</form>
+					</div>
 				}
 			</div>
 			<div class="flex flex-col w-full lg:flex-row">
 				<!-- Backlog - unassigned, unrealized -->
-				@backlog(backlogUserStories, getLatestSprint(sprints), "/productbacklog?projectID="+strconv.Itoa(int(projectID)))
+				@backlog(backlogUserStories, getLatestSprint(sprints), "/productbacklog?projectID="+strconv.Itoa(int(projectID)), projectRole)
 				<!-- Divide -->
 				<div class="divider lg:divider-horizontal"></div>
 				<!-- Sprints -->
@@ -121,7 +121,7 @@ templ userStoryCard(name string, description string) {
 	</div>
 }
 
-templ backlog(backlogUserStories []database.UserStory, sprint database.Sprint, callback string) {
+templ backlog(backlogUserStories []database.UserStory, sprint database.Sprint, callback string, projectRole database.ProjectRole) {
 	<div class="card card-compact bg-base-200 transition-shadow w-2/5 mt-2 ml-2">
 		<div class="card-title collapse-title text-xl font-medium bg-base-300 border-base-300">Product backlog</div>
 		<div class="card-body">
@@ -131,7 +131,10 @@ templ backlog(backlogUserStories []database.UserStory, sprint database.Sprint, c
 						<tr>
 							<th>Title</th>
 							<th>Description</th>
-							<th>Selected</th>
+							<th>Details</th>
+							if projectRole == database.ProjectRoleMaster {
+								<th>Selected</th>
+							}
 						</tr>
 					</thead>
 					<tbody>
@@ -139,20 +142,31 @@ templ backlog(backlogUserStories []database.UserStory, sprint database.Sprint, c
 							<tr>
 								<td>{ us.Title }</td>
 								<td>{ *us.Description }</td>
-								if us.StoryPoints != 0 {
-									<td><input type="checkbox" class="checkbox" name="selectedTasks" value={ strconv.Itoa(int(us.ID)) }/></td>
-								} else {
-									<td><input type="checkbox" class="checkbox" name="selectedTasks" value={ strconv.Itoa(int(us.ID)) } title="Please add story points" disabled/></td>
+								<td>
+									<button class="btn btn-xs">
+										<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+											<path stroke-linecap="round" stroke-linejoin="round" d="M6.75 12a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0ZM12.75 12a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0ZM18.75 12a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Z"></path>
+										</svg>
+									</button>
+								</td>
+								if projectRole == database.ProjectRoleMaster {
+									if us.StoryPoints != 0 {
+										<td><input type="checkbox" class="checkbox" name="selectedTasks" value={ strconv.Itoa(int(us.ID)) }/></td>
+									} else {
+										<td><input type="checkbox" class="checkbox" name="selectedTasks" value={ strconv.Itoa(int(us.ID)) } title="Please add story points" disabled/></td>
+									}
 								}
 							</tr>
 						}
 					</tbody>
 				</table>
-				<div class="mt-4 flex justify-end">
-					<input type="hidden" name="sprintID" value={ strconv.Itoa(int(sprint.ID)) }/>
-					<input type="hidden" name="callback" value={ callback }/>
-					<button type="submit" class="btn btn-primary">Add to Sprint</button>
-				</div>
+				if projectRole == database.ProjectRoleMaster {
+					<div class="mt-4 flex justify-end">
+						<input type="hidden" name="sprintID" value={ strconv.Itoa(int(sprint.ID)) }/>
+						<input type="hidden" name="callback" value={ callback }/>
+						<button type="submit" class="btn btn-primary">Add to Sprint</button>
+					</div>
+				}
 			</form>
 		</div>
 	</div>
@@ -217,9 +231,39 @@ templ userStoryTableRow(us database.UserStory, status database.Status, projectRo
 				</svg>
 			}
 		</td>
-		<th>
+		<!-- Details -->
+		<td>
 			<div class="flex flex-col space-y-2">
-				<button class="btn btn-xs">Details</button>
+				<div class="flex btn-container space-x-4 max-w-[10rem]">
+					<!--Details button-->
+					<div class="flex-grow">
+						<button class="btn btn-xs flex-grow">
+							<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+								<path stroke-linecap="round" stroke-linejoin="round" d="M6.75 12a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0ZM12.75 12a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0ZM18.75 12a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Z"></path>
+							</svg>
+						</button>
+					</div>
+					<!--Remove from sprint button-->
+					if *us.Realized {
+						<div class="flex-grow">
+							<button class="btn btn-xs" disabled>
+								<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+									<path stroke-linecap="round" stroke-linejoin="round" d="m9.75 9.75 4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"></path>
+								</svg>
+							</button>
+						</div>
+					} else {
+						<form class="flex-grow" hx-post="/userstory/remove-from-sprint" hx-target="#dialog">
+							<input type="hidden" name="userStoryID" value={ strconv.Itoa(int(us.ID)) }/>
+							<input type="hidden" name="callback" value={ callback }/>
+							<button class="btn btn-xs">
+								<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+									<path stroke-linecap="round" stroke-linejoin="round" d="m9.75 9.75 4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"></path>
+								</svg>
+							</button>
+						</form>
+					}
+				</div>
 				<div class="flex justify-start space-x-2">
 					if (*us.Realized == false && projectRole == database.ProjectRoleManager && status == database.StatusDone) {
 						if (us.AllTasksRealized() == false && us.AllAcceptanceTestsRealized() == false) {
@@ -268,7 +312,7 @@ templ userStoryTableRow(us database.UserStory, status database.Status, projectRo
 					}
 				</div>
 			</div>
-		</th>
+		</td>
 	</tr>
 }
 
