@@ -25,9 +25,10 @@ type Database interface {
 	GetUserStoriesByProject(projectID uint) ([]UserStory, error)
 	GetUserStoriesBySprint(sprintID uint) ([]UserStory, error)
 	GetUserStoryByID(id uint) (*UserStory, error)
-	UserStoryWithTitleExists(title string) bool
+	UserStoryInThisProjectAlreadyExists(title string, projectID uint) bool
 	GetTasksByUserStory(userStoryID uint) ([]Task, error)
 	CreateTask(task *Task) error
+	GetTaskByID(id uint) (*Task, error)
 	GetProjectByID(id uint) (*Project, error)
 	GetProjectRole(userID uint, projectID uint) ProjectRole
 	GetProjectHasUserByProjectAndUser(userID uint, projectID uint) (*ProjectHasUser, error)

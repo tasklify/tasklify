@@ -10,30 +10,24 @@ templ productBacklog(backlogUserStories []database.UserStory, sprints []database
 		<div>
 			<!-- Buttons Container -->
 			<div class="flex justify-between items-center mb-4 pt-2 pl-2 pr-2">
-				<!-- Left Aligned Buttons -->
+				<a href="/" class="btn btn-primary btn-sm">Back to Dashboard</a>
 				<div>
-					<a href="/" class="btn btn-primary btn-sm">Back to Dashboard</a>
-				</div>
-				<!-- Right Aligned Buttons -->
-				if projectRole == database.ProjectRoleManager {
-					<div>
-						<form hx-get="/createuserstory" hx-target="#dialog">
+					if projectRole == database.ProjectRoleManager {
+						<form hx-get="/createuserstory" hx-target="#dialog" style="display: inline;">
 							<input type="hidden" id="projectID" name="projectID" value={ fmt.Sprint(projectID) }/>
 							<button class="btn btn-primary btn-sm">Create User Story</button>
 						</form>
-					</div>
-				} else if projectRole == database.ProjectRoleMaster {
-					<div>
-						<form hx-get="/createuserstory" hx-target="#dialog">
+					} else if projectRole == database.ProjectRoleMaster {
+						<form hx-get="/createuserstory" hx-target="#dialog" style="display: inline;">
 							<input type="hidden" id="projectID" name="projectID" value={ fmt.Sprint(projectID) }/>
 							<button class="btn btn-primary btn-sm">Create User Story</button>
 						</form>
-						<form hx-get="/createsprint" hx-target="#dialog">
+						<form hx-get="/createsprint" hx-target="#dialog" style="display: inline;">
 							<input type="hidden" id="projectID" name="projectID" value={ fmt.Sprint(projectID) }/>
 							<button class="btn btn-primary btn-sm ml-2">Create Sprint</button>
 						</form>
-					</div>
-				}
+					}
+				</div>
 			</div>
 			<div class="flex flex-col w-full lg:flex-row">
 				<!-- Backlog - unassigned, unrealized -->
