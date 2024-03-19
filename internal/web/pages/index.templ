@@ -7,7 +7,7 @@ import "tasklify/internal/auth"
 
 func Home(w http.ResponseWriter, r *http.Request) error {
 	c := GuestIndex()
-	return Layout(c, "Tasklify").Render(r.Context(), w)
+	return Layout(c, "Tasklify", r).Render(r.Context(), w)
 }
 
 templ Index(userID string, myProjects []database.Project, user_SystemRole database.SystemRole) {
