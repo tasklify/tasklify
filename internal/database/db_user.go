@@ -30,8 +30,8 @@ func (db *database) GetUsers() ([]User, error) {
 }
 
 func (db *database) GetUserByUsername(username string) (*User, error) {
-	var user = &User{Username: username}
-	err := db.First(user).Error
+	var user = &User{}
+	err := db.Where("username = ?", username).First(&user).Error
 	if err != nil {
 		return nil, err
 	}
