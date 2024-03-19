@@ -20,5 +20,5 @@ func Dashboard(w http.ResponseWriter, r *http.Request, params handlers.RequestPa
 	}
 
 	c := pages.Index(fmt.Sprint(params.UserID), myProjects, user.SystemRole)
-	return pages.Layout(c, "Tasklify").Render(r.Context(), w)
+	return pages.Layout(c, "Tasklify", r).Render(r.Context(), w)
 }

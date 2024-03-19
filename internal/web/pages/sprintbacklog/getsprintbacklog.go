@@ -32,7 +32,7 @@ func GetSprintBacklog(w http.ResponseWriter, r *http.Request, params handlers.Re
 
 	c := sprintBacklog(sprint)
 
-	return pages.Layout(c, "Sprint Backlog").Render(r.Context(), w)
+	return pages.Layout(c, "Sprint Backlog", r).Render(r.Context(), w)
 }
 
 func GetUsernameFromID(userID uint) string {

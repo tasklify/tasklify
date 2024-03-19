@@ -1,12 +1,15 @@
 package pages
 
-templ Layout(contents templ.Component, title string) {
+import "net/http"
+import "tasklify/internal/auth"
+
+templ Layout(contents templ.Component, title string, r *http.Request) {
 	<!-- <!DOCTYPE html> -->
 	<html>
 		<div id="whole">
 			@header(title)
 			<body id="root" class="flex flex-col h-full">
-				@nav()
+				@nav(r)
 				<main class="flex-1">
 					@contents
 				</main>
@@ -34,15 +37,18 @@ templ header(title string) {
 	</head>
 }
 
-templ nav() {
+templ nav(r *http.Request) {
 	<div class="navbar bg-primary">
 		<div class="navbar-start">
 			<a class="btn btn-ghost text-xxl text-white" href="/">tasklify</a>
 		</div>
 		<div class="navbar-end">
-			<a class="btn btn-sm m-0.5" hx-get="/login" hx-target="#login-dialog" hx-swap="outerHTML">Login</a>
-			<a class="btn btn-sm m-0.5" hx-post="/logout">Logout</a>
-			<a class="btn btn-sm m-0.5" href="/register">Register</a>
+			if isLoggedIn(r) {
+				<a class="btn btn-sm m-0.5" hx-post="/logout">Logout</a>
+			} else {
+				<a class="btn btn-sm m-0.5" hx-get="/login" hx-target="#login-dialog" hx-swap="outerHTML">Login</a>
+				<a class="btn btn-sm m-0.5" href="/register">Register</a>
+			}
 		</div>
 	</div>
 	<div id="login-dialog"></div>
@@ -50,4 +56,13 @@ templ nav() {
 
 templ footer() {
 	<footer class="bg-primary-400 p-4"></footer>
+}
+
+func isLoggedIn(r *http.Request) bool {
+	sessionManager := auth.GetSession()
+	_, err := sessionManager.GetUserID(r)
+
+	isLoggedIn := err == nil // If there's no error, the user is considered logged in
+
+	return isLoggedIn
 }
