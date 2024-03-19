@@ -15,7 +15,7 @@ import "fmt"
 import "strconv"
 
 // sprintBacklog.templ:
-func sprintBacklog(sprint *database.Sprint, userMap map[uint]database.User) templ.Component {
+func sprintBacklog(sprint *database.Sprint, projectRole database.ProjectRole) templ.Component {
 	return templ.ComponentFunc(func(ctx context.Context, templ_7745c5c3_W io.Writer) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templ_7745c5c3_W.(*bytes.Buffer)
 		if !templ_7745c5c3_IsBuffer {
@@ -36,27 +36,27 @@ func sprintBacklog(sprint *database.Sprint, userMap map[uint]database.User) temp
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("\"> <button class=\"btn btn-primary btn-xs\">Back To Product Backlog</button></form><!-- Sprint Details --><div class=\"sprint-details flex justify-between items-center mb-4 p-2 shadow-lg bg-white rounded-lg\"><h2 class=\"font-bold text-lg\">")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("\"> <button class=\"btn btn-primary btn-xs\">Back To Product Backlog</button></form><!-- Sprint Details --><div class=\"sprint-details flex justify-between items-center mb-4 p-2 shadow-lg bg-white rounded-lg\"><h2 class=\"font-bold text-lg\" style=\"padding-left: 15px;\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var2 string
 		templ_7745c5c3_Var2, templ_7745c5c3_Err = templ.JoinStringErrs(sprint.Title)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal\web\pages\sprintbacklog\sprintBacklog.templ`, Line: 18, Col: 49}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal\web\pages\sprintbacklog\sprintBacklog.templ`, Line: 18, Col: 77}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var2))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</h2><p class=\"text-sm\">(")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</h2><p class=\"text-sm\" style=\"padding-right: 10px;\">(")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var3 string
 		templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinStringErrs(sprint.StartDate.Format("Mon Jan _2 2006"))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal\web\pages\sprintbacklog\sprintBacklog.templ`, Line: 19, Col: 69}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal\web\pages\sprintbacklog\sprintBacklog.templ`, Line: 19, Col: 98}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var3))
 		if templ_7745c5c3_Err != nil {
@@ -69,7 +69,7 @@ func sprintBacklog(sprint *database.Sprint, userMap map[uint]database.User) temp
 		var templ_7745c5c3_Var4 string
 		templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs(sprint.EndDate.Format("Mon Jan _2 2006"))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal\web\pages\sprintbacklog\sprintBacklog.templ`, Line: 19, Col: 116}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal\web\pages\sprintbacklog\sprintBacklog.templ`, Line: 19, Col: 145}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var4))
 		if templ_7745c5c3_Err != nil {
@@ -80,60 +80,101 @@ func sprintBacklog(sprint *database.Sprint, userMap map[uint]database.User) temp
 			return templ_7745c5c3_Err
 		}
 		for _, story := range sprint.UserStories {
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div class=\"border border-base-300 mb-2 rounded-lg\" style=\"max-height: 400px; overflow-y: auto;\"><div class=\"flex justify-between items-center bg-base-300 p-2\"><div><div class=\"font-medium text-lg\">")
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div class=\"border border-base-300 mb-2 rounded-lg\" style=\"max-height: 400px; overflow-y: auto;\"><div class=\"flex justify-between items-center bg-base-300 p-2\"><div><div class=\"font-medium text-lg\" style=\"padding-left: 15px;\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var5 string
 			templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinStringErrs(story.Title)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal\web\pages\sprintbacklog\sprintBacklog.templ`, Line: 27, Col: 53}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal\web\pages\sprintbacklog\sprintBacklog.templ`, Line: 27, Col: 81}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var5))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</div></div><div class=\"flex gap-2\"><button class=\"btn btn-xs\">Details</button><!-- Create task Button --><form hx-get=\"/create-task\" hx-target=\"#dialog\"><input type=\"hidden\" id=\"userStoryID\" name=\"userStoryID\" value=\"")
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</div></div><div class=\"flex gap-2 mt-2\"><button class=\"btn btn-xs\">Details</button><!-- Create task Button -->")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(strconv.Itoa(int(story.ID))))
+			if *story.Realized {
+				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<form hx-get=\"/create-task\" hx-target=\"#dialog\" title=\"Can&#39;t add tasks to realized user story\"><input type=\"hidden\" id=\"userStoryID\" name=\"userStoryID\" value=\"")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(strconv.Itoa(int(story.ID))))
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("\"> <input type=\"hidden\" id=\"sprintID\" name=\"sprintID\" value=\"")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(strconv.Itoa(int(sprint.ID))))
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("\"> <input type=\"hidden\" id=\"projectID\" name=\"projectID\" value=\"")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(strconv.Itoa(int(story.ProjectID))))
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("\"> <button class=\"btn btn-xs btn-primary\" style=\"margin-right: 10px;\" disabled>Create Task</button></form>")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+			} else {
+				if projectRole == database.ProjectRoleMaster || projectRole == database.ProjectRoleDeveloper {
+					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<form hx-get=\"/create-task\" hx-target=\"#dialog\"><input type=\"hidden\" id=\"userStoryID\" name=\"userStoryID\" value=\"")
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(strconv.Itoa(int(story.ID))))
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("\"> <input type=\"hidden\" id=\"sprintID\" name=\"sprintID\" value=\"")
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(strconv.Itoa(int(sprint.ID))))
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("\"> <input type=\"hidden\" id=\"projectID\" name=\"projectID\" value=\"")
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(strconv.Itoa(int(story.ProjectID))))
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("\"> <button class=\"btn btn-xs btn-primary\" style=\"margin-right: 10px;\">Create Task</button></form>")
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+				}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</div></div><div class=\"collapse-body card-body bg-base-100 p-2\"><div class=\"task-status-columns\" style=\"display: flex; flex-direction: row; justify-content: space-between;\"><!-- Generate a column for each task status category -->")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("\"> <input type=\"hidden\" id=\"sprintID\" name=\"sprintID\" value=\"")
+			templ_7745c5c3_Err = taskStatusCategories(mapTasksToStatuses(story.Tasks)["Unassigned"], "Unassigned").Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(strconv.Itoa(int(sprint.ID))))
+			templ_7745c5c3_Err = taskStatusCategories(mapTasksToStatuses(story.Tasks)["Assigned"], "Assigned").Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("\"> <input type=\"hidden\" id=\"projectID\" name=\"projectID\" value=\"")
+			templ_7745c5c3_Err = taskStatusCategories(mapTasksToStatuses(story.Tasks)["Active"], "Active").Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(strconv.Itoa(int(story.ProjectID))))
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("\"> <button class=\"btn btn-xs btn-primary\">Create Task</button></form></div></div><div class=\"collapse-body card-body bg-base-100 p-2\"><div class=\"task-status-columns\" style=\"display: flex; flex-direction: row; justify-content: space-between;\"><!-- Generate a column for each task status category -->")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = taskStatusCategories(mapTasksToStatuses(story.Tasks)["Unassigned"], userMap, "Unassigned").Render(ctx, templ_7745c5c3_Buffer)
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = taskStatusCategories(mapTasksToStatuses(story.Tasks)["Assigned"], userMap, "Assigned").Render(ctx, templ_7745c5c3_Buffer)
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = taskStatusCategories(mapTasksToStatuses(story.Tasks)["Active"], userMap, "Active").Render(ctx, templ_7745c5c3_Buffer)
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = taskStatusCategories(mapTasksToStatuses(story.Tasks)["Done"], userMap, "Done").Render(ctx, templ_7745c5c3_Buffer)
+			templ_7745c5c3_Err = taskStatusCategories(mapTasksToStatuses(story.Tasks)["Done"], "Done").Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -153,7 +194,7 @@ func sprintBacklog(sprint *database.Sprint, userMap map[uint]database.User) temp
 	})
 }
 
-func taskStatusCategories(tasks []database.Task, userMap map[uint]database.User, category string) templ.Component {
+func taskStatusCategories(tasks []database.Task, category string) templ.Component {
 	return templ.ComponentFunc(func(ctx context.Context, templ_7745c5c3_W io.Writer) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templ_7745c5c3_W.(*bytes.Buffer)
 		if !templ_7745c5c3_IsBuffer {
@@ -166,25 +207,25 @@ func taskStatusCategories(tasks []database.Task, userMap map[uint]database.User,
 			templ_7745c5c3_Var6 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<style>\n\t.collapse-title,\n\t:where(.collapse > input[type=\"checkbox\"]),\n\t:where(.collapse > input[type=\"radio\"]) {\n\twidth: 100%;\n\tpadding: 0.5rem;\n\tpadding-inline-end: 1rem;\n\tmin-height: 2.75rem;\n\ttransition: background-color 0.2s ease-out;\n\t}\n\t.table :where(thead, tfoot) {\n\t\twhite-space: nowrap;\n\t\tfont-size: 0.75rem;\n\t\tline-height: 0rem;\n\t\tfont-weight: 700;\n\t\tcolor: var(--fallback-bc,oklch(var(--bc)/0.6));\n\t\t}\n\t</style>")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<style>\n\t.collapse-title,\n\t:where(.collapse > input[type=\"checkbox\"]),\n\t:where(.collapse > input[type=\"radio\"]) {\n\twidth: 100%;\n\tpadding: 0.5rem;\n\tpadding-inline-end: 1rem;\n\tmin-height: 2.75rem;\n\ttransition: background-color 0.2s ease-out;\n\t}\n\t.table :where(thead, tfoot) {\n\t\twhite-space: nowrap;\n\t\tfont-size: 0.75rem;\n\t\tline-height: 0rem;\n\t\tfont-weight: 700;\n\t\tcolor: var(--fallback-bc,oklch(var(--bc)/0.6));\n\t\t}\n\t</style><div class=\"collapse collapse-arrow border border-unassigned-300 bg-base-100 mb-0\" style=\"margin-left: 3px;margin-right: 3px;\"><input type=\"checkbox\" checked><div class=\"collapse-title text-sm font-medium\" style=\"padding-left: 15px; padding-top: 15px;\">")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		var templ_7745c5c3_Var7 string
+		templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.JoinStringErrs(category)
+		if templ_7745c5c3_Err != nil {
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal\web\pages\sprintbacklog\sprintBacklog.templ`, Line: 87, Col: 107}
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var7))
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(" Tasks</div><div class=\"collapse-content p-0\"><div class=\"card-body bg-base-100 p-0 m-0\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		if category == "Unassigned" {
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div class=\"collapse collapse-arrow border border-unassigned-300 bg-base-100 mb-0\" style=\"margin-left: 3px;margin-right: 3px;\"><input type=\"checkbox\" checked><div class=\"collapse-title text-sm font-medium\">")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			var templ_7745c5c3_Var7 string
-			templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.JoinStringErrs(category)
-			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal\web\pages\sprintbacklog\sprintBacklog.templ`, Line: 77, Col: 61}
-			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var7))
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(" Tasks</div><div class=\"collapse-content p-0\"><div class=\"card-body bg-base-100 p-0 m-0\"><div class=\"task-cards-container\" style=\"display: flex; flex-direction: column; gap: 10px;\">")
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div class=\"task-cards-container\" style=\"display: flex; flex-direction: column; gap: 10px;\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -193,7 +234,7 @@ func taskStatusCategories(tasks []database.Task, userMap map[uint]database.User,
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = TaskRowSmall(task, userMap).Render(ctx, templ_7745c5c3_Buffer)
+				templ_7745c5c3_Err = TaskRowSmall(task).Render(ctx, templ_7745c5c3_Buffer)
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -202,25 +243,12 @@ func taskStatusCategories(tasks []database.Task, userMap map[uint]database.User,
 					return templ_7745c5c3_Err
 				}
 			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</div></div></div></div>")
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 		} else if category == "Assigned" {
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div class=\"collapse collapse-arrow border border-assigned-300 bg-base-100 mb-0\" style=\"margin-left: 3px;margin-right: 3px;\"><input type=\"checkbox\" checked><div class=\"collapse-title text-sm font-medium p-2\">")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			var templ_7745c5c3_Var8 string
-			templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.JoinStringErrs(category)
-			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal\web\pages\sprintbacklog\sprintBacklog.templ`, Line: 93, Col: 65}
-			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var8))
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(" Tasks</div><div class=\"collapse-content p-0\"><div class=\"card-body bg-base-100 p-0 m-0\"><div class=\"task-cards-container\" style=\"display: flex; flex-direction: column; gap: 10px;\">")
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div class=\"task-cards-container\" style=\"display: flex; flex-direction: column; gap: 10px;\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -229,7 +257,7 @@ func taskStatusCategories(tasks []database.Task, userMap map[uint]database.User,
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = TaskRowSmall(task, userMap).Render(ctx, templ_7745c5c3_Buffer)
+				templ_7745c5c3_Err = TaskRowSmall(task).Render(ctx, templ_7745c5c3_Buffer)
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -238,25 +266,12 @@ func taskStatusCategories(tasks []database.Task, userMap map[uint]database.User,
 					return templ_7745c5c3_Err
 				}
 			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</div></div></div></div>")
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 		} else if category == "Active" {
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div class=\"collapse collapse-arrow border border-active-300 bg-base-100 mb-0\" style=\"margin-left: 3px;margin-right: 3px;\"><input type=\"checkbox\" checked><div class=\"collapse-title text-sm font-medium p-2\">")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			var templ_7745c5c3_Var9 string
-			templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.JoinStringErrs(category)
-			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal\web\pages\sprintbacklog\sprintBacklog.templ`, Line: 109, Col: 65}
-			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var9))
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(" Tasks</div><div class=\"collapse-content p-0\"><div class=\"card-body bg-base-100 p-0 m-0\"><div class=\"task-cards-container\" style=\"display: flex; flex-direction: column; gap: 10px;\">")
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div class=\"task-cards-container\" style=\"display: flex; flex-direction: column; gap: 10px;\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -265,7 +280,7 @@ func taskStatusCategories(tasks []database.Task, userMap map[uint]database.User,
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = TaskRowSmall(task, userMap).Render(ctx, templ_7745c5c3_Buffer)
+				templ_7745c5c3_Err = TaskRowSmall(task).Render(ctx, templ_7745c5c3_Buffer)
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -274,25 +289,12 @@ func taskStatusCategories(tasks []database.Task, userMap map[uint]database.User,
 					return templ_7745c5c3_Err
 				}
 			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</div></div></div></div>")
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 		} else if category == "Done" {
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div class=\"collapse collapse-arrow border border-done-300 bg-base-100 mb-0\" style=\"margin-left: 3px;margin-right: 3px;\"><input type=\"checkbox\" checked><div class=\"collapse-title text-sm font-medium p-2\">")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			var templ_7745c5c3_Var10 string
-			templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.JoinStringErrs(category)
-			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal\web\pages\sprintbacklog\sprintBacklog.templ`, Line: 125, Col: 65}
-			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var10))
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(" Tasks</div><div class=\"collapse-content p-0\"><div class=\"card-body bg-base-100 p-0 m-0\"><div class=\"task-cards-container\" style=\"display: flex; flex-direction: column; gap: 10px;\">")
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div class=\"task-cards-container\" style=\"display: flex; flex-direction: column; gap: 10px;\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -301,7 +303,7 @@ func taskStatusCategories(tasks []database.Task, userMap map[uint]database.User,
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = TaskRowSmall(task, userMap).Render(ctx, templ_7745c5c3_Buffer)
+				templ_7745c5c3_Err = TaskRowSmall(task).Render(ctx, templ_7745c5c3_Buffer)
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -310,10 +312,14 @@ func taskStatusCategories(tasks []database.Task, userMap map[uint]database.User,
 					return templ_7745c5c3_Err
 				}
 			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</div></div></div></div>")
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</div></div></div>")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
 		}
 		if !templ_7745c5c3_IsBuffer {
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteTo(templ_7745c5c3_W)
@@ -322,7 +328,7 @@ func taskStatusCategories(tasks []database.Task, userMap map[uint]database.User,
 	})
 }
 
-func TaskRowSmall(task database.Task, userMap map[uint]database.User) templ.Component {
+func TaskRowSmall(task database.Task) templ.Component {
 	return templ.ComponentFunc(func(ctx context.Context, templ_7745c5c3_W io.Writer) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templ_7745c5c3_W.(*bytes.Buffer)
 		if !templ_7745c5c3_IsBuffer {
@@ -330,21 +336,21 @@ func TaskRowSmall(task database.Task, userMap map[uint]database.User) templ.Comp
 			defer templ.ReleaseBuffer(templ_7745c5c3_Buffer)
 		}
 		ctx = templ.InitializeContext(ctx)
-		templ_7745c5c3_Var11 := templ.GetChildren(ctx)
-		if templ_7745c5c3_Var11 == nil {
-			templ_7745c5c3_Var11 = templ.NopComponent
+		templ_7745c5c3_Var8 := templ.GetChildren(ctx)
+		if templ_7745c5c3_Var8 == nil {
+			templ_7745c5c3_Var8 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div class=\"task-title font-bold text-md mb-2\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		var templ_7745c5c3_Var12 string
-		templ_7745c5c3_Var12, templ_7745c5c3_Err = templ.JoinStringErrs(*task.Title)
+		var templ_7745c5c3_Var9 string
+		templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.JoinStringErrs(*task.Title)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal\web\pages\sprintbacklog\sprintBacklog.templ`, Line: 142, Col: 61}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal\web\pages\sprintbacklog\sprintBacklog.templ`, Line: 129, Col: 61}
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var12))
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var9))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -352,12 +358,12 @@ func TaskRowSmall(task database.Task, userMap map[uint]database.User) templ.Comp
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		var templ_7745c5c3_Var13 string
-		templ_7745c5c3_Var13, templ_7745c5c3_Err = templ.JoinStringErrs(*task.Description)
+		var templ_7745c5c3_Var10 string
+		templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.JoinStringErrs(*task.Description)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal\web\pages\sprintbacklog\sprintBacklog.templ`, Line: 143, Col: 63}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal\web\pages\sprintbacklog\sprintBacklog.templ`, Line: 130, Col: 63}
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var13))
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var10))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -375,12 +381,12 @@ func TaskRowSmall(task database.Task, userMap map[uint]database.User) templ.Comp
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			var templ_7745c5c3_Var14 string
-			templ_7745c5c3_Var14, templ_7745c5c3_Err = templ.JoinStringErrs(userMap[*task.UserID].Username)
+			var templ_7745c5c3_Var11 string
+			templ_7745c5c3_Var11, templ_7745c5c3_Err = templ.JoinStringErrs(GetUsernameFromID(*task.UserID))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal\web\pages\sprintbacklog\sprintBacklog.templ`, Line: 150, Col: 67}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal\web\pages\sprintbacklog\sprintBacklog.templ`, Line: 137, Col: 68}
 			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var14))
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var11))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -398,22 +404,4 @@ func TaskRowSmall(task database.Task, userMap map[uint]database.User) templ.Comp
 		}
 		return templ_7745c5c3_Err
 	})
-}
-
-func mapTasksToStatuses(tasks []database.Task) (statusMap map[string][]database.Task) {
-	statusMap = make(map[string][]database.Task)
-	for _, task := range tasks {
-		if task.UserID == nil {
-			statusMap["Unassigned"] = append(statusMap["Unassigned"], task)
-		} else {
-			if *task.Status == database.StatusInProgress {
-				statusMap["Active"] = append(statusMap["Active"], task)
-			} else if *task.Status == database.StatusDone {
-				statusMap["Done"] = append(statusMap["Done"], task)
-			} else {
-				statusMap["Assigned"] = append(statusMap["Assigned"], task)
-			}
-		}
-	}
-	return
 }
