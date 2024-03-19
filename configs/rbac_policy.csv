@@ -3,8 +3,10 @@ p, system_admin, /*, c|r|u|d
 p, system_user, /system/user/*, r|u
 p, system_user, /system/user/system-role, r
 
-p, system_admin, /create-project, c|r|u|d
+p, system_admin, /project, c|r|u|d
 
 p, project_manager, data2, c|r|u|d
 p, project_master, data2, c|r|u|d
 p, project_developer, data2, c|r|u|d
+
+p, project_master, /project, r|u|d

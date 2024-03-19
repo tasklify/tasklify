@@ -36,7 +36,7 @@ func Index(userID string, myProjects []database.Project, user_SystemRole databas
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		if auth.GetAuthorization().HasSystemPermission(user_SystemRole, "/create-project", auth.ActionCreate) == nil {
+		if auth.GetAuthorization().HasSystemPermission(user_SystemRole, "/project", auth.ActionCreate) == nil {
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div class=\"card card-compact bg-base-100 shadow-xl hover:shadow-2xl transition-shadow flex justify-center items-center\"><div class=\"card-body\"><h2 class=\"card-title\">Add new project</h2><div class=\"flex justify-center\"><button class=\"btn btn-primary btn-circle btn-lg\" hx-get=\"/create-project\" hx-target=\"#dialog\"><svg xmlns=\"http://www.w3.org/2000/svg\" class=\"h-6 w-6\" fill=\"none\" viewBox=\"0 0 24 24\" stroke=\"currentColor\" stroke-width=\"2\"><path stroke-linecap=\"round\" stroke-linejoin=\"round\" d=\"M12 4v16m8-8H4\"></path></svg></button></div></div></div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err

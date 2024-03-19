@@ -15,7 +15,7 @@ templ Index(userID string, myProjects []database.Project, user_SystemRole databa
 		<div class="p-10">
 			<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
 				<!-- Add New Project -->
-				if auth.GetAuthorization().HasSystemPermission(user_SystemRole, "/create-project", auth.ActionCreate) == nil {
+				if auth.GetAuthorization().HasSystemPermission(user_SystemRole, "/project", auth.ActionCreate) == nil {
 					<div class="card card-compact bg-base-100 shadow-xl hover:shadow-2xl transition-shadow flex justify-center items-center">
 						<div class="card-body">
 							<h2 class="card-title">Add new project</h2>

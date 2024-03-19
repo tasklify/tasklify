@@ -137,3 +137,28 @@ func (db *database) GetProjectHasUserByProjectAndUser(userID uint, projectID uin
 
 	return projectHasUser, nil
 }
+
+func (db *database) UpsertUserOnProject(projectID uint, userID uint, projectRole string) error {
+	var count int64
+
+	// If user already exists on project, just update it with new data
+	db.Model(&ProjectHasUser{}).Where("project_id = ? AND user_id = ?", projectID, userID).Count(&count)
+	if count == 1 {
+		err := db.Model(&ProjectHasUser{}).Where("project_id = ? AND user_id = ?", projectID, userID).Update("project_role", projectRole).Error
+		if err != nil {
+			return err
+		}
+
+	} else {
+		err := db.AddUserToProject(projectID, userID, projectRole)
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (db *database) RemoveUsersNotInList(projectID uint, userIDs []uint) error {
+	return db.Where("project_id = ? AND user_id NOT IN ?", projectID, userIDs).Delete(&ProjectHasUser{}).Error
+}
