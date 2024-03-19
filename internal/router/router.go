@@ -6,7 +6,6 @@ import (
 	"tasklify/internal/middlewares"
 	"tasklify/internal/web/pages"
 	"tasklify/internal/web/pages/about"
-	"tasklify/internal/web/pages/dashboard"
 	"tasklify/internal/web/pages/login"
 	"tasklify/internal/web/pages/logout"
 	"tasklify/internal/web/pages/productbacklog"
@@ -59,9 +58,6 @@ func Router() *chi.Mux {
 			)
 			r.Handle("/logout", ghandlers.MethodHandler{
 				"POST": handlers.UnifiedHandler(handlers.PlainHandlerFunc(logout.PostLogout)),
-			})
-			r.Handle("/dashboard", ghandlers.MethodHandler{
-				"GET": handlers.UnifiedHandler(handlers.AuthenticatedHandlerFunc(dashboard.Dashboard)),
 			})
 			r.Handle("/create-project", ghandlers.MethodHandler{
 				"GET":  handlers.UnifiedHandler(handlers.AuthenticatedHandlerFunc(project.GetCreateProject)),
