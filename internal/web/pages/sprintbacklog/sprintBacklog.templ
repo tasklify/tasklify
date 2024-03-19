@@ -28,7 +28,10 @@ templ sprintBacklog(sprint *database.Sprint, projectRole database.ProjectRole) {
 							<div class="font-medium text-lg" style="padding-left: 15px;">{ story.Title }</div>
 						</div>
 						<div class="flex gap-2 mt-2">
-							<button class="btn btn-xs">Details</button>
+							<form hx-post="/userstory/details" hx-target="#dialog">
+								<input type="hidden" name="userStoryID" id="userStoryID" value={ strconv.Itoa(int(story.ID)) }/>
+								<button class="btn btn-xs">Details</button>
+							</form>
 							<!-- Create task Button -->
 							if *story.Realized {
 								<form hx-get="/create-task" hx-target="#dialog" title="Can't add tasks to realized user story">
@@ -135,16 +138,19 @@ templ TaskRowSmall(task database.Task) {
 			if task.UserID == nil {
 				<span class="badge badge-ghost">Assign</span>
 			} else {
-				<span class="badge bg-primary">{ GetUsernameFromID(*task.UserID) }</span>
+				<span class="badge bg-primary">{ GetUserFirstAndLastNameFromID(*task.UserID) }</span>
 			}
 		</div>
 		<div class="task-details">
 			<!--Details button-->
-			<button class="btn btn-xs">
-				<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
-					<path stroke-linecap="round" stroke-linejoin="round" d="M6.75 12a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0ZM12.75 12a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0ZM18.75 12a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Z"></path>
-				</svg>
-			</button>
+			<form hx-post="/task/details" hx-target="#dialog">
+				<input type="hidden" name="taskID" id="taskID" value={ strconv.Itoa(int(task.ID)) }/>
+				<button class="btn btn-xs">
+					<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+						<path stroke-linecap="round" stroke-linejoin="round" d="M6.75 12a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0ZM12.75 12a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0ZM18.75 12a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Z"></path>
+					</svg>
+				</button>
+			</form>
 		</div>
 	</div>
 }

@@ -38,9 +38,9 @@ func GetSprintBacklog(w http.ResponseWriter, r *http.Request, params handlers.Re
 	return pages.Layout(c, "Sprint Backlog", r).Render(r.Context(), w)
 }
 
-func GetUsernameFromID(userID uint) string {
+func GetUserFirstAndLastNameFromID(userID uint) string {
 	user, _ := database.GetDatabase().GetUserByID(userID)
-	return user.Username
+	return user.FirstName + " " + user.LastName
 }
 
 func mapTasksToStatuses(tasks []database.Task) (statusMap map[string][]database.Task) {

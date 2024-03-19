@@ -103,6 +103,9 @@ func Router() *chi.Mux {
 			r.Handle("/userstory/rejectioncomment", ghandlers.MethodHandler{
 				"POST": handlers.UnifiedHandler(handlers.AuthenticatedHandlerFunc(productbacklog.PostRejectionComment)),
 			})
+			r.Handle("/task/details", ghandlers.MethodHandler{
+				"POST": handlers.UnifiedHandler(handlers.AuthenticatedHandlerFunc(task.GetTaskDetails)),
+			})
 		})
 	})
 

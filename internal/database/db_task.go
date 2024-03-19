@@ -31,3 +31,13 @@ func (db *database) GetTasksByUserStory(userStoryID uint) ([]Task, error) {
 func (db *database) CreateTask(task *Task) error {
 	return db.Create(task).Error
 }
+
+func (db *database) GetTaskByID(id uint) (*Task, error) {
+	var task = &Task{}
+	err := db.First(task, id).Error
+	if err != nil {
+		return nil, err
+	}
+
+	return task, nil
+}
