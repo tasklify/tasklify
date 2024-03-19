@@ -31,7 +31,7 @@ templ productBacklog(backlogUserStories []database.UserStory, sprints []database
 			</div>
 			<div class="flex flex-col w-full lg:flex-row">
 				<!-- Backlog - unassigned, unrealized -->
-				@backlog(backlogUserStories, getLatestSprint(sprints), "/productbacklog?projectID="+strconv.Itoa(int(projectID)), projectRole)
+				@backlog(backlogUserStories, getActiveSprint(sprints), "/productbacklog?projectID="+strconv.Itoa(int(projectID)), projectRole)
 				<!-- Divide -->
 				<div class="divider lg:divider-horizontal"></div>
 				<!-- Sprints -->
@@ -172,14 +172,15 @@ templ backlog(backlogUserStories []database.UserStory, sprint database.Sprint, c
 	</div>
 }
 
-func getLatestSprint(sprints []database.Sprint) database.Sprint {
-	var latestSprint database.Sprint
+func getActiveSprint(sprints []database.Sprint) database.Sprint {
+
+	var activeSprint database.Sprint
 	for _, sprint := range sprints {
-		if sprint.StartDate.After(latestSprint.StartDate) {
-			latestSprint = sprint
+		if sprint.DetermineStatus() == database.StatusInProgress {
+			activeSprint = sprint
 		}
 	}
-	return latestSprint
+	return activeSprint
 }
 
 templ userStoryTableRow(us database.UserStory, status database.Status, projectRole database.ProjectRole, callback string) {
