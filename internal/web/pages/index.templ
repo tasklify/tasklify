@@ -6,7 +6,29 @@ import "tasklify/internal/database"
 import "tasklify/internal/auth"
 
 func Home(w http.ResponseWriter, r *http.Request) error {
-	c := GuestIndex()
+	sessionManager := auth.GetSession()
+	userID, err := sessionManager.GetUserID(r)
+	if err != nil {
+		// User is not logged in; show the guest index
+		c := GuestIndex()
+		return Layout(c, "Tasklify", r).Render(r.Context(), w)
+	}
+
+	myProjects, err := database.GetDatabase().GetUserProjects(userID)
+	if err != nil {
+		// Handle error
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		return err
+	}
+
+	user, err := database.GetDatabase().GetUserByID(userID)
+	if err != nil {
+		// Handle error
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		return err
+	}
+
+	c := Index(fmt.Sprint(userID), myProjects, user.SystemRole)
 	return Layout(c, "Tasklify", r).Render(r.Context(), w)
 }
 
