@@ -46,6 +46,11 @@ func PostUserStory(w http.ResponseWriter, r *http.Request, params handlers.Reque
 		c := common.ValidationError("User story with same title already exists.")
 		return c.Render(r.Context(), w)
 	}
+	if userStoryData.BusinessValue < 0 {
+		w.WriteHeader(http.StatusBadRequest)
+		c := common.ValidationError("Business value must be a positive integer.")
+		return c.Render(r.Context(), w)
+	}
 
 	ProjectID := userStoryData.ProjectID
 

@@ -5,7 +5,7 @@ import "fmt"
 import "strconv"
 
 // sprintBacklog.templ:
-templ sprintBacklog(sprint *database.Sprint, userMap map[uint]database.User) {
+templ sprintBacklog(sprint *database.Sprint) {
 	<div class="bg-base-100 min-h-screen">
 		<div class="container mx-auto p-2">
 			<!-- Back to Product Backlog Button -->
@@ -16,8 +16,8 @@ templ sprintBacklog(sprint *database.Sprint, userMap map[uint]database.User) {
 				</form>
 				<!-- Sprint Details -->
 				<div class="sprint-details flex justify-between items-center mb-4 p-2 shadow-lg bg-white rounded-lg">
-					<h2 class="font-bold text-lg">{ sprint.Title }</h2>
-					<p class="text-sm">({ sprint.StartDate.Format("Mon Jan _2 2006") } - { sprint.EndDate.Format("Mon Jan _2 2006") })</p>
+					<h2 class="font-bold text-lg" style="padding-left: 15px;">{ sprint.Title }</h2>
+					<p class="text-sm" style="padding-right: 10px;">({ sprint.StartDate.Format("Mon Jan _2 2006") } - { sprint.EndDate.Format("Mon Jan _2 2006") })</p>
 				</div>
 			</div>
 			<!-- User Stories -->
@@ -25,26 +25,26 @@ templ sprintBacklog(sprint *database.Sprint, userMap map[uint]database.User) {
 				<div class="border border-base-300 mb-2 rounded-lg" style="max-height: 400px; overflow-y: auto;">
 					<div class="flex justify-between items-center bg-base-300 p-2">
 						<div>
-							<div class="font-medium text-lg">{ story.Title }</div>
+							<div class="font-medium text-lg" style="padding-left: 15px;">{ story.Title }</div>
 						</div>
-						<div class="flex gap-2">
+						<div class="flex gap-2 mt-2">
 							<button class="btn btn-xs">Details</button>
 							<!-- Create task Button -->
 							<form hx-get="/create-task" hx-target="#dialog">
 								<input type="hidden" id="userStoryID" name="userStoryID" value={ strconv.Itoa(int(story.ID)) }/>
 								<input type="hidden" id="sprintID" name="sprintID" value={ strconv.Itoa(int(sprint.ID)) }/>
 								<input type="hidden" id="projectID" name="projectID" value={ strconv.Itoa(int(story.ProjectID)) }/>
-								<button class="btn btn-xs btn-primary">Create Task</button>
+								<button class="btn btn-xs btn-primary" style="margin-right: 10px;">Create Task</button>
 							</form>
 						</div>
 					</div>
 					<div class="collapse-body card-body bg-base-100 p-2">
 						<div class="task-status-columns" style="display: flex; flex-direction: row; justify-content: space-between;">
 							<!-- Generate a column for each task status category -->
-							@taskStatusCategories(mapTasksToStatuses(story.Tasks)["Unassigned"], userMap, "Unassigned")
-							@taskStatusCategories(mapTasksToStatuses(story.Tasks)["Assigned"], userMap, "Assigned")
-							@taskStatusCategories(mapTasksToStatuses(story.Tasks)["Active"], userMap, "Active")
-							@taskStatusCategories(mapTasksToStatuses(story.Tasks)["Done"], userMap, "Done")
+							@taskStatusCategories(mapTasksToStatuses(story.Tasks)["Unassigned"], "Unassigned")
+							@taskStatusCategories(mapTasksToStatuses(story.Tasks)["Assigned"], "Assigned")
+							@taskStatusCategories(mapTasksToStatuses(story.Tasks)["Active"], "Active")
+							@taskStatusCategories(mapTasksToStatuses(story.Tasks)["Done"], "Done")
 						</div>
 					</div>
 				</div>
@@ -53,7 +53,7 @@ templ sprintBacklog(sprint *database.Sprint, userMap map[uint]database.User) {
 	</div>
 }
 
-templ taskStatusCategories(tasks []database.Task, userMap map[uint]database.User, category string) {
+templ taskStatusCategories(tasks []database.Task, category string) {
 	<style>
 	.collapse-title,
 	:where(.collapse > input[type="checkbox"]),
@@ -72,74 +72,51 @@ templ taskStatusCategories(tasks []database.Task, userMap map[uint]database.User
 		color: var(--fallback-bc,oklch(var(--bc)/0.6));
 		}
 	</style>
-	if category == "Unassigned" {
-		<div class="collapse collapse-arrow border border-unassigned-300 bg-base-100 mb-0" style="margin-left: 3px;margin-right: 3px;">
+			<div class="collapse collapse-arrow border border-unassigned-300 bg-base-100 mb-0" style="margin-left: 3px;margin-right: 3px;">
 			<input type="checkbox" checked/>
-			<div class="collapse-title text-sm font-medium">{ category } Tasks</div>
+			<div class="collapse-title text-sm font-medium" style="padding-left: 15px; padding-top: 15px;">{ category } Tasks</div>
 			<div class="collapse-content p-0">
 				<div class="card-body bg-base-100 p-0 m-0">
+	if category == "Unassigned" {
 					<div class="task-cards-container" style="display: flex; flex-direction: column; gap: 10px;">
 						for _, task := range tasks {
 							<div class="task-card bg-base-300 shadow-lg rounded-lg p-4">
-								@TaskRowSmall(task, userMap)
+								@TaskRowSmall(task)
 							</div>
 						}
 					</div>
-				</div>
-			</div>
-		</div>
+				
 	} else if category == "Assigned" {
-		<div class="collapse collapse-arrow border border-assigned-300 bg-base-100 mb-0" style="margin-left: 3px;margin-right: 3px;">
-			<input type="checkbox" checked/>
-			<div class="collapse-title text-sm font-medium p-2">{ category } Tasks</div>
-			<div class="collapse-content p-0">
-				<div class="card-body bg-base-100 p-0 m-0">
 					<div class="task-cards-container" style="display: flex; flex-direction: column; gap: 10px;">
 						for _, task := range tasks {
 							<div class="task-card bg-assigned-100 shadow-lg rounded-lg p-4">
-								@TaskRowSmall(task, userMap)
+								@TaskRowSmall(task)
 							</div>
 						}
 					</div>
-				</div>
-			</div>
-		</div>
 	} else if category == "Active" {
-		<div class="collapse collapse-arrow border border-active-300 bg-base-100 mb-0" style="margin-left: 3px;margin-right: 3px;">
-			<input type="checkbox" checked/>
-			<div class="collapse-title text-sm font-medium p-2">{ category } Tasks</div>
-			<div class="collapse-content p-0">
-				<div class="card-body bg-base-100 p-0 m-0">
 					<div class="task-cards-container" style="display: flex; flex-direction: column; gap: 10px;">
 						for _, task := range tasks {
 							<div class="task-card bg-active-100 shadow-lg rounded-lg p-4">
-								@TaskRowSmall(task, userMap)
+								@TaskRowSmall(task)
 							</div>
 						}
 					</div>
-				</div>
-			</div>
-		</div>
 	} else if category == "Done" {
-		<div class="collapse collapse-arrow border border-done-300 bg-base-100 mb-0" style="margin-left: 3px;margin-right: 3px;">
-			<input type="checkbox" checked/>
-			<div class="collapse-title text-sm font-medium p-2">{ category } Tasks</div>
-			<div class="collapse-content p-0">
-				<div class="card-body bg-base-100 p-0 m-0">
 					<div class="task-cards-container" style="display: flex; flex-direction: column; gap: 10px;">
 						for _, task := range tasks {
 							<div class="task-card bg-done-100 shadow-lg rounded-lg p-4">
-								@TaskRowSmall(task, userMap)
+								@TaskRowSmall(task)
 							</div>
 						}
 					</div>
-				</div>
+	}
+	</div>
 			</div>
 		</div>
-	}
 }
 
-templ TaskRowSmall(task database.Task, userMap map[uint]database.User) {
+templ TaskRowSmall(task database.Task) {
 	<div class="task-title font-bold text-md mb-2">{ *task.Title }</div>
 	<div class="task-description text-sm mb-4">{ *task.Description }</div>
 	<!-- Flex container for aligning assignee and details button -->
@@ -148,7 +125,7 @@ templ TaskRowSmall(task database.Task, userMap map[uint]database.User) {
 			if task.UserID == nil {
 				<span class="badge badge-ghost">Assign</span>
 			} else {
-				<span class="badge bg-primary">{ userMap[*task.UserID].Username }</span>
+				<span class="badge bg-primary">{GetUsernameFromID(*task.UserID)}</span>
 			}
 		</div>
 		<div class="task-details">
@@ -160,22 +137,4 @@ templ TaskRowSmall(task database.Task, userMap map[uint]database.User) {
 			</button>
 		</div>
 	</div>
-}
-
-func mapTasksToStatuses(tasks []database.Task) (statusMap map[string][]database.Task) {
-	statusMap = make(map[string][]database.Task)
-	for _, task := range tasks {
-		if task.UserID == nil {
-			statusMap["Unassigned"] = append(statusMap["Unassigned"], task)
-		} else {
-			if *task.Status == database.StatusInProgress {
-				statusMap["Active"] = append(statusMap["Active"], task)
-			} else if *task.Status == database.StatusDone {
-				statusMap["Done"] = append(statusMap["Done"], task)
-			} else {
-				statusMap["Assigned"] = append(statusMap["Assigned"], task)
-			}
-		}
-	}
-	return
 }
