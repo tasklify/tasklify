@@ -92,6 +92,9 @@ func Router() *chi.Mux {
 			r.Handle("/userstory/remove-from-sprint", ghandlers.MethodHandler{
 				"POST": handlers.UnifiedHandler(handlers.AuthenticatedHandlerFunc(productbacklog.RemoveUserStoryFromSprint)),
 			})
+			r.Handle("/userstory/details", ghandlers.MethodHandler{
+				"POST": handlers.UnifiedHandler(handlers.AuthenticatedHandlerFunc(userstory.GetUserStoryDetails)),
+			})
 			r.Handle("/sprintbacklog", ghandlers.MethodHandler{
 				"GET": handlers.UnifiedHandler(handlers.AuthenticatedHandlerFunc(sprintbacklog.GetSprintBacklog)),
 			})

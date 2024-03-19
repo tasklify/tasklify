@@ -124,17 +124,17 @@ func productBacklog(backlogUserStories []database.UserStory, sprints []database.
 				return templ_7745c5c3_Err
 			}
 			if sprint.DetermineStatus() == database.StatusInProgress {
-				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<span class=\"ml-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-300\">Active</span>")
+				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<span class=\"ml-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-300\">Active\r</span>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 			} else if sprint.DetermineStatus() == database.StatusDone {
-				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<span class=\"ml-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-300\">Done</span>")
+				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<span class=\"ml-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-300\">Done\r</span>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 			} else {
-				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<span class=\"ml-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-300\">Upcoming</span>")
+				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<span class=\"ml-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-300\">Upcoming\r</span>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -289,20 +289,28 @@ func backlog(backlogUserStories []database.UserStory, sprint database.Sprint, ca
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</td><td>")
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</td><td class=\"min-w-[12rem] max-w-[20rem] truncate\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var10 string
 			templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.JoinStringErrs(*us.Description)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal\web\pages\productbacklog\productBacklog.templ`, Line: 143, Col: 29}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal\web\pages\productbacklog\productBacklog.templ`, Line: 144, Col: 26}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var10))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</td><td><button class=\"btn btn-xs\"><svg xmlns=\"http://www.w3.org/2000/svg\" fill=\"none\" viewBox=\"0 0 24 24\" stroke-width=\"1.5\" stroke=\"currentColor\" class=\"w-6 h-6\"><path stroke-linecap=\"round\" stroke-linejoin=\"round\" d=\"M6.75 12a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0ZM12.75 12a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0ZM18.75 12a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Z\"></path></svg></button></td>")
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</td><td><!--Details button--><form hx-post=\"/userstory/details\" hx-target=\"#dialog\"><input type=\"hidden\" name=\"userStoryID\" id=\"userStoryID\" value=\"")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(strconv.Itoa(int(us.ID))))
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("\"> <button class=\"btn btn-xs\"><svg xmlns=\"http://www.w3.org/2000/svg\" fill=\"none\" viewBox=\"0 0 24 24\" stroke-width=\"1.5\" stroke=\"currentColor\" class=\"w-6 h-6\"><path stroke-linecap=\"round\" stroke-linejoin=\"round\" d=\"M6.75 12a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0ZM12.75 12a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0ZM18.75 12a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Z\"></path></svg></button></form></td>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -407,20 +415,20 @@ func userStoryTableRow(us database.UserStory, status database.Status, projectRol
 		var templ_7745c5c3_Var12 string
 		templ_7745c5c3_Var12, templ_7745c5c3_Err = templ.JoinStringErrs(us.Title)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal\web\pages\productbacklog\productBacklog.templ`, Line: 188, Col: 36}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal\web\pages\productbacklog\productBacklog.templ`, Line: 194, Col: 36}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var12))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</div></td><!-- Description --><td class=\"min-w-[12rem] max-w-[20rem] whitespace-normal\">")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</div></td><!-- Description --><td class=\"min-w-[12rem] max-w-[20rem] truncate\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var13 string
 		templ_7745c5c3_Var13, templ_7745c5c3_Err = templ.JoinStringErrs(*us.Description)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal\web\pages\productbacklog\productBacklog.templ`, Line: 192, Col: 20}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal\web\pages\productbacklog\productBacklog.templ`, Line: 198, Col: 20}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var13))
 		if templ_7745c5c3_Err != nil {
@@ -487,7 +495,15 @@ func userStoryTableRow(us database.UserStory, status database.Status, projectRol
 				return templ_7745c5c3_Err
 			}
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</td><!-- Details --><td><div class=\"flex flex-col space-y-2\"><div class=\"flex btn-container space-x-4 max-w-[10rem]\"><!--Details button--><div class=\"flex-grow\"><button class=\"btn btn-xs flex-grow\"><svg xmlns=\"http://www.w3.org/2000/svg\" fill=\"none\" viewBox=\"0 0 24 24\" stroke-width=\"1.5\" stroke=\"currentColor\" class=\"w-6 h-6\"><path stroke-linecap=\"round\" stroke-linejoin=\"round\" d=\"M6.75 12a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0ZM12.75 12a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0ZM18.75 12a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Z\"></path></svg></button></div><!--Remove from sprint button-->")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</td><!-- Details --><td><div class=\"flex flex-col space-y-2\"><div class=\"flex btn-container space-x-4 max-w-[10rem]\"><!--Details button--><form hx-post=\"/userstory/details\" hx-target=\"#dialog\"><input type=\"hidden\" name=\"userStoryID\" id=\"userStoryID\" value=\"")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(strconv.Itoa(int(us.ID))))
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("\"> <button class=\"btn btn-xs\"><svg xmlns=\"http://www.w3.org/2000/svg\" fill=\"none\" viewBox=\"0 0 24 24\" stroke-width=\"1.5\" stroke=\"currentColor\" class=\"w-6 h-6\"><path stroke-linecap=\"round\" stroke-linejoin=\"round\" d=\"M6.75 12a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0ZM12.75 12a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0ZM18.75 12a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Z\"></path></svg></button></form><!--Remove from sprint button-->")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
