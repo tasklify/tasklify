@@ -104,7 +104,7 @@ func Router() *chi.Mux {
 				"POST": handlers.UnifiedHandler(handlers.AuthenticatedHandlerFunc(productbacklog.PostRejectionComment)),
 			})
 			r.Handle("/task/details", ghandlers.MethodHandler{
-				"POST": handlers.UnifiedHandler(handlers.AuthenticatedHandlerFunc(task.GetTaskDetails)),
+				"GET": handlers.UnifiedHandler(handlers.AuthenticatedHandlerFunc(task.GetTaskDetails)),
 			})
 		})
 	})

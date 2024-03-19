@@ -28,7 +28,7 @@ templ sprintBacklog(sprint *database.Sprint, projectRole database.ProjectRole) {
 							<div class="font-medium text-lg" style="padding-left: 15px;">{ story.Title }</div>
 						</div>
 						<div class="flex gap-2 mt-2">
-							<form hx-post="/userstory/details" hx-target="#dialog">
+							<form hx-get="/userstory/details" hx-target="#dialog">
 								<input type="hidden" name="userStoryID" id="userStoryID" value={ strconv.Itoa(int(story.ID)) }/>
 								<button class="btn btn-xs">Details</button>
 							</form>
@@ -131,7 +131,6 @@ templ taskStatusCategories(tasks []database.Task, category string) {
 
 templ TaskRowSmall(task database.Task) {
 	<div class="task-title font-bold text-md mb-2">{ *task.Title }</div>
-	<div class="task-description text-sm mb-4">{ *task.Description }</div>
 	<!-- Flex container for aligning assignee and details button -->
 	<div class="flex justify-between items-center">
 		<div class="task-assignee">
@@ -143,7 +142,7 @@ templ TaskRowSmall(task database.Task) {
 		</div>
 		<div class="task-details">
 			<!--Details button-->
-			<form hx-post="/task/details" hx-target="#dialog">
+			<form hx-get="/task/details" hx-target="#dialog">
 				<input type="hidden" name="taskID" id="taskID" value={ strconv.Itoa(int(task.ID)) }/>
 				<button class="btn btn-xs">
 					<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
