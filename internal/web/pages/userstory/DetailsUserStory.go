@@ -2,7 +2,6 @@ package userstory
 
 import (
 	"net/http"
-	"strconv"
 	"tasklify/internal/database"
 
 	"tasklify/internal/handlers"
@@ -10,16 +9,17 @@ import (
 
 func GetUserStoryDetails(w http.ResponseWriter, r *http.Request, params handlers.RequestParams) error {
 
-	if err := r.ParseForm(); err != nil {
-		return err
+	type RequestData struct {
+		UserStoryID uint `schema:"userStoryID,required"`
 	}
+	var requestData RequestData
+	err := decoder.Decode(&requestData, r.URL.Query())
 
-	userStoryID, err := strconv.Atoi(r.FormValue("userStoryID"))
 	if err != nil {
 		return err
 	}
 
-	userStory, err := database.GetDatabase().GetUserStoryByID(uint(userStoryID))
+	userStory, err := database.GetDatabase().GetUserStoryByID(requestData.UserStoryID)
 	if err != nil {
 		return err
 	}
