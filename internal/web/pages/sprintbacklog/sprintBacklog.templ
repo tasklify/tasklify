@@ -72,12 +72,12 @@ templ taskStatusCategories(tasks []database.Task, category string) {
 		color: var(--fallback-bc,oklch(var(--bc)/0.6));
 		}
 	</style>
-			<div class="collapse collapse-arrow border border-unassigned-300 bg-base-100 mb-0" style="margin-left: 3px;margin-right: 3px;">
-			<input type="checkbox" checked/>
-			<div class="collapse-title text-sm font-medium" style="padding-left: 15px; padding-top: 15px;">{ category } Tasks</div>
-			<div class="collapse-content p-0">
-				<div class="card-body bg-base-100 p-0 m-0">
-	if category == "Unassigned" {
+	<div class="collapse collapse-arrow border border-unassigned-300 bg-base-100 mb-0" style="margin-left: 3px;margin-right: 3px;">
+		<input type="checkbox" checked/>
+		<div class="collapse-title text-sm font-medium" style="padding-left: 15px; padding-top: 15px;">{ category } Tasks</div>
+		<div class="collapse-content p-0">
+			<div class="card-body bg-base-100 p-0 m-0">
+				if category == "Unassigned" {
 					<div class="task-cards-container" style="display: flex; flex-direction: column; gap: 10px;">
 						for _, task := range tasks {
 							<div class="task-card bg-base-300 shadow-lg rounded-lg p-4">
@@ -85,8 +85,7 @@ templ taskStatusCategories(tasks []database.Task, category string) {
 							</div>
 						}
 					</div>
-				
-	} else if category == "Assigned" {
+				} else if category == "Assigned" {
 					<div class="task-cards-container" style="display: flex; flex-direction: column; gap: 10px;">
 						for _, task := range tasks {
 							<div class="task-card bg-assigned-100 shadow-lg rounded-lg p-4">
@@ -94,7 +93,7 @@ templ taskStatusCategories(tasks []database.Task, category string) {
 							</div>
 						}
 					</div>
-	} else if category == "Active" {
+				} else if category == "Active" {
 					<div class="task-cards-container" style="display: flex; flex-direction: column; gap: 10px;">
 						for _, task := range tasks {
 							<div class="task-card bg-active-100 shadow-lg rounded-lg p-4">
@@ -102,7 +101,7 @@ templ taskStatusCategories(tasks []database.Task, category string) {
 							</div>
 						}
 					</div>
-	} else if category == "Done" {
+				} else if category == "Done" {
 					<div class="task-cards-container" style="display: flex; flex-direction: column; gap: 10px;">
 						for _, task := range tasks {
 							<div class="task-card bg-done-100 shadow-lg rounded-lg p-4">
@@ -110,10 +109,10 @@ templ taskStatusCategories(tasks []database.Task, category string) {
 							</div>
 						}
 					</div>
-	}
-	</div>
+				}
 			</div>
 		</div>
+	</div>
 }
 
 templ TaskRowSmall(task database.Task) {
@@ -125,7 +124,7 @@ templ TaskRowSmall(task database.Task) {
 			if task.UserID == nil {
 				<span class="badge badge-ghost">Assign</span>
 			} else {
-				<span class="badge bg-primary">{GetUsernameFromID(*task.UserID)}</span>
+				<span class="badge bg-primary">{ GetUsernameFromID(*task.UserID) }</span>
 			}
 		</div>
 		<div class="task-details">
