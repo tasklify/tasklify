@@ -2,9 +2,10 @@ package sprint
 
 import "tasklify/internal/web/components/common"
 import "fmt"
+import "net/http"
 
 templ createSprintDialog(projectID uint) {
-	@common.CreateDialog("Create sprint", fmt.Sprintf("/%v/createsprint", projectID)) {
+	@common.CreateDialog("Create sprint", http.MethodPost, fmt.Sprintf("/%v/createsprint", projectID), "Create") {
 		<a href="https://github.com/tasklify/tasklify/tree/main?tab=readme-ov-file#creating-sprints" target="_blank" class="help-button" style="padding-right=10rem;">?</a>
 		<!-- Start Date Field -->
 		<div class="mb-4">

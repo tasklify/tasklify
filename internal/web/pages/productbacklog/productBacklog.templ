@@ -4,6 +4,11 @@ import "tasklify/internal/database"
 import "tasklify/internal/web/components/common"
 import "fmt"
 import "strconv"
+<<<<<<< HEAD
+=======
+import "tasklify/internal/auth"
+import "net/http"
+>>>>>>> 918c921 (Update and create users, UI for user delete is missing)
 
 templ productBacklog(backlogUserStories []database.UserStory, sprints []database.Sprint, projectID uint, projectRole database.ProjectRole, project database.Project, user_SystemRole database.SystemRole) {
 	@common.ProjectNavbar(project, projectRole, user_SystemRole, "project_board") {
@@ -307,7 +312,7 @@ templ userStoryTableRow(us database.UserStory, status database.Status, projectRo
 }
 
 templ CreateRejectionCommentDialog(userStoryID uint) {
-	@common.CreateDialog("Create rejection comment", fmt.Sprintf("/userstory/%v/reject", userStoryID)) {
+	@common.CreateDialog("Create rejection comment", http.MethodPost, fmt.Sprintf("userstory/%v/reject", userStoryID), "Create") {
 		<!-- Rejection Comment Field -->
 		<div class="mb-4">
 			<textarea id="comment" name="comment" placeholder="This can be left empty" class="textarea mt-1 p-2 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50"></textarea>

@@ -4,7 +4,6 @@ import (
 	"tasklify/internal/database"
 	"tasklify/internal/web/components/form"
 	"time"
-	"strings"
 	"fmt"
 	"tasklify/internal/web/components/common"
 	"net/http"
@@ -13,7 +12,7 @@ import (
 	"strconv"
 )
 
-func User(w http.ResponseWriter, r *http.Request, params handlers.RequestParams) error {
+func GetUser(w http.ResponseWriter, r *http.Request, params handlers.RequestParams) error {
 	temp, err := strconv.Atoi(chi.URLParam(r, "userID"))
 	if err != nil {
 		return err
@@ -31,7 +30,7 @@ func User(w http.ResponseWriter, r *http.Request, params handlers.RequestParams)
 			return err
 		}
 
-		c := user(requestedUser)
+		c := getUser(requestedUser)
 		return c.Render(r.Context(), w)
 	}
 
@@ -39,38 +38,18 @@ func User(w http.ResponseWriter, r *http.Request, params handlers.RequestParams)
 	return nil
 }
 
-templ user(user *database.User) {
-	@common.CreateDialog(fmt.Sprintf("User %d", user.ID), fmt.Sprintf("/users/%d", user.ID)) {
+templ getUser(user *database.User) {
+	@common.CreateDialog(fmt.Sprintf("User %d", user.ID), http.MethodPatch, fmt.Sprintf("/users/%d", user.ID), "Update") {
 		// Username
-		<div class="form-control">
-			<label class="label">
-				<span class="label-text">Username</span>
-			</label>
-			<input value={ user.Username } type="text" name="username" id="username" placeholder={ user.Username } class="input input-bordered"/>
-		</div>
+		@form.TextField("Username", "username", user.Username, user.Username)
 		// Password
 		@form.PasswordField("New password", "new_password", false, true)
 		// First name
-		<div class="form-control">
-			<label class="label">
-				<span class="label-text">First name</span>
-			</label>
-			<input value={ user.FirstName } type="text" name="first_name" id="first_name" placeholder={ user.FirstName } class="input input-bordered"/>
-		</div>
+		@form.TextField("First name", "first_name", user.FirstName, user.FirstName)
 		// Last name
-		<div class="form-control">
-			<label class="label">
-				<span class="label-text">Last name</span>
-			</label>
-			<input value={ user.LastName } type="text" name="last_name" id="last_name" placeholder={ user.LastName } class="input input-bordered"/>
-		</div>
+		@form.TextField("Last name", "last_name", user.LastName, user.LastName)
 		// Email
-		<div class="form-control">
-			<label class="label">
-				<span class="label-text">Email</span>
-			</label>
-			<input value={ user.Email } type="email" name="email" id="email" placeholder={ user.Email } class="input input-bordered"/>
-		</div>
+		@form.EmailField("Email", "email", user.Email, user.Email)
 		// Last login
 		<div class="form-control">
 			<label class="label">
@@ -87,32 +66,11 @@ templ user(user *database.User) {
 			/>
 		</div>
 		// System role
-		<div class="form-control">
-			<label class="label">
-				<span class="label-text">System role</span>
-			</label>
-			<select name="system_role" id="system_role" class="select select-bordered">
-				for _, role := range database.SystemRoles.Values() {
-					<option value={ role } selected?={ role == user.SystemRole.Val }>{ strings.TrimPrefix(role, "system_") }</option>
-				}
-			</select>
-		</div>
+		@form.SystemRoleField("System role", "system_role", user)
 		// Projects
-		<div class="form-control">
-			<label class="label">
-				<span class="label-text">Projects</span>
-			</label>
-			<div hx-boost="true">
-				for _, project := range user.Projects {
-					<a class="btn btn-outline" href={ templ.URL(fmt.Sprintf("/projects/%d", project.ID)) }>{ project.Title }</a>
-				}
-				if  len(user.Projects) == 0 {
-					<div>empty</div>
-				}
-			</div>
-		</div>
-		// Password
-		@form.PasswordField("Confirm with current password", "current_password", true, false)
+		@form.ProjectsField("Projects", user)
+		// Conformation password
+		@form.PasswordField("Authenticate action with your password", "password", true, false)
 	}
 }
 

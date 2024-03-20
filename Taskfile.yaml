@@ -41,7 +41,7 @@ tasks:
         platforms: [linux, darwin]
       - cmd: cp node_modules/htmx.org/dist/ext/response-targets.js static/script/.
         platforms: [linux, darwin]
-      - cmd: rm tmp/main # Delete executable
+      - cmd: rm -f tmp/main # Delete executable
         platforms: [linux, darwin]
 
       - cmd: powershell -Command "New-Item -ItemType Directory -Force -Path 'static\css', 'static\script'"

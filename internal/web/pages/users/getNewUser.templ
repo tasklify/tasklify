@@ -1,0 +1,41 @@
+package users
+
+import (
+	"tasklify/internal/database"
+	"tasklify/internal/web/components/form"
+	"tasklify/internal/web/components/common"
+	"net/http"
+	"tasklify/internal/handlers"
+)
+
+func GetNewUser(w http.ResponseWriter, r *http.Request, params handlers.RequestParams) error {
+	requestingUser, err := database.GetDatabase().GetUserByID(params.UserID)
+	if err != nil {
+		return err
+	}
+
+	if requestingUser.SystemRole == database.SystemRoleAdmin {
+		c := getNewUser()
+		return c.Render(r.Context(), w)
+	}
+
+	w.WriteHeader(http.StatusUnauthorized)
+	return nil
+}
+
+templ getNewUser() {
+	@common.CreateDialog("Create new user", http.MethodPost, "/users", "Create") {
+		// Username
+		@form.TextField("Username", "username", "", "Username")
+		// Password
+		@form.PasswordField("Password", "password", true, true)
+		// First name
+		@form.TextField("First name", "first_name", "", "First name")
+		// Last name
+		@form.TextField("Last name", "last_name", "", "Last name")
+		// Email
+		@form.EmailField("Email", "email", "", "your@email.com")
+		// System role
+		@form.SystemRoleField("System role", "system_role", nil)
+	}
+}

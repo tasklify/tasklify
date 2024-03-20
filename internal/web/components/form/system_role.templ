@@ -1,0 +1,28 @@
+package form
+
+import (
+	"tasklify/internal/database"
+	"strings"
+)
+
+templ SystemRoleField(label, inputID string, user *database.User) {
+	<div class="form-control">
+		<label class="label">
+			<span class="label-text">{ label }</span>
+		</label>
+		<select required name={ inputID } id={ inputID } class="select select-bordered">
+			for _, role := range database.SystemRoles.Values() {
+				<option
+					value={ role }
+					if user != nil {
+						selected?={ role == user.SystemRole.Val }
+					} else {
+						if role == database.SystemRoleUser.Val {
+							selected="true"
+						}
+					}
+				>{ strings.TrimPrefix(role, "system_") }</option>
+			}
+		</select>
+	</div>
+}

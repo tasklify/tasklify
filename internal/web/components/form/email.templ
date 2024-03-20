@@ -1,0 +1,10 @@
+package form
+
+templ EmailField(label, inputID, value, placeholder string) {
+	<div class="form-control">
+		<label class="label">
+			<span class="label-text">{ label }</span>
+		</label>
+		<input required value={ value } type="email" name={ inputID } id={ inputID } placeholder={ placeholder } class="input input-bordered"/>
+	</div>
+}

@@ -1,11 +1,22 @@
 package common
 
-templ CreateDialog(title string, hxPostPath string) {
+import "net/http"
+
+templ CreateDialog(title, hxMethod, hxPath, submitButton string) {
 	<div hx-ext="response-targets">
 		<div id="create-dialog" hx-ext="response-targets" class="fixed top-0 left-0 w-full h-full bg-gray-900 bg-opacity-50 flex justify-center items-center z-50">
 			<form
-				hx-post={ hxPostPath }
+				if hxMethod == http.MethodPost {
+					hx-post={ hxPath }
+				}
+				if hxMethod == http.MethodPut {
+					hx-put={ hxPath }
+				}
+				if hxMethod == http.MethodPatch {
+					hx-patch={ hxPath }
+				}
 				hx-target-400="#validation-error"
+				hx-target-401="#validation-error"
 				class="bg-white rounded-lg p-8 shadow-lg w-2/5 h-auto"
 				hx-on::after-request="if(event.detail.successful) dialog_container.close()"
 			>
@@ -16,7 +27,7 @@ templ CreateDialog(title string, hxPostPath string) {
 				<div id="validation-error"></div>
 				<div class="flex justify-end mt-3">
 					<button class="btn btn-ghost btn-sm mr-2" type="button" hx-on:click="dialog_container.close()">Cancel</button>
-					<button class="btn btn-primary btn-sm" type="submit">Create</button>
+					<button class="btn btn-primary btn-sm" type="submit">{ submitButton }</button>
 				</div>
 			</form>
 		</div>

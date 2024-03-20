@@ -22,14 +22,10 @@ type User struct {
 }
 
 // If you specify callerUserID it will get execluded from list
-func (db *database) GetUsers(callerUserID *uint) ([]User, error) {
+func (db *database) GetUsers() ([]User, error) {
 	var users []User
-	var err error
-	if callerUserID != nil {
-		err = db.Find(&users, db.Where("id <> ?", callerUserID)).Error
-	} else {
-		err = db.Find(&users).Error
-	}
+
+	err := db.Find(&users).Error
 	if err != nil {
 		return []User{}, err
 	}
@@ -61,12 +57,19 @@ func (db *database) GetUserByUsername(username string) (*User, error) {
 
 func (db *database) GetUserByID(id uint) (*User, error) {
 	var user = &User{}
-	err := db.First(user, id).Error
+	user.ID = id
+	err := db.First(user).Error
 	if err != nil {
 		return nil, err
 	}
 
 	return user, nil
+}
+
+func (db *database) DeleteUserByID(id uint) error {
+	var user = &User{}
+	user.ID = id
+	return db.Delete(user).Error
 }
 
 func (db *database) CreateUser(user *User) error {
@@ -75,4 +78,8 @@ func (db *database) CreateUser(user *User) error {
 
 func (db *database) UpdateUser(user *User) error {
 	return db.Save(user).Error
+}
+
+func (db *database) DeleteUser(user *User) error {
+	return db.Delete(user).Error
 }

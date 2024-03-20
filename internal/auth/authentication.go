@@ -48,7 +48,18 @@ func AuthenticateUser(username, password string) (uint, error) {
 	return user.ID, nil
 }
 
-func CreateUser(ID *uint, username, password, firstName, lastName, email, systemRoleName string) error {
+func CreateUser(issuerUserID *uint, userID *uint, username, password, firstName, lastName, email, systemRoleName string) error {
+	if issuerUserID != nil {
+		issuerUser, err := database.GetDatabase().GetUserByID(*issuerUserID)
+		if err != nil {
+			return err
+		}
+
+		if issuerUser.SystemRole != database.SystemRoleAdmin {
+			return fmt.Errorf("system_role admin required for this action")
+		}
+	}
+
 	err := checkPasswordRequirements(password)
 	if err != nil {
 		return err
@@ -60,8 +71,8 @@ func CreateUser(ID *uint, username, password, firstName, lastName, email, system
 	}
 
 	systemRole := database.SystemRoles.Parse(systemRoleName)
-	if systemRole == (&database.SystemRole{}) {
-		return errors.New("system role not found")
+	if systemRole == nil {
+		return errors.New("invalid system role")
 	}
 
 	var user = &database.User{
@@ -73,8 +84,8 @@ func CreateUser(ID *uint, username, password, firstName, lastName, email, system
 		SystemRole: *systemRole,
 	}
 
-	if ID != nil {
-		user.ID = *ID
+	if userID != nil {
+		user.ID = *userID
 	}
 
 	// if config.GetConfig().Debug {
@@ -84,13 +95,35 @@ func CreateUser(ID *uint, username, password, firstName, lastName, email, system
 	return database.GetDatabase().UpdateUser(user)
 }
 
-func UpdateUser(issuerUserID, issuerPassword string, userID uint, username, password, firstName, lastName, email, systemRoleName *string) error {
-	ok, err := AuthenticateUser(issuerUserID, issuerPassword)
+func DeleteUser(issuerUserID uint, issuerPassword string, userID uint) error {
+	issuerUser, err := database.GetDatabase().GetUserByID(issuerUserID)
 	if err != nil {
 		return err
 	}
 
-	issuerUser, err := database.GetDatabase().GetUserByUsername(issuerUserID)
+	_, err = AuthenticateUser(issuerUser.Username, issuerPassword)
+	if err != nil {
+		return err
+	}
+
+	if issuerUser.SystemRole != database.SystemRoleAdmin {
+		return fmt.Errorf("system_role admin required for this action")
+	}
+
+	// if config.GetConfig().Debug {
+	// 	dump.P(user)
+	// }
+
+	return database.GetDatabase().DeleteUserByID(userID)
+}
+
+func UpdateUser(issuerUserID uint, issuerPassword string, userID uint, username, password, firstName, lastName, email, systemRoleName *string) error {
+	issuerUser, err := database.GetDatabase().GetUserByID(issuerUserID)
+	if err != nil {
+		return err
+	}
+
+	ok, err := AuthenticateUser(issuerUser.Username, issuerPassword)
 	if err != nil {
 		return err
 	}
@@ -99,8 +132,10 @@ func UpdateUser(issuerUserID, issuerPassword string, userID uint, username, pass
 		return errors.New("you are not authenticated")
 	}
 
-	var user = &database.User{}
-	user.ID = userID
+	user, err := database.GetDatabase().GetUserByID(userID)
+	if err != nil {
+		return err
+	}
 
 	if username != nil {
 		user.Username = *username
@@ -117,7 +152,7 @@ func UpdateUser(issuerUserID, issuerPassword string, userID uint, username, pass
 			return err
 		}
 
-		user.Username = passwordHash
+		user.Password = passwordHash
 	}
 
 	if firstName != nil {
@@ -151,11 +186,13 @@ func UpdateUser(issuerUserID, issuerPassword string, userID uint, username, pass
 
 // CheckPasswordRequirements verifies the password against the specified rules.
 func checkPasswordRequirements(password string) error {
-	if len(password) < 12 {
-		return errors.New("password must be at least 12 characters long")
+	passwordLen := len(password)
+
+	if passwordLen < 12 {
+		return fmt.Errorf("password must be at least 12 characters long, currently %d", passwordLen)
 	}
-	if len(password) > 128 {
-		return errors.New("password must not be longer than 128 characters")
+	if passwordLen > 128 {
+		return fmt.Errorf("password must not be longer than 128 characters, currently %d", passwordLen)
 	}
 
 	err := GetCommonPasswordList().IsCommon(password)

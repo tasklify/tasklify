@@ -3,6 +3,7 @@ package handlers
 import (
 	"log"
 	"net/http"
+	"slices"
 )
 
 type RequestParams struct {
@@ -15,8 +16,8 @@ type Handler interface {
 
 func UnifiedHandler(h Handler) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		// If POST request, parse form
-		if r.Method == http.MethodPost {
+		// If appropirate request, parse form
+		if slices.Contains([]string{http.MethodPost, http.MethodPut, http.MethodPatch}, r.Method) {
 			err := r.ParseForm()
 			if err != nil {
 				log.Println(err)
