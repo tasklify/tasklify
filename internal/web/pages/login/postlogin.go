@@ -1,9 +1,9 @@
 package login
 
 import (
-	"log"
 	"net/http"
 	"tasklify/internal/auth"
+	"tasklify/internal/web/components/common"
 
 	"github.com/gorilla/schema"
 )
@@ -16,7 +16,6 @@ type loginFormData struct {
 var decoder = schema.NewDecoder()
 
 func PostLogin(w http.ResponseWriter, r *http.Request) error {
-
 	var loginFormData loginFormData
 	err := decoder.Decode(&loginFormData, r.PostForm)
 	if err != nil {
@@ -25,29 +24,19 @@ func PostLogin(w http.ResponseWriter, r *http.Request) error {
 
 	userID, err := auth.AuthenticateUser(loginFormData.Username, loginFormData.Password)
 	if err != nil {
-		log.Println(err)
-		w.WriteHeader(http.StatusUnauthorized)
-		c := loginError()
+		w.WriteHeader(http.StatusBadRequest)
+		c := common.ValidationError(err.Error())
 		return c.Render(r.Context(), w)
 	}
 
-	log.Printf("PostLogin: userID=%v", userID)
-
-	if userID != 0 {
-		err = auth.GetSession().Create(userID, w, r)
-		if err != nil {
-			log.Println(err)
-			w.WriteHeader(http.StatusInternalServerError)
-			c := loginError()
-			return c.Render(r.Context(), w)
-		}
-
-		w.Header().Set("HX-Redirect", "/")
-		w.WriteHeader(http.StatusOK)
-		return nil
+	err = auth.GetSession().Create(userID, w, r)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		c := common.ValidationError(err.Error())
+		return c.Render(r.Context(), w)
 	}
 
-	w.WriteHeader(http.StatusUnauthorized)
-	c := loginError()
-	return c.Render(r.Context(), w)
+	w.Header().Set("HX-Redirect", "/dashboard")
+	w.WriteHeader(http.StatusOK)
+	return nil
 }

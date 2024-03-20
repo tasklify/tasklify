@@ -85,6 +85,7 @@ After filling out the necessary information, submit the form by clicking on the 
 Stories can be added to a sprint by SCRUM master through the product backlog page.
 
 Adding a new user story to the currently active sprint involves the following steps:
+
 1. **Navigation to backlog**: All available stories not yet assigned to a sprint are listed in the backlog tab, located on the left side of the page.
 2. **Story selection**: Stories can be selected through checkboxes. Note that only the stories with a defined time complexity can be selected.
 3. **Add to sprint**: After selection, click the "Add to Sprint" button to assign the chosen stories to the currently active sprint. This action moves the stories from the backlog to the sprint view.
@@ -93,17 +94,19 @@ Adding a new user story to the currently active sprint involves the following st
 ### Product backlog
 
 The Product Backlog page is accessible to all project members. It is structured into two main sections:
+
 - **Backlog Tab**
   - Located on the left side of the page, this tab contains all unrealized user stories that have not been assigned to a sprint yet.
 - **Sprint Views**
-  - Positioned on the right, this section features all sprints along with their associated user stories. 
+  - Positioned on the right, this section features all sprints along with their associated user stories.
   - For each sprint its title (sequence number) and date range are presented.
-  - A badge that indicates the current status (Done, Active, or Upcoming) is displayed adjacent to the sprint title. 
+  - A badge that indicates the current status (Done, Active, or Upcoming) is displayed adjacent to the sprint title.
   - For the currently active sprint, a "Sprint backlog" button is available, providing a direct link to the sprint backlog page.
 
 #### User stories
 
 Within both the backlog tab and the sprint view, user stories are listed in a table format. The basic information presented is as follows:
+
 - **Title**: Short, descriptive title.
 - **Description**: Detailed story explanation.
 - **Priority**: Importance of the story (one of the following options: Must have, Should have, Could have, Won't have this time).
@@ -112,3 +115,4 @@ Within both the backlog tab and the sprint view, user stories are listed in a ta
 
 To the right of each story is a "Details" button which provides access to additional information.
 
+Common password list from [here](https://github.com/danielmiessler/SecLists/blob/master/Passwords/Common-Credentials/10-million-password-list-top-1000000.txt).

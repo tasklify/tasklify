@@ -26,6 +26,8 @@ func main() {
 	database.GetDatabase(config)
 	auth.GetSession(config)
 	auth.GetAuthorization()
+	auth.GetCommonPasswordList()
+	auth.GetSymcrypt(config)
 
 	auth.InitialUsers()
 

@@ -1,0 +1,64 @@
+package dashboard
+
+import (
+	"net/http"
+	"tasklify/internal/database"
+	"tasklify/internal/handlers"
+	"tasklify/internal/web/pages"
+	"tasklify/internal/auth"
+	"fmt"
+)
+
+func Dashboard(w http.ResponseWriter, r *http.Request, params handlers.RequestParams) error {
+	myProjects, err := database.GetDatabase().GetUserProjects(params.UserID)
+	if err != nil {
+		return err
+	}
+
+	user, err := database.GetDatabase().GetUserByID(params.UserID)
+	if err != nil {
+		return err
+	}
+
+	c := dashboard(myProjects, user.SystemRole)
+	return pages.Layout(c, "Tasklify", r).Render(r.Context(), w)
+}
+
+templ dashboard(myProjects []database.Project, user_SystemRole database.SystemRole) {
+	<div class="bg-base-200 min-h-screen">
+		<div class="p-10">
+			<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+				<!-- Add New Project -->
+				if auth.GetAuthorization().HasSystemPermission(user_SystemRole, "/create-project", auth.ActionCreate) == nil {
+					<div class="card card-compact bg-base-100 shadow-xl hover:shadow-2xl transition-shadow flex justify-center items-center">
+						<div class="card-body">
+							<h2 class="card-title">Add new project</h2>
+							<div class="flex justify-center">
+								<button class="btn btn-primary btn-circle btn-lg" hx-get="/create-project" hx-target="#dialog">
+									<svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+										<path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"></path>
+									</svg>
+								</button>
+							</div>
+						</div>
+					</div>
+				}
+				for _, project := range myProjects {
+					<div class="card card-compact bg-base-100 shadow-xl hover:shadow-2xl transition-shadow">
+						<div class="card-body">
+							<h2 class="card-title">{ project.Title }</h2>
+							<p class="whitespace-break-spaces">{ project.Description }</p>
+							<div class="card-actions justify-end">
+								<form hx-get="/productbacklog" hx-target="#whole" hx-swap="innerHTML">
+									<input type="hidden" id="projectID" name="projectID" value={ fmt.Sprint(project.ID) }/>
+									<button class="btn btn-primary">View project</button>
+								</form>
+							</div>
+						</div>
+					</div>
+				}
+			</div>
+		</div>
+		<div id="project-dialog"></div>
+	</div>
+}

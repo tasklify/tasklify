@@ -30,6 +30,7 @@ type Database struct {
 type Auth struct {
 	SessionHashKey  string `env:"TASKLIFY_AUTH_SESSION_HASH_KEY"`
 	SessionBlockKey string `env:"TASKLIFY_AUTH_SESSION_ENCRYPTION_KEY"`
+	SymcryptKey     string `env:"TASKLIFY_AUTH_SYMCRYPT_KEY"`
 }
 
 type Admin struct {

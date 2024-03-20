@@ -11,8 +11,8 @@ import (
 )
 
 type Database interface {
-	GetUsers() ([]User, error)
 	GetFilteredUsers(userIDs []uint) ([]User, error)
+	GetUsers(callerUserID *uint) ([]User, error)
 	GetUserByUsername(username string) (*User, error)
 	GetUserByID(id uint) (*User, error)
 	UpdateUser(user *User) error
