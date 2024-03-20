@@ -38,12 +38,12 @@ templ sprintBacklog(sprint *database.Sprint, projectRole database.ProjectRole) {
 							</button>
 							<!-- Create task Button -->
 							if *story.Realized {
-							    if projectRole == database.ProjectRoleMaster || projectRole == database.ProjectRoleDeveloper {
-                                    <form hx-get={ fmt.Sprintf("/userstory/%v/create-task", story.ID) } hx-target="#dialog" title="Can't add tasks to realized user story">
-                                        <input type="hidden" id="sprintID" name="sprintID" value={ strconv.Itoa(int(sprint.ID)) }/>
-                                        <input type="hidden" id="projectID" name="projectID" value={ strconv.Itoa(int(story.ProjectID)) }/>
-                                        <button class="btn btn-xs btn-primary" style="margin-right: 10px;" disabled>Create Task</button>
-                                    </form>
+								if projectRole == database.ProjectRoleMaster || projectRole == database.ProjectRoleDeveloper {
+									<form hx-get={ fmt.Sprintf("/userstory/%v/create-task", story.ID) } hx-target="#dialog" title="Can't add tasks to realized user story">
+										<input type="hidden" id="sprintID" name="sprintID" value={ strconv.Itoa(int(sprint.ID)) }/>
+										<input type="hidden" id="projectID" name="projectID" value={ strconv.Itoa(int(story.ProjectID)) }/>
+										<button class="btn btn-xs btn-primary" style="margin-right: 10px;" disabled>Create Task</button>
+									</form>
 								}
 							} else {
 								if projectRole == database.ProjectRoleMaster || projectRole == database.ProjectRoleDeveloper {
@@ -140,6 +140,8 @@ templ TaskRowSmall(task database.Task) {
 		<div class="task-assignee">
 			if task.UserID == nil {
 				<span class="badge badge-ghost">Assign</span>
+			} else if !*task.UserAccepted {
+				<span class="badge bg-primary">{ GetUserFirstAndLastNameFromID(*task.UserID) }</span> <span class="text-xs italic">(pending)</span>
 			} else {
 				<span class="badge bg-primary">{ GetUserFirstAndLastNameFromID(*task.UserID) }</span>
 			}

@@ -41,7 +41,12 @@ templ TaskDetailsDialog(task database.Task) {
 					<div class="text-gray-800 break-words p-4 bg-gray-100 rounded-lg">{ *task.Description }</div>
 				</div>
 				<!-- Assigned To (Moved to bottom left, smaller and visually distinct) -->
-				if task.UserID != nil {
+				if !*task.UserAccepted {
+					<div class="mt-auto pt-4">
+						<div class="text-sm font-semibold text-gray-600">Assigned to:</div>
+						<div><span class="text-xs text-gray-600">{ sprintbacklog.GetUserFirstAndLastNameFromID(*task.UserID) }</span> <span class="text-xs text-gray-600 italic">(pending)</span></div>
+					</div>
+				} else if task.UserID != nil {
 					<div class="mt-auto pt-4">
 						<div class="text-sm font-semibold text-gray-600">Assigned to:</div>
 						<div class="text-xs text-gray-600">{ sprintbacklog.GetUserFirstAndLastNameFromID(*task.UserID) }</div>
