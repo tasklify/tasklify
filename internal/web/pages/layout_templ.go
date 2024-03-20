@@ -149,7 +149,7 @@ func nav(r *http.Request) templ.Component {
 			return templ_7745c5c3_Err
 		}
 		if isLoggedIn(r) {
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div class=\"dropdown dropdown-hover dropdown-bottom dropdown-end mr-2\"><div tabindex=\"0\" class=\"avatar max-w-full\"><div class=\"w-12 h-12 rounded-full\"><img src=\"/static/assets/tasklify_icon.svg\"></div></div><ul tabindex=\"0\" class=\"dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-52\"><li><a class=\"btn btn-sm m-0.5\" hx-get=\"")
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div class=\"dropdown dropdown-hover dropdown-bottom dropdown-end mr-2\"><div tabindex=\"0\" class=\"avatar max-w-full\"><div class=\"w-12 h-12 rounded-full\"><img src=\"/static/assets/tasklify_icon.svg\"></div></div><ul tabindex=\"0\" class=\"dropdown-content z-[10] menu p-2 shadow bg-base-100 rounded-box w-52\"><li><a class=\"btn btn-sm m-0.5\" hx-get=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

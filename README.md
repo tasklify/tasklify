@@ -60,6 +60,12 @@ After filling out the necessary fields, submit the form by clicking on create bu
 
 When done, click on "I'll add more later" button, to finish the process and close the dialog.
 
+### Editing Projects
+
+Projects can be edited by system admin and scrum master. First thing that can be edited is project info, where project title and description can be changed, following the same rules as on project creation.
+
+The second thing to edit are project members. You can change Product owner and SCRUM master and add or remove project developers. When done, press Save button and users will be saved to project. Note that one user cannot have multiple roles, so if that happens, a warning will be shown and save won't work until you resolve the problem.
+
 ### Creating User Stories
 
 User stories can be created by product owner and SCRUM master. The form is as follows:
