@@ -10,7 +10,7 @@ templ sprintBacklog(sprint *database.Sprint, projectRole database.ProjectRole) {
 		<div class="container mx-auto p-2">
 			<!-- Back to Product Backlog Button -->
 			<div class="mb-2">
-				<form hx-get="/productbacklog" hx-target="#whole">
+				<form hx-get="/productbacklog" hx-target="#whole" hx-push-url="true">
 					<input type="hidden" id="projectID" name="projectID" value={ fmt.Sprint(sprint.ProjectID) }/>
 					<button class="btn btn-primary btn-xs">Back To Product Backlog</button>
 				</form>
