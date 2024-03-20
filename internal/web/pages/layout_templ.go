@@ -119,7 +119,22 @@ func nav(r *http.Request) templ.Component {
 			templ_7745c5c3_Var4 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<nav class=\"navbar bg-primary\" hx-boost=\"true\"><div class=\"navbar-start\"><a class=\"btn btn-ghost text-xxl text-white\" href=\"/\">tasklify</a> ")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<nav class=\"navbar bg-primary\" hx-boost=\"true\"><div class=\"navbar-start\"><a class=\"btn btn-ghost text-xxl text-white\"")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		if isLoggedIn(r) {
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(" href=\"/dashboard\"")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+		} else {
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(" href=\"/\"")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(">tasklify</a> ")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
