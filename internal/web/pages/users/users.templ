@@ -1,10 +1,13 @@
 package users
 
-import "net/http"
-import "tasklify/internal/handlers"
-import "tasklify/internal/database"
-import "tasklify/internal/web/pages"
-import "time"
+import (
+	"tasklify/internal/handlers"
+	"tasklify/internal/database"
+	"tasklify/internal/web/pages"
+	"time"
+	"fmt"
+	"net/http"
+)
 
 func Users(w http.ResponseWriter, r *http.Request, params handlers.RequestParams) error {
 	usersWithoutCaller, err := database.GetDatabase().GetUsers(nil)
@@ -21,12 +24,12 @@ templ users(users []database.User) {
 		<h2 class="text-2xl font-bold mb-4">User List</h2>
 		<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
 			for _, user := range users {
-				<div class="user-card bg-white rounded-lg p-4 shadow">
+				<div class="user-card bg-white rounded-lg p-4 shadow" hx-get={ fmt.Sprintf("/users/%d", user.ID) } hx-target="#dialog">
 					<h3 class="text-xl font-semibold">{ user.FirstName } { user.LastName }</h3>
 					<p class="text-gray-600">{ user.Username } </p>
 					<p class="text-gray-600">{ user.Email } </p>
 					<p class="text-sm text-gray-500">
-						Last Login: 
+						Last Login:
 						if user.LastLogin != nil {
 							{ user.LastLogin.Format(time.DateTime) }
 						} else {

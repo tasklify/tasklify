@@ -130,7 +130,7 @@ func guestIndex() templ.Component {
 			templ_7745c5c3_Var4 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div class=\"hero min-h-screen bg-base-200\"><div class=\"hero-content flex-col lg:flex-row-reverse\"><div class=\"text-center lg:text-left\"><h1 class=\"text-5xl font-bold\">Login now!</h1><p class=\"py-6\">Log in to your account to access all your projects and continue where you left off.</p></div><div class=\"card shrink-0 w-full max-w-sm shadow-2xl bg-base-100\"><form class=\"card-body\" hx-post=\"/login\"><div class=\"form-control\"><label class=\"label\"><span class=\"label-text\">Username</span></label> <input type=\"username\" name=\"username\" id=\"username\" placeholder=\"Username\" required=\"\" autocomplete=\"username\" class=\"input input-bordered\" required></div><div class=\"form-control\"><label class=\"label\"><span class=\"label-text\">Password</span></label> <input type=\"password\" name=\"password\" id=\"password\" placeholder=\"Password\" required=\"\" autocomplete=\"current-password\" class=\"input input-bordered\" required></div><div class=\"form-control mt-6\"><button class=\"btn btn-primary\" type=\"submit\">Login</button></div></form></div></div></div>")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div class=\"hero min-h-screen bg-base-200\"><div class=\"hero-content flex-col lg:flex-row-reverse\"><div class=\"text-center lg:text-left\"><h1 class=\"text-5xl font-bold\">Login now!</h1></div></div></div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

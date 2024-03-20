@@ -24,11 +24,11 @@ func login() templ.Component {
 			templ_7745c5c3_Var1 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div class=\"hero min-h-screen bg-base-200\"><div class=\"hero-content flex-col lg:flex-row-reverse\"><div class=\"text-center lg:text-left\"><h1 class=\"text-5xl font-bold\">Login now!</h1><p class=\"py-6\">Tasks await you.</p></div><div class=\"card shrink-0 w-full max-w-sm shadow-2xl bg-base-100\"><form hx-post=\"/login\" hx-target=\"#dialog\" hx-target-400=\"#validation-error\" class=\"card-body\"><div class=\"form-control\"><label class=\"label\"><span class=\"label-text\">Username</span></label> <input type=\"username\" name=\"username\" id=\"username\" placeholder=\"Username\" required=\"\" autocomplete=\"username\" class=\"input input-bordered\" required></div>")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div class=\"hero min-h-screen bg-base-200\"><div class=\"hero-content flex-col lg:flex-row-reverse\"><div class=\"text-center lg:text-left\"><h1 class=\"text-5xl font-bold\">Login now!</h1><p class=\"py-6\">Log in to your account to access all your projects and continue where you left off.</p></div><div class=\"card shrink-0 w-full max-w-sm shadow-2xl bg-base-100\"><form hx-post=\"/login\" hx-target=\"#dialog\" hx-target-400=\"#validation-error\" class=\"card-body\"><div class=\"form-control\"><label class=\"label\"><span class=\"label-text\">Username</span></label> <input type=\"username\" name=\"username\" id=\"username\" placeholder=\"Username\" required=\"\" autocomplete=\"username\" class=\"input input-bordered\" required></div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = form.PasswordField().Render(ctx, templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = form.PasswordField("password", "password", true, false).Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

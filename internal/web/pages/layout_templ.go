@@ -11,6 +11,7 @@ import "bytes"
 
 import "net/http"
 import "tasklify/internal/auth"
+import "fmt"
 
 func Layout(contents templ.Component, title string, r *http.Request) templ.Component {
 	return templ.ComponentFunc(func(ctx context.Context, templ_7745c5c3_W io.Writer) (templ_7745c5c3_Err error) {
@@ -88,7 +89,7 @@ func header(title string) templ.Component {
 		var templ_7745c5c3_Var3 string
 		templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinStringErrs(title)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/web/pages/layout.templ`, Line: 27, Col: 16}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/web/pages/layout.templ`, Line: 28, Col: 16}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var3))
 		if templ_7745c5c3_Err != nil {
@@ -133,7 +134,15 @@ func nav(r *http.Request) templ.Component {
 			return templ_7745c5c3_Err
 		}
 		if isLoggedIn(r) {
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<a class=\"btn btn-sm m-0.5\" hx-post=\"/logout\" hx-trigger=\"click\">Logout</a>")
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div class=\"dropdown dropdown-hover dropdown-bottom dropdown-end mr-2\"><div tabindex=\"0\" class=\"avatar max-w-full\"><div class=\"w-12 h-12 rounded-full\"><img src=\"/static/assets/tasklify_icon.svg\"></div></div><ul tabindex=\"0\" class=\"dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-52\"><li><a class=\"btn btn-sm m-0.5\" hx-get=\"")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(userSettingsPath(r)))
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("\" hx-target=\"#dialog\">User settings</a></li><li><a class=\"btn btn-sm m-0.5\" hx-post=\"/logout\">Logout</a></li></ul></div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -178,7 +187,17 @@ func isLoggedIn(r *http.Request) bool {
 	sessionManager := auth.GetSession()
 	_, err := sessionManager.GetUserID(r)
 
-	isLoggedIn := err == nil // If there's no error, the user is considered logged in
+	isLoggedIn := err == nil // If error is nil, the user is considered logged in
 
 	return isLoggedIn
+}
+
+func userSettingsPath(r *http.Request) string {
+	sessionManager := auth.GetSession()
+	userID, err := sessionManager.GetUserID(r)
+	if err != nil {
+		return ""
+	}
+
+	return fmt.Sprintf("/users/%d", userID)
 }

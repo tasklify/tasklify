@@ -6,12 +6,10 @@ import (
 	"fmt"
 	"image/png"
 	"log"
-	"tasklify/internal/config"
 	"tasklify/internal/database"
 	"time"
 
 	"github.com/alexedwards/argon2id"
-	"github.com/gookit/goutil/dump"
 	"github.com/pquerna/otp"
 	"github.com/pquerna/otp/totp"
 )
@@ -79,9 +77,9 @@ func CreateUser(ID *uint, username, password, firstName, lastName, email, system
 		user.ID = *ID
 	}
 
-	if config.GetConfig().Debug {
-		dump.P(user)
-	}
+	// if config.GetConfig().Debug {
+	// 	dump.P(user)
+	// }
 
 	return database.GetDatabase().UpdateUser(user)
 }
