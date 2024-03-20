@@ -31,7 +31,7 @@ type Database interface {
 	CreateTask(task *Task) error
 	GetTaskByID(id uint) (*Task, error)
 	GetProjectByID(id uint) (*Project, error)
-	GetProjectRole(userID uint, projectID uint) ProjectRole
+	GetProjectRole(userID uint, projectID uint) (ProjectRole, error)
 	GetProjectHasUserByProjectAndUser(userID uint, projectID uint) (*ProjectHasUser, error)
 	CreateProject(project *Project) (uint, error)
 	AddUserToProject(projectID uint, userID uint, projectRole string) error

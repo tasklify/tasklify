@@ -4,10 +4,13 @@ import (
 	"fmt"
 	"net/http"
 	"reflect"
+	"strconv"
 	"tasklify/internal/database"
 	"tasklify/internal/handlers"
 	"tasklify/internal/web/components/common"
+	"tasklify/internal/web/pages"
 
+	"github.com/go-chi/chi/v5"
 	"github.com/gorilla/schema"
 )
 
@@ -32,15 +35,19 @@ func PostUserStory(w http.ResponseWriter, r *http.Request, params handlers.Reque
 		Description   string `schema:"description,required"`
 		Priority      database.Priority  `schema:"priority,required"`
 		BusinessValue int    `schema:"business_value,required"`
-		ProjectID    uint   `schema:"projectID,required"`
 		AcceptanceTests []string `schema:"acceptanceTests"`
 	}
 	var userStoryData UserStoryFormData
 	if err := decoder.Decode(&userStoryData, r.PostForm); err != nil {
 		return err
 	}
+
+	ProjectID, err := strconv.Atoi(chi.URLParam(r, "projectID"))
+	if err != nil {
+		return err
+	}
 	// Check if a user story with the same title already exists
-	userStoryExists := database.GetDatabase().UserStoryInThisProjectAlreadyExists(userStoryData.Title, userStoryData.ProjectID)
+	userStoryExists := database.GetDatabase().UserStoryInThisProjectAlreadyExists(userStoryData.Title, uint(ProjectID))
 	if userStoryExists {
 		w.WriteHeader(http.StatusBadRequest)
 		c := common.ValidationError("User story with same title already exists.")
@@ -52,14 +59,12 @@ func PostUserStory(w http.ResponseWriter, r *http.Request, params handlers.Reque
 		return c.Render(r.Context(), w)
 	}
 
-	ProjectID := userStoryData.ProjectID
-
 	userStory := &database.UserStory{
 		Title:         userStoryData.Title,
 		Description:   &userStoryData.Description,
 		BusinessValue: userStoryData.BusinessValue,
 		Priority:      userStoryData.Priority,
-		ProjectID:     ProjectID,
+		ProjectID:     uint(ProjectID),
 		Realized:      new(bool), // Defaults to false
 		AcceptanceTests: []database.AcceptanceTest{},
 	}
@@ -79,7 +84,7 @@ func PostUserStory(w http.ResponseWriter, r *http.Request, params handlers.Reque
 		}
 	}
 
-    redirectURL := fmt.Sprintf("/productbacklog?projectID=%d", userStoryData.ProjectID)
+    redirectURL := fmt.Sprintf("/productbacklog?projectID=%d", uint(ProjectID))
     w.Header().Set("HX-Redirect", redirectURL)
 	w.WriteHeader(http.StatusSeeOther)
 
@@ -87,18 +92,21 @@ func PostUserStory(w http.ResponseWriter, r *http.Request, params handlers.Reque
 }
 
 func GetUserStory(w http.ResponseWriter, r *http.Request, params handlers.RequestParams) error {
-	type RequestData struct {
-		ProjectID uint `schema:"projectID,required"`
-	}
-	var requestData RequestData
-	err := decoder.Decode(&requestData, r.URL.Query())
+	ProjectID, err := strconv.Atoi(chi.URLParam(r, "projectID"))
 	if err != nil {
 		return err
 	}
 
-	ProjectID := requestData.ProjectID
+	projectRole, err := database.GetDatabase().GetProjectRole(params.UserID, uint(ProjectID))
+	if err != nil {
+		return err
+	}
 
-	c := CreateUserStoryDialog(ProjectID)
+	if projectRole == database.ProjectRoleDeveloper || projectRole ==  (database.ProjectRole{}) {
+		return pages.NotFound(w, r)
+	}
+
+	c := CreateUserStoryDialog(uint(ProjectID))
 	return c.Render(r.Context(), w)
 }
 

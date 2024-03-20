@@ -6,15 +6,12 @@ import (
 	"tasklify/internal/database"
 
 	"tasklify/internal/handlers"
+
+	"github.com/go-chi/chi/v5"
 )
 
 func GetTaskDetails(w http.ResponseWriter, r *http.Request, params handlers.RequestParams) error {
-
-	if err := r.ParseForm(); err != nil {
-		return err
-	}
-
-	taskID, err := strconv.Atoi(r.FormValue("taskID"))
+	taskID, err := strconv.Atoi(chi.URLParam(r, "taskID"))
 	if err != nil {
 		return err
 	}
