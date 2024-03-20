@@ -2,10 +2,12 @@ package sprintbacklog
 
 import (
 	"net/http"
+	"strconv"
 	"tasklify/internal/database"
 	"tasklify/internal/handlers"
 	"tasklify/internal/web/pages"
 
+	"github.com/go-chi/chi/v5"
 	"github.com/gorilla/schema"
 )
 
@@ -13,25 +15,23 @@ var decoder = schema.NewDecoder()
 
 // GetSprintBacklog handles the request for fetching and displaying the sprint backlog.
 func GetSprintBacklog(w http.ResponseWriter, r *http.Request, params handlers.RequestParams) error {
-	type RequestData struct {
-		SprintID uint `schema:"sprintID,required"`
-	}
-	var requestData RequestData
-	err := decoder.Decode(&requestData, r.URL.Query())
+	sprintID, err := strconv.Atoi(chi.URLParam(r, "sprintID"))
 	if err != nil {
 		return err
 	}
 
-	sprintID := requestData.SprintID
-
 	//fetch sprint
-	sprint := database.GetDatabase().GetSprintByID(sprintID)
+	sprint := database.GetDatabase().GetSprintByID(uint(sprintID))
 	if sprint == nil {
 		return pages.NotFound(w, r)
 	}
 
 	//get user project role
-	projectRole := database.GetDatabase().GetProjectRole(params.UserID, sprint.ProjectID)
+	projectRole,_ := database.GetDatabase().GetProjectRole(params.UserID, sprint.ProjectID)
+
+	if (projectRole == database.ProjectRole{}) {
+		return pages.NotFound(w, r)
+	}
 
 	c := sprintBacklog(sprint, projectRole)
 
