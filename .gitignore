@@ -19,7 +19,8 @@ go.work
 ## Other than Golang ##
 
 # compiled using TailwindCSS or managed by yarn
-static
+static/css
+static/script
 
 # managed by yarn
 node_modules
