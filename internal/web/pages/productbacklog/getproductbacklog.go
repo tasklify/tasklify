@@ -10,6 +10,7 @@ import (
 	"tasklify/internal/handlers"
 	"tasklify/internal/web/pages"
 
+	"github.com/go-chi/chi/v5"
 	"github.com/gorilla/schema"
 )
 
@@ -61,7 +62,7 @@ func GetProductBacklog(w http.ResponseWriter, r *http.Request, params handlers.R
 	var usInBacklog, _ = filterBacklog(userStories)
 
 	//get user project role
-	projectRole := database.GetDatabase().GetProjectRole(params.UserID, projectID)
+	projectRole,_ := database.GetDatabase().GetProjectRole(params.UserID, projectID)
 
 	user, err := database.GetDatabase().GetUserByID(params.UserID)
 	if err != nil {
@@ -158,11 +159,7 @@ func RemoveUserStoryFromSprint(w http.ResponseWriter, r *http.Request, params ha
 }
 
 func PostUserStoryAccepted(w http.ResponseWriter, r *http.Request, params handlers.RequestParams) error {
-	if err := r.ParseForm(); err != nil {
-		return err
-	}
-
-	userStoryID, err := strconv.Atoi(r.FormValue("userStoryID"))
+	userStoryID, err := strconv.Atoi(chi.URLParam(r, "userStoryID"))
 	if err != nil {
 		return err
 	}
@@ -178,19 +175,13 @@ func PostUserStoryAccepted(w http.ResponseWriter, r *http.Request, params handle
 		return err
 	}
 
-	callbackURL := r.FormValue("callback")
-	fmt.Println(callbackURL)
-	if callbackURL != "" {
-		w.Header().Set("HX-Redirect", callbackURL)
-	} else {
-		return errors.New("callback URL not provided")
-	}
+	w.Header().Set("HX-Redirect", "/productbacklog?projectID="+strconv.Itoa(int(userStory.ProjectID)))
 
 	w.WriteHeader(http.StatusSeeOther)
 	return nil
 }
 
-func PostUserStoryRejected(w http.ResponseWriter, r *http.Request, params handlers.RequestParams) error {
+func GetUserStoryRejected(w http.ResponseWriter, r *http.Request, params handlers.RequestParams) error {
 	if err := r.ParseForm(); err != nil {
 		return err
 	}
@@ -200,28 +191,37 @@ func PostUserStoryRejected(w http.ResponseWriter, r *http.Request, params handle
 		return err
 	}
 
-	projectID, err := strconv.Atoi(r.FormValue("projectID"))
+	userStory,_ := database.GetDatabase().GetUserStoryByID(uint(userStoryID))
+
+	projectRole, err := database.GetDatabase().GetProjectRole(params.UserID, uint(userStory.ProjectID))
 	if err != nil {
 		return err
 	}
 
-	c := CreateRejectionCommentDialog(uint(userStoryID), "/productbacklog?projectID="+strconv.Itoa(int(projectID)))
+	if projectRole != database.ProjectRoleManager {
+		return pages.NotFound(w, r)
+	}
+
+	c := CreateRejectionCommentDialog(uint(userStoryID))
 
 	return c.Render(r.Context(), w)
 
 }
 
-func PostRejectionComment(w http.ResponseWriter, r *http.Request, params handlers.RequestParams) error {
-	if err := r.ParseForm(); err != nil {
+func PostUserStoryRejected(w http.ResponseWriter, r *http.Request, params handlers.RequestParams) error {
+	type RejectFormData struct {
+		Comment  string `schema:"comment,required"`
+	}
+	var rejectFormData RejectFormData
+	if err := decoder.Decode(&rejectFormData, r.PostForm); err != nil {
 		return err
 	}
-
-	userStoryID, err := strconv.Atoi(r.FormValue("userStoryID"))
+	userStoryID, err := strconv.Atoi(chi.URLParam(r, "userStoryID"))
 	if err != nil {
 		return err
 	}
 
-	comment := r.FormValue("comment")
+	comment := rejectFormData.Comment
 
 	userStory, err := database.GetDatabase().GetUserStoryByID(uint(userStoryID))
 	if err != nil {
@@ -236,13 +236,7 @@ func PostRejectionComment(w http.ResponseWriter, r *http.Request, params handler
 		return err
 	}
 
-	callbackURL := r.FormValue("callback")
-	fmt.Println(callbackURL)
-	if callbackURL != "" {
-		w.Header().Set("HX-Redirect", callbackURL)
-	} else {
-		return errors.New("callback URL not provided")
-	}
+	w.Header().Set("HX-Redirect", "/productbacklog?projectID="+strconv.Itoa(int(userStory.ProjectID)))
 
 	w.WriteHeader(http.StatusSeeOther)
 	return nil
