@@ -4,7 +4,6 @@ import "net/http"
 import "tasklify/internal/auth"
 
 templ Layout(contents templ.Component, title string, r *http.Request) {
-	<!-- <!DOCTYPE html> -->
 	<html>
 		<div id="whole">
 			@header(title)
@@ -25,8 +24,9 @@ templ Layout(contents templ.Component, title string, r *http.Request) {
 
 templ header(title string) {
 	<head>
-		<title>{ title }</title>
 		<meta charset="UTF-8"/>
+		<title>{ title }</title>
+		<link rel="icon" type="image/x-icon" href="/static/assets/favicon.ico"/>
 		<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 		// If responseTargetUnsetsError=True, then response-targets extension always marks the request as successful even if it's not (e.g. because of validation error)
 		// Read https://htmx.org/extensions/response-targets/ for further explanation
@@ -38,19 +38,21 @@ templ header(title string) {
 }
 
 templ nav(r *http.Request) {
-	<div class="navbar bg-primary">
+	<nav class="navbar bg-primary" hx-boost="true">
 		<div class="navbar-start">
 			<a class="btn btn-ghost text-xxl text-white" href="/">tasklify</a>
+			if isLoggedIn(r) {
+				<a class="btn btn-sm m-0.5" href="/users">Users</a>
+			}
 		</div>
 		<div class="navbar-end">
 			if isLoggedIn(r) {
-				<a class="btn btn-sm m-0.5" hx-post="/logout">Logout</a>
-			} else {
-				<a class="btn btn-sm m-0.5" hx-get="/login" hx-target="#dialog">Login</a>
-				<a class="btn btn-sm m-0.5" href="/register">Register</a>
+				<a class="btn btn-sm m-0.5" hx-post="/logout" hx-trigger="click">Logout</a>
+			} else if r.URL.Path != "/login" {
+				<a class="btn btn-sm m-0.5" href="/login">Login</a>
 			}
 		</div>
-	</div>
+	</nav>
 }
 
 templ footer() {

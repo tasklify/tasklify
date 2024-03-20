@@ -5,6 +5,7 @@ import "strconv"
 
 templ createSprintDialog(projectID uint) {
 	@common.CreateDialog("Create sprint", "/createsprint") {
+		<a href="https://github.com/tasklify/tasklify/tree/main?tab=readme-ov-file#creating-sprints" target="_blank" class="help-button" style="padding-right=10rem;">?</a>
 		<!-- Start Date Field -->
 		<div class="mb-4">
 			<label for="start_date" class="block text-sm font-medium text-gray-700">Start Date</label>
@@ -17,7 +18,7 @@ templ createSprintDialog(projectID uint) {
 		</div>
 		<!-- Velocity Field -->
 		<div class="mb-4">
-			<label for="velocity" class="block text-sm font-medium text-gray-700">Velocity</label>
+			<label for="velocity" class="block text-sm font-medium text-gray-700">Velocity (story points)</label>
 			<input type="number" id="velocity" name="velocity" class="input input-bordered input-primary w-full max-w-s mt-1" min="1" required/>
 		</div>
 		<!-- ProjectID (hidden) -->

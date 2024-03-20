@@ -32,19 +32,27 @@ templ productBacklog(backlogUserStories []database.UserStory, sprints []database
 				<a href="/" class="btn btn-primary btn-sm">Back to Dashboard</a>
 				<div>
 					if projectRole == database.ProjectRoleManager {
-						<form hx-get="/createuserstory" hx-target="#dialog" style="display: inline;">
-							<input type="hidden" id="projectID" name="projectID" value={ fmt.Sprint(projectID) }/>
-							<button class="btn btn-primary btn-sm">Create User Story</button>
-						</form>
+						<div class="flex">
+							<form hx-get="/createuserstory" hx-target="#dialog" style="display: inline;">
+								<input type="hidden" id="projectID" name="projectID" value={ fmt.Sprint(projectID) }/>
+								<button class="btn btn-primary btn-sm">Create User Story</button>
+							</form>
+							<a href="https://github.com/tasklify/tasklify/tree/main?tab=readme-ov-file#product-backlog" target="_blank" class="help-button ml-4" style="position: relative;top:0px;right:0px">?</a>
+						</div>
 					} else if projectRole == database.ProjectRoleMaster {
-						<form hx-get="/createuserstory" hx-target="#dialog" style="display: inline;">
-							<input type="hidden" id="projectID" name="projectID" value={ fmt.Sprint(projectID) }/>
-							<button class="btn btn-primary btn-sm">Create User Story</button>
-						</form>
-						<form hx-get="/createsprint" hx-target="#dialog" style="display: inline;">
-							<input type="hidden" id="projectID" name="projectID" value={ fmt.Sprint(projectID) }/>
-							<button class="btn btn-primary btn-sm ml-2">Create Sprint</button>
-						</form>
+						<div class="flex">
+							<form hx-get="/createuserstory" hx-target="#dialog" style="display: inline;">
+								<input type="hidden" id="projectID" name="projectID" value={ fmt.Sprint(projectID) }/>
+								<button class="btn btn-primary btn-sm">Create User Story</button>
+							</form>
+							<form hx-get="/createsprint" hx-target="#dialog" style="display: inline;">
+								<input type="hidden" id="projectID" name="projectID" value={ fmt.Sprint(projectID) }/>
+								<button class="btn btn-primary btn-sm ml-2">Create Sprint</button>
+							</form>
+							<a href="https://github.com/tasklify/tasklify/tree/main?tab=readme-ov-file#product-backlog" target="_blank" class="help-button ml-4" style="position: relative;top:0px;right:0px">?</a>
+						</div>
+					} else {
+						<a href="https://github.com/tasklify/tasklify/tree/main?tab=readme-ov-file#product-backlog" target="_blank" class="help-button ml-4" style="position: relative;top:0px;right:0px">?</a>
 					}
 				</div>
 			</div>
@@ -136,7 +144,8 @@ templ userStoryCard(name string, description string) {
 
 templ backlog(backlogUserStories []database.UserStory, sprint database.Sprint, callback string, projectRole database.ProjectRole) {
 	<div class="card card-compact bg-base-200 transition-shadow w-2/5 mt-2 ml-2">
-		<div class="card-title collapse-title text-xl font-medium bg-base-300 border-base-300">Product backlog</div>
+		<div class="card-title collapse-title text-xl font-medium bg-base-300 border-base-300">Backlog</div>
+		<a href="https://github.com/tasklify/tasklify/tree/main?tab=readme-ov-file#adding-user-stories-to-sprint" target="_blank" class="help-button" style="padding-right=10rem;">?</a>
 		<div class="card-body">
 			<form id="backlogForm" hx-post="/productbacklog">
 				<table class="table w-full">

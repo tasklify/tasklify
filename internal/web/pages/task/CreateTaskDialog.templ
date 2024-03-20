@@ -8,6 +8,7 @@ import "strconv"
 
 templ createTaskDialog(projectID uint, sprintID uint, userStoryID uint, users []database.User) {
 	@common.CreateDialog("Create task", "/create-task") {
+		<a href="https://github.com/tasklify/tasklify/tree/main?tab=readme-ov-file#creating-tasks" target="_blank" class="help-button" style="padding-right=10rem;">?</a>
 		<!-- Title Field -->
 		<div class="mb-4">
 			<label for="title" class="block text-sm font-medium text-gray-700">Title</label>
@@ -20,10 +21,10 @@ templ createTaskDialog(projectID uint, sprintID uint, userStoryID uint, users []
 		</div>
 		<!-- TimeEstimate Field hours, days? -->
 		<div class="mb-4">
-			<label for="time_estimate" class="block text-sm font-medium text-gray-700">Time estimate</label>
+			<label for="time_estimate" class="block text-sm font-medium text-gray-700">Time estimate (hours)</label>
 			<input type="number" step="0.01" id="time_estimate" name="time_estimate" class="input input-bordered input-primary w-full max-w-s mt-1" min="0.01" required/>
 		</div>
-		<!-- UserID (optional) člana ekipe za njeno realizacijo -->
+		<!-- UserID (optional) -->
 		<div class="mb-4">
 			<label for="user_id" class="block text-sm font-medium text-gray-700">User (optional)</label>
 			<select

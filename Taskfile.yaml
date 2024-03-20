@@ -11,6 +11,11 @@ vars:
 tasks:
   ## Golang, HTMX, Templ, TailwindCSS, YARN
 
+  tidy:
+    cmds:
+      - go get -u ./...
+      - go mod tidy
+
   dev:
     deps:
       - task: deps

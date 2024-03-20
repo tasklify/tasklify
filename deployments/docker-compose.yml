@@ -4,7 +4,7 @@ services:
   tasklify:
     image: ${REGISTRY}tasklify/tasklify:latest
     container_name: tasklify
-    restart: on-failure:5
+    restart: always
     profiles: ["prod"]
     networks:
       - reverse-proxy
@@ -17,6 +17,7 @@ services:
 
       TASKLIFY_AUTH_SESSION_HASH_KEY: ${TASKLIFY_AUTH_SESSION_HASH_KEY}
       TASKLIFY_AUTH_SESSION_ENCRYPTION_KEY: ${TASKLIFY_AUTH_SESSION_ENCRYPTION_KEY}
+      TASKLIFY_AUTH_SYMCRYPT_KEY: ${TASKLIFY_AUTH_SYMCRYPT_KEY}
 
       TASKLIFY_DATABASE_HOST: ${TASKLIFY_DATABASE_HOST}
       TASKLIFY_DATABASE_NAME: ${TASKLIFY_DATABASE_NAME}
@@ -29,7 +30,7 @@ services:
   tasklify-postgres:
     image: postgres:16-alpine
     container_name: tasklify-postgres
-    restart: on-failure:5
+    restart: always
     networks:
       - tasklify-internal
     ports:
@@ -49,7 +50,7 @@ services:
   tasklify-pgadmin:
     image: dpage/pgadmin4:latest
     container_name: tasklify-pgadmin
-    restart: on-failure:5
+    restart: always
     networks:
       - tasklify-internal
     ports:
