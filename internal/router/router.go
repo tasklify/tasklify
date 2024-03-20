@@ -59,6 +59,8 @@ func Router() *chi.Mux {
 			r.Handle("/logout", ghandlers.MethodHandler{
 				"POST": handlers.UnifiedHandler(handlers.PlainHandlerFunc(logout.PostLogout)),
 			})
+
+			// ===== Create Project endpoints =====
 			r.Handle("/create-project", ghandlers.MethodHandler{
 				"GET":  handlers.UnifiedHandler(handlers.AuthenticatedHandlerFunc(project.GetCreateProject)),
 				"POST": handlers.UnifiedHandler(handlers.AuthenticatedHandlerFunc(project.PostCreateProject)),
@@ -69,6 +71,29 @@ func Router() *chi.Mux {
 			r.Handle("/remove-project-developer", ghandlers.MethodHandler{
 				"POST": handlers.UnifiedHandler(handlers.AuthenticatedHandlerFunc(project.RemoveProjectDeveloper)),
 			})
+
+			// ===== Edit Project endpoints =====
+			r.Handle("/edit-project-info/{projectID}", ghandlers.MethodHandler{
+				"GET":  handlers.UnifiedHandler(handlers.AuthenticatedHandlerFunc(project.GetEditProjectInfo)),
+				"POST": handlers.UnifiedHandler(handlers.AuthenticatedHandlerFunc(project.UpdateProjectInfo)),
+			})
+			r.Handle("/edit-project-members/{projectID}", ghandlers.MethodHandler{
+				"GET":  handlers.UnifiedHandler(handlers.AuthenticatedHandlerFunc(project.GetEditProjectMembers)),
+				"POST": handlers.UnifiedHandler(handlers.AuthenticatedHandlerFunc(project.UpdateProjectMembers)),
+			})
+			r.Handle("/edit-project-members/{projectID}/remove-project-developer", ghandlers.MethodHandler{
+				"POST": handlers.UnifiedHandler(handlers.AuthenticatedHandlerFunc(project.EditProjectRemoveDeveloper)),
+			})
+			r.Handle("/edit-project-members/{projectID}/add-project-developer", ghandlers.MethodHandler{
+				"POST": handlers.UnifiedHandler(handlers.AuthenticatedHandlerFunc(project.EditProjectAddDeveloper)),
+			})
+			r.Handle("/edit-project-members/{projectID}/change-product-owner", ghandlers.MethodHandler{
+				"POST": handlers.UnifiedHandler(handlers.AuthenticatedHandlerFunc(project.EditProjectChangeOwner)),
+			})
+			r.Handle("/edit-project-members/{projectID}/change-scrum-master", ghandlers.MethodHandler{
+				"POST": handlers.UnifiedHandler(handlers.AuthenticatedHandlerFunc(project.EditProjectChangeMaster)),
+			})
+
 			r.Handle("/createsprint", ghandlers.MethodHandler{
 				"GET":  handlers.UnifiedHandler(handlers.AuthenticatedHandlerFunc(sprint.GetCreateSprint)),
 				"POST": handlers.UnifiedHandler(handlers.AuthenticatedHandlerFunc(sprint.PostSprint)),

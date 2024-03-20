@@ -1,0 +1,214 @@
+package project
+
+import "tasklify/internal/database"
+import "fmt"
+
+templ editProjectInfo(projectData database.Project) {
+	<div class="p-5">
+		<div class="flex justify-center" hx-ext="response-targets">
+			<div class="basis-6/12">
+				<div>
+					<h3 class="font-bold text-lg mt-1 mb-3">Project info</h3>
+				</div>
+				<form id="project_info_form">
+					<div class="mb-4">
+						<label for="title" class="block text-sm font-medium text-gray-700 ml-2">Title</label>
+						<input type="text" id="title" name="title" class="input input-bordered input-primary w-full max-w-s mt-1" value={ projectData.Title } required/>
+					</div>
+					<div class="mb-4">
+						<label for="description" class="block text-sm font-medium text-gray-700 ml-2">Description</label>
+						<textarea rows="4" id="description" name="description" class="input input-bordered input-primary w-full h-auto max-w-s mt-1 p-2 px-4" style="max-height: 200px; min-height: 50px;">{ projectData.Description }</textarea>
+					</div>
+					<div id="validation-error"></div>
+				</form>
+				<div class="flex justify-end">
+					<form hx-get="/productbacklog" hx-target="#whole" hx-swap="innerHTML" hx-push-url="true">
+						<input type="hidden" id="projectID" name="projectID" value={ fmt.Sprint(projectData.ID) }/>
+						<button class="btn btn-ghost btn-sm mr-2">Cancel</button>
+					</form>
+					<form hx-post={ fmt.Sprint("/edit-project-info/", projectData.ID) } hx-include="#project_info_form" hx-target-400="#validation-error">
+						<input type="hidden" id="projectID" name="projectID" value={ fmt.Sprint(projectData.ID) }/>
+						<button class="btn btn-primary btn-sm">Save</button>
+					</form>
+				</div>
+			</div>
+		</div>
+	</div>
+}
+
+templ editProjectMembers(projectID uint, productOwner *database.User, scrumMaster *database.User, projectDevelopers map[uint]database.User, availableUsers []database.User, allUsers []database.User) {
+	<div class="p-5">
+		<div class="flex justify-center" hx-ext="response-targets">
+			<div class="md:basis-6/12 basis-9/12">
+				<div>
+					<h3 class="font-bold text-lg mt-1 mb-4">Project members</h3>
+				</div>
+				<div class="mb-6" id="ProductOwnerSelect">
+					@ProductOwnerSelect(projectID, productOwner, allUsers)
+				</div>
+				<div class="mb-9" id="ScrumMasterSelect">
+					@ScrumMasterSelect(projectID, scrumMaster, allUsers)
+				</div>
+				<div id="ProjectDevelopersContainer" class="mb-9">
+					@ProjectDevelopersContainer(projectID, projectDevelopers, availableUsers)
+				</div>
+				<div id="validation-error" class="mb-3"></div>
+				<div class="flex justify-end">
+					<form hx-get="/productbacklog" hx-target="#whole" hx-swap="innerHTML" hx-push-url="true">
+						<input type="hidden" id="projectID" name="projectID" value={ fmt.Sprint(projectID) }/>
+						<button class="btn btn-ghost btn-sm mr-2">Cancel</button>
+					</form>
+					<form hx-post={ fmt.Sprint("/edit-project-members/", projectID) } hx-target-400="#validation-error">
+						<input type="hidden" id="projectID" name="projectID" value={ fmt.Sprint(projectID) }/>
+						<button class="btn btn-primary btn-sm">Save</button>
+					</form>
+				</div>
+			</div>
+		</div>
+	</div>
+}
+
+templ ProductOwnerSelect(projectID uint, productOwner *database.User, allUsers []database.User) {
+	<label for="product_owner" class="block text-sm font-medium text-gray-700 ml-2">Product owner</label>
+	<select
+		id="product_owner"
+		class="select select-bordered select-primary w-full max-w-s mt-1 px-4"
+		name="productOwner"
+		hx-post={ fmt.Sprintf("/edit-project-members/%v/change-product-owner", projectID) }
+		hx-trigger="change"
+		hx-target="#ProductOwnerSelect"
+		required
+	>
+		<option
+			hidden
+			disabled
+			if productOwner == nil {
+				selected="selected"
+			}
+			value
+		>
+			if len(allUsers) > 0 {
+				Select user
+			} else {
+				No users to select
+			}
+		</option>
+		for _, user := range allUsers {
+			<option
+				value={ fmt.Sprint(user.ID) }
+				if productOwner != nil && user.ID == productOwner.ID {
+					selected="selected"
+				}
+			>{ user.FirstName } { user.LastName }</option>
+		}
+	</select>
+}
+
+templ ScrumMasterSelect(projectID uint, scrumMaster *database.User, allUsers []database.User) {
+	<label for="scrum_master" class="block text-sm font-medium text-gray-700 ml-2">SCRUM master</label>
+	<select
+		id="scrum_master"
+		class="select select-bordered select-primary w-full max-w-s mt-1 px-4"
+		name="scrumMaster"
+		hx-post={ fmt.Sprintf("/edit-project-members/%v/change-scrum-master", projectID) }
+		hx-trigger="change"
+		hx-target="#ScrumMasterSelect"
+		required
+	>
+		<option
+			hidden
+			disabled
+			if scrumMaster == nil {
+				selected="selected"
+			}
+			value
+		>
+			if len(allUsers) > 0 {
+				Select user
+			} else {
+				No users to select
+			}
+		</option>
+		for _, user := range allUsers {
+			<option
+				value={ fmt.Sprint(user.ID) }
+				if scrumMaster != nil && user.ID == scrumMaster.ID {
+					selected="selected"
+				}
+			>{ user.FirstName } { user.LastName }</option>
+		}
+	</select>
+}
+
+templ ProjectDevelopersContainer(projectID uint, projectDevelopers map[uint]database.User, users []database.User) {
+	<div class="flex items-center mb-1 flex-wrap">
+		<p class="text-sm font-medium text-gray-700 flex-1 ml-1">Project developers</p>
+		<form hx-post={ fmt.Sprintf("/edit-project-members/%v/add-project-developer", projectID) } hx-target="#ProjectDevelopersContainer" class="flex md:basis-6/12 basis-full m-0">
+			<div class="join flex basis-full">
+				<select
+					id="projectUser_user"
+					class="select select-bordered select-primary join-item basis-full block p-2 px-4 h-8 min-h-0 py-0"
+					name="userID"
+					if len(users) == 0 {
+						disabled="disabled"
+					}
+					required
+				>
+					<option hidden disabled selected value>
+						if len(users) > 0 {
+							Select user
+						} else {
+							No more users to select
+						}
+					</option>
+					for _, user := range users {
+						<option value={ fmt.Sprint(user.ID) }>{ user.FirstName } { user.LastName }</option>
+					}
+				</select>
+				<button
+					class="btn btn-primary text-sm btn-sm join-item basis-1/12"
+					type="submit"
+					if len(users) == 0 {
+						disabled="disabled"
+					}
+				>Add</button>
+			</div>
+		</form>
+	</div>
+	<div class="overflow-x-auto block max-h-80">
+		<table class="table table-auto overflow-scroll w-full" id="project_developers_table">
+			<thead class="bg-gray-200 sticky top-0">
+				<tr>
+					<th>User</th>
+					<th>Email</th>
+					<th></th>
+				</tr>
+			</thead>
+			<tbody class="max-h-80 overflow-y-auto">
+				if len(projectDevelopers) > 0 {
+					for _, projectDeveloper := range projectDevelopers {
+						<tr class="hover">
+							<td class="text-gray-950">
+								<div class="flex flex-col">
+									<span class="font-semibold text-sm">{ projectDeveloper.FirstName } { projectDeveloper.LastName }</span>
+									<span class="text-xs">{ projectDeveloper.Username }</span>
+								</div>
+							</td>
+							<td class="text-gray-950">{ projectDeveloper.Email }</td>
+							<td style="width: 1%;">
+								<form hx-post={ fmt.Sprintf("/edit-project-members/%v/remove-project-developer", projectID) } hx-target="#ProjectDevelopersContainer" style="all: unset">
+									<button class="btn btn-xs btn-circle btn-ghost" style="font-size: 12px;">✕</button>
+									<input type="hidden" id="removeUserID" name="userID" value={ fmt.Sprint(projectDeveloper.ID) }/>
+								</form>
+							</td>
+						</tr>
+					}
+				} else {
+					<tr>
+						<td colspan="100%" class="text-center mt-3 text-gray-950">No users added yet</td>
+					</tr>
+				}
+			</tbody>
+		</table>
+	</div>
+}

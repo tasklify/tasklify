@@ -157,7 +157,17 @@ templ addProjectDevelopersDialog(projectID uint, users []database.User, projectD
 			</div>
 			// <div id="validation-error"></div>
 			<div class="mt-4">
-				<button class="btn btn-primary btn-sm" type="submit" hx-on:click="dialog_container.close()">I'll add more later</button>
+				<input type="hidden" id="redirectProjectID" name="projectID" value={ fmt.Sprint(projectID) }/>
+				<button
+					class="btn btn-primary btn-sm"
+					type="submit"
+					hx-get="/productbacklog"
+					hx-target="#whole"
+					hx-swap="innerHTML"
+					hx-push-url="true"
+					hx-include="#redirectProjectID"
+					hx-trigger="click"
+				>I'll add more later</button>
 			</div>
 		</div>
 	</div>

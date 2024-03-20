@@ -91,7 +91,7 @@ func header(title string) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</title><meta charset=\"UTF-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\"><meta name=\"htmx-config\" content=\"{&#34;responseTargetUnsetsError&#34;: false}\"><script src=\"static/script/htmx.min.js\"></script><script src=\"static/script/response-targets.js\"></script><link rel=\"stylesheet\" href=\"static/css/style.css\"></head>")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</title><meta charset=\"UTF-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\"><meta name=\"htmx-config\" content=\"{&#34;responseTargetUnsetsError&#34;: false}\"><script src=\"/static/script/htmx.min.js\"></script><script src=\"/static/script/response-targets.js\"></script><link rel=\"stylesheet\" href=\"/static/css/style.css\"></head>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

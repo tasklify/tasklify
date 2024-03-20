@@ -1,6 +1,7 @@
 package database
 
 import (
+	"fmt"
 	"time"
 
 	"gorm.io/gorm"
@@ -29,13 +30,26 @@ func (db *database) GetUsers() ([]User, error) {
 	return users, nil
 }
 
+func (db *database) GetFilteredUsers(userIDs []uint) ([]User, error) {
+	var users = []User{}
+	err := db.Where("id NOT IN ?", userIDs).Find(&users).Error
+	if err != nil {
+		return []User{}, err
+	}
+
+	fmt.Println(users)
+
+	return users, nil
+}
+
 func (db *database) GetUserByUsername(username string) (*User, error) {
-    var user = &User{}
-    err := db.Where("username = ?", username).First(user).Error
-    if err != nil {
-        return nil, err
-    }
-    return user, nil
+	var user = &User{}
+	err := db.Where("username = ?", username).First(&user).Error
+	if err != nil {
+		return nil, err
+	}
+
+	return user, nil
 }
 
 func (db *database) GetUserByID(id uint) (*User, error) {

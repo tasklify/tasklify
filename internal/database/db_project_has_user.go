@@ -77,18 +77,18 @@ func (db *database) GetUsersOnProject(projectID uint) ([]User, error) {
 	return users, nil
 }
 
-func (db *database) GetDevelopersOnProject(projectID uint) ([]User, error) {
+func (db *database) GetUsersWithRoleOnProject(projectID uint, projectRole ProjectRole) ([]User, error) {
 	var users []User
 	if err := db.Model(&User{}).
 		Joins("LEFT JOIN project_has_users ON users.id = project_has_users.user_id").
 		Select("users.*, project_has_users.project_role as project_role_str").
-		Where("project_has_users.project_id = ? AND project_has_users.project_role = ? AND project_has_users.deleted_at IS NULL", projectID, ProjectRoleDeveloper.Val).
+		Where("project_has_users.project_id = ? AND project_has_users.project_role = ? AND project_has_users.deleted_at IS NULL", projectID, projectRole.Val).
 		Find(&users).Error; err != nil {
 		return []User{}, err
 	}
 
 	for i := range users {
-		users[i].ProjectRole = ProjectRoleDeveloper
+		users[i].ProjectRole = projectRole
 	}
 
 	return users, nil
@@ -136,4 +136,29 @@ func (db *database) GetProjectHasUserByProjectAndUser(userID uint, projectID uin
 	}
 
 	return projectHasUser, nil
+}
+
+func (db *database) UpsertUserOnProject(projectID uint, userID uint, projectRole string) error {
+	var count int64
+
+	// If user already exists on project, just update it with new data
+	db.Model(&ProjectHasUser{}).Where("project_id = ? AND user_id = ?", projectID, userID).Count(&count)
+	if count == 1 {
+		err := db.Model(&ProjectHasUser{}).Where("project_id = ? AND user_id = ?", projectID, userID).Update("project_role", projectRole).Error
+		if err != nil {
+			return err
+		}
+
+	} else {
+		err := db.AddUserToProject(projectID, userID, projectRole)
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (db *database) RemoveUsersNotInList(projectID uint, userIDs []uint) error {
+	return db.Where("project_id = ? AND user_id NOT IN ?", projectID, userIDs).Delete(&ProjectHasUser{}).Error
 }
