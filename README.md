@@ -57,7 +57,7 @@ After filling out the necessary fields, submit the form by clicking on the creat
 
 ### Creating Tasks
 
-Tasks can be added to existing user stories within an active Sprint by members of the development team or the SCRUM master. The form is as follows:
+Tasks can be added to existing user stories within an active Sprint by members of the development team or SCRUM master on the sprint backlog page. The form is as follows:
 
 - **Title**: Short, descriptive title. (Required)
 - **Description**: Detailed description of what the task involves. (Required)
@@ -68,3 +68,14 @@ Tasks can be added to existing user stories within an active Sprint by members o
 - **Project ID**: Automatically filled based on the project. (Hidden)
 
 After filling out the necessary information, submit the form by clicking on the create button to add the task to the current user story within the specified Sprint.
+
+### Creating Sprints
+
+Sprints can be created in the current project by SCRUM master on the product backlog page. The form is as follows:
+
+- **Start Date**: Date when the Sprint begins. Must be a future or current date. (Required)
+- **End Date**: Date when the Sprint ends. Must be in the future and after the start date. (Required)
+- **Velocity**: The expected amount of work (in story points) the team believes can be completed during the Sprint. (Required)
+- **Project ID**: Automatically filled based on the project. (Hidden)
+
+After filling out the necessary information, submit the form by clicking on the create button to add the sprint to the current project.
