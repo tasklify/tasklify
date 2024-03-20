@@ -105,33 +105,35 @@ func sprintBacklog(sprint *database.Sprint, projectRole database.ProjectRole) te
 				return templ_7745c5c3_Err
 			}
 			if *story.Realized {
-				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<form hx-get=\"")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(fmt.Sprintf("/userstory/%v/create-task", story.ID)))
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("\" hx-target=\"#dialog\" title=\"Can&#39;t add tasks to realized user story\"><input type=\"hidden\" id=\"sprintID\" name=\"sprintID\" value=\"")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(strconv.Itoa(int(sprint.ID))))
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("\"> <input type=\"hidden\" id=\"projectID\" name=\"projectID\" value=\"")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(strconv.Itoa(int(story.ProjectID))))
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("\"> <button class=\"btn btn-xs btn-primary\" style=\"margin-right: 10px;\" disabled>Create Task</button></form>")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
+				if projectRole == database.ProjectRoleMaster || projectRole == database.ProjectRoleDeveloper {
+					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<form hx-get=\"")
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(fmt.Sprintf("/userstory/%v/create-task", story.ID)))
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("\" hx-target=\"#dialog\" title=\"Can&#39;t add tasks to realized user story\"><input type=\"hidden\" id=\"sprintID\" name=\"sprintID\" value=\"")
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(strconv.Itoa(int(sprint.ID))))
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("\"> <input type=\"hidden\" id=\"projectID\" name=\"projectID\" value=\"")
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(strconv.Itoa(int(story.ProjectID))))
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("\"> <button class=\"btn btn-xs btn-primary\" style=\"margin-right: 10px;\" disabled>Create Task</button></form>")
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
 				}
 			} else {
 				if projectRole == database.ProjectRoleMaster || projectRole == database.ProjectRoleDeveloper {
@@ -214,14 +216,14 @@ func taskStatusCategories(tasks []database.Task, category string) templ.Componen
 			templ_7745c5c3_Var6 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<style>\n\t.collapse-title,\n\t:where(.collapse > input[type=\"checkbox\"]),\n\t:where(.collapse > input[type=\"radio\"]) {\n\twidth: 100%;\n\tpadding: 0.5rem;\n\tpadding-inline-end: 1rem;\n\tmin-height: 2.75rem;\n\ttransition: background-color 0.2s ease-out;\n\t}\n\t.table :where(thead, tfoot) {\n\t\twhite-space: nowrap;\n\t\tfont-size: 0.75rem;\n\t\tline-height: 0rem;\n\t\tfont-weight: 700;\n\t\tcolor: var(--fallback-bc,oklch(var(--bc)/0.6));\n\t\t}\n\t</style><div class=\"collapse collapse-arrow border border-unassigned-300 bg-base-100 mb-0\" style=\"margin-left: 3px;margin-right: 3px;\"><input type=\"checkbox\" checked><div class=\"collapse-title text-sm font-medium\" style=\"padding-left: 15px; padding-top: 15px;\">")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<style>\r\n\t.collapse-title,\r\n\t:where(.collapse > input[type=\"checkbox\"]),\r\n\t:where(.collapse > input[type=\"radio\"]) {\r\n\twidth: 100%;\r\n\tpadding: 0.5rem;\r\n\tpadding-inline-end: 1rem;\r\n\tmin-height: 2.75rem;\r\n\ttransition: background-color 0.2s ease-out;\r\n\t}\r\n\t.table :where(thead, tfoot) {\r\n\t\twhite-space: nowrap;\r\n\t\tfont-size: 0.75rem;\r\n\t\tline-height: 0rem;\r\n\t\tfont-weight: 700;\r\n\t\tcolor: var(--fallback-bc,oklch(var(--bc)/0.6));\r\n\t\t}\r\n\t</style><div class=\"collapse collapse-arrow border border-unassigned-300 bg-base-100 mb-0\" style=\"margin-left: 3px;margin-right: 3px;\"><input type=\"checkbox\" checked><div class=\"collapse-title text-sm font-medium\" style=\"padding-left: 15px; padding-top: 15px;\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var7 string
 		templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.JoinStringErrs(category)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/web/pages/sprintbacklog/sprintBacklog.templ`, Line: 92, Col: 107}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal\web\pages\sprintbacklog\sprintBacklog.templ`, Line: 94, Col: 107}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var7))
 		if templ_7745c5c3_Err != nil {
@@ -355,7 +357,7 @@ func TaskRowSmall(task database.Task) templ.Component {
 		var templ_7745c5c3_Var9 string
 		templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.JoinStringErrs(*task.Title)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/web/pages/sprintbacklog/sprintBacklog.templ`, Line: 134, Col: 61}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal\web\pages\sprintbacklog\sprintBacklog.templ`, Line: 136, Col: 61}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var9))
 		if templ_7745c5c3_Err != nil {
@@ -378,7 +380,7 @@ func TaskRowSmall(task database.Task) templ.Component {
 			var templ_7745c5c3_Var10 string
 			templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.JoinStringErrs(GetUserFirstAndLastNameFromID(*task.UserID))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/web/pages/sprintbacklog/sprintBacklog.templ`, Line: 141, Col: 80}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal\web\pages\sprintbacklog\sprintBacklog.templ`, Line: 143, Col: 80}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var10))
 			if templ_7745c5c3_Err != nil {

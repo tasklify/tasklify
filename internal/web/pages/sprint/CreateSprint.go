@@ -29,7 +29,6 @@ type sprintFormData struct {
 	StartDate time.Time `schema:"start_date,required"`
 	EndDate   time.Time `schema:"end_date,required"`
 	Velocity  *float32  `schema:"velocity,required"`
-	ProjectID uint      `schema:"project_id,required"`
 }
 
 // source: https://stackoverflow.com/questions/49285635/golang-gorilla-parse-date-with-specific-format-from-form
@@ -51,7 +50,9 @@ func PostSprint(w http.ResponseWriter, r *http.Request, params handlers.RequestP
 		return err
 	}
 
-	sprints, err := database.GetDatabase().GetSprintByProject(sprintFormData.ProjectID)
+	projectID, err := strconv.Atoi(chi.URLParam(r, "projectID"))
+
+	sprints, err := database.GetDatabase().GetSprintByProject(uint(projectID))
 	if err != nil {
 		return err
 	}
@@ -67,9 +68,9 @@ func PostSprint(w http.ResponseWriter, r *http.Request, params handlers.RequestP
 		StartDate: sprintFormData.StartDate,
 		EndDate:   sprintFormData.EndDate,
 		Velocity:  sprintFormData.Velocity,
+		ProjectID: uint(projectID),
 	}
 
-	projectID, err := strconv.Atoi(chi.URLParam(r, "projectID"))
 	if err != nil {
 		return err
 	}
