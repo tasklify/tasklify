@@ -10,10 +10,13 @@ templ sprintBacklog(sprint *database.Sprint, projectRole database.ProjectRole) {
 		<div class="container mx-auto p-2">
 			<!-- Back to Product Backlog Button -->
 			<div class="mb-2">
+			<div class="flex justify-between items-center">
 				<form hx-get="/productbacklog" hx-target="#whole" hx-push-url="true">
 					<input type="hidden" id="projectID" name="projectID" value={ fmt.Sprint(sprint.ProjectID) }/>
 					<button class="btn btn-primary btn-xs">Back To Product Backlog</button>
 				</form>
+				<a href="https://github.com/tasklify/tasklify/tree/main?tab=readme-ov-file#sprint-backlog" target="_blank" class="help-button ml-4" style="position: relative;top:0px;right:0px">?</a>
+				</div>
 				<!-- Sprint Details -->
 				<div class="sprint-details flex justify-between items-center mb-4 p-2 shadow-lg bg-white rounded-lg">
 					<h2 class="font-bold text-lg" style="padding-left: 15px;">{ sprint.Title }</h2>

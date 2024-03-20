@@ -20,7 +20,7 @@ func GetSprintBacklog(w http.ResponseWriter, r *http.Request, params handlers.Re
 		return err
 	}
 
-	sprint := database.GetDatabase().GetSprintByID(uint(sprintID))
+	sprint,_ := database.GetDatabase().GetSprintByID(uint(sprintID))
 	if sprint == nil {
 		return pages.NotFound(w, r)
 	}
