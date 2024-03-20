@@ -48,7 +48,7 @@ func GetUserFirstAndLastNameFromID(userID uint) string {
 func mapTasksToStatuses(tasks []database.Task) (statusMap map[string][]database.Task) {
 	statusMap = make(map[string][]database.Task)
 	for _, task := range tasks {
-		if task.UserID == nil {
+		if (task.UserID == nil) || !*task.UserAccepted {
 			statusMap["Unassigned"] = append(statusMap["Unassigned"], task)
 		} else {
 			if *task.Status == database.StatusInProgress {

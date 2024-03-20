@@ -6,7 +6,7 @@ import (
 
 type UserStory struct {
 	gorm.Model
-	Title            string  `gorm:"unique"`
+	Title            string
 	Description      *string `gorm:"type:TEXT"`
 	Priority         Priority
 	BusinessValue    int
