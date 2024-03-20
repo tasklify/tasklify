@@ -34,8 +34,8 @@ func GetCreateTask(w http.ResponseWriter, r *http.Request, params handlers.Reque
 	sprintID := requestData.SprintID
 	projectID := requestData.ProjectID
 
-	// TODO Skrbnik metodologije in člani razvojne skupine
-	users, err := database.GetDatabase().GetUsersOnProject(projectID)
+	// only developers
+	users, err := database.GetDatabase().GetUsersWithRoleOnProject(projectID, database.ProjectRoleDeveloper)
 	if err != nil {
 		return err
 	}
