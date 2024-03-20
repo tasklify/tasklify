@@ -62,7 +62,7 @@ func GetProductBacklog(w http.ResponseWriter, r *http.Request, params handlers.R
 	var usInBacklog, _ = filterBacklog(userStories)
 
 	//get user project role
-	projectRole,_ := database.GetDatabase().GetProjectRole(params.UserID, projectID)
+	projectRole, _ := database.GetDatabase().GetProjectRole(params.UserID, projectID)
 
 	user, err := database.GetDatabase().GetUserByID(params.UserID)
 	if err != nil {
@@ -130,7 +130,7 @@ func RemoveUserStoryFromSprint(w http.ResponseWriter, r *http.Request, params ha
 		return err
 	}
 
-	userStoryID, err := strconv.Atoi(r.FormValue("userStoryID"))
+	userStoryID, err := strconv.Atoi(chi.URLParam(r, "userStoryID"))
 	if err != nil {
 		return err
 	}
@@ -187,7 +187,7 @@ func GetUserStoryRejected(w http.ResponseWriter, r *http.Request, params handler
 		return err
 	}
 
-	userStory,_ := database.GetDatabase().GetUserStoryByID(uint(userStoryID))
+	userStory, _ := database.GetDatabase().GetUserStoryByID(uint(userStoryID))
 
 	projectRole, err := database.GetDatabase().GetProjectRole(params.UserID, uint(userStory.ProjectID))
 	if err != nil {
@@ -198,7 +198,7 @@ func GetUserStoryRejected(w http.ResponseWriter, r *http.Request, params handler
 		return pages.NotFound(w, r)
 	}
 
-	sprint,_ := database.GetDatabase().GetSprintByID(*userStory.SprintID)
+	sprint, _ := database.GetDatabase().GetSprintByID(*userStory.SprintID)
 	if (*userStory.Realized) || (sprint.DetermineStatus() != database.StatusDone) {
 		return pages.NotFound(w, r)
 	}
@@ -211,7 +211,7 @@ func GetUserStoryRejected(w http.ResponseWriter, r *http.Request, params handler
 
 func PostUserStoryRejected(w http.ResponseWriter, r *http.Request, params handlers.RequestParams) error {
 	type RejectFormData struct {
-		Comment  string `schema:"comment,required"`
+		Comment string `schema:"comment,required"`
 	}
 	var rejectFormData RejectFormData
 	if err := decoder.Decode(&rejectFormData, r.PostForm); err != nil {

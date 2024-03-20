@@ -14,6 +14,7 @@ import (
 	"tasklify/internal/web/pages/sprintbacklog"
 	"tasklify/internal/web/pages/task"
 	"tasklify/internal/web/pages/users"
+	userSlug "tasklify/internal/web/pages/users/slug"
 	"tasklify/internal/web/pages/userstory"
 
 	ghandlers "github.com/gorilla/handlers"
@@ -57,14 +58,19 @@ func Router() *chi.Mux {
 			r.Handle("/logout", ghandlers.MethodHandler{
 				"POST": handlers.UnifiedHandler(handlers.PlainHandlerFunc(logout.PostLogout)),
 			})
-			r.Handle("/dashboard", ghandlers.MethodHandler{
-				"GET": handlers.UnifiedHandler(handlers.AuthenticatedHandlerFunc(dashboard.Dashboard)),
-			})
+
+			// ===== Users endpoints =====
 			r.Handle("/users", ghandlers.MethodHandler{
 				"GET": handlers.UnifiedHandler(handlers.AuthenticatedHandlerFunc(users.Users)),
 			})
+			r.Handle("/users/{userID}", ghandlers.MethodHandler{
+				"GET": handlers.UnifiedHandler(handlers.AuthenticatedHandlerFunc(userSlug.User)),
+			})
 
 			// ===== Create Project endpoints =====
+			r.Handle("/dashboard", ghandlers.MethodHandler{
+				"GET": handlers.UnifiedHandler(handlers.AuthenticatedHandlerFunc(dashboard.Dashboard)),
+			})
 			r.Handle("/create-project", ghandlers.MethodHandler{
 				"GET":  handlers.UnifiedHandler(handlers.AuthenticatedHandlerFunc(project.GetCreateProject)),
 				"POST": handlers.UnifiedHandler(handlers.AuthenticatedHandlerFunc(project.PostCreateProject)),
@@ -110,7 +116,7 @@ func Router() *chi.Mux {
 				"GET":  handlers.UnifiedHandler(handlers.AuthenticatedHandlerFunc(userstory.GetUserStory)),
 				"POST": handlers.UnifiedHandler(handlers.AuthenticatedHandlerFunc(userstory.PostUserStory)),
 			})
-			r.Handle("/create-task", ghandlers.MethodHandler{
+			r.Handle("/userstory/{userStoryID}/create-task", ghandlers.MethodHandler{
 				"GET":  handlers.UnifiedHandler(handlers.AuthenticatedHandlerFunc(task.GetCreateTask)),
 				"POST": handlers.UnifiedHandler(handlers.AuthenticatedHandlerFunc(task.PostTask)),
 			})
@@ -118,10 +124,10 @@ func Router() *chi.Mux {
 				"GET":  handlers.UnifiedHandler(handlers.AuthenticatedHandlerFunc(productbacklog.GetProductBacklog)),
 				"POST": handlers.UnifiedHandler(handlers.AuthenticatedHandlerFunc(productbacklog.PostAddUserStoryToSprint)),
 			})
-			r.Handle("/userstory/remove-from-sprint", ghandlers.MethodHandler{
+			r.Handle("/userstory/{userStoryID}/remove-from-sprint", ghandlers.MethodHandler{
 				"POST": handlers.UnifiedHandler(handlers.AuthenticatedHandlerFunc(productbacklog.RemoveUserStoryFromSprint)),
 			})
-			r.Handle("/userstory/details", ghandlers.MethodHandler{
+			r.Handle("/userstory/{userStoryID}/details", ghandlers.MethodHandler{
 				"GET": handlers.UnifiedHandler(handlers.AuthenticatedHandlerFunc(userstory.GetUserStoryDetails)),
 			})
 			r.Handle("/userstory/{userStoryID}/accept", ghandlers.MethodHandler{

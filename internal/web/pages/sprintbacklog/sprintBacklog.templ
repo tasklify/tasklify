@@ -10,12 +10,12 @@ templ sprintBacklog(sprint *database.Sprint, projectRole database.ProjectRole) {
 		<div class="container mx-auto p-2">
 			<!-- Back to Product Backlog Button -->
 			<div class="mb-2">
-			<div class="flex justify-between items-center">
-				<form hx-get="/productbacklog" hx-target="#whole" hx-push-url="true">
-					<input type="hidden" id="projectID" name="projectID" value={ fmt.Sprint(sprint.ProjectID) }/>
-					<button class="btn btn-primary btn-xs">Back To Product Backlog</button>
-				</form>
-				<a href="https://github.com/tasklify/tasklify/tree/main?tab=readme-ov-file#sprint-backlog" target="_blank" class="help-button ml-4" style="position: relative;top:0px;right:0px">?</a>
+				<div class="flex justify-between items-center">
+					<form hx-get="/productbacklog" hx-target="#whole" hx-push-url="true">
+						<input type="hidden" id="projectID" name="projectID" value={ fmt.Sprint(sprint.ProjectID) }/>
+						<button class="btn btn-primary btn-xs">Back To Product Backlog</button>
+					</form>
+					<a href="https://github.com/tasklify/tasklify/tree/main?tab=readme-ov-file#sprint-backlog" target="_blank" class="help-button ml-4" style="position: relative;top:0px;right:0px">?</a>
 				</div>
 				<!-- Sprint Details -->
 				<div class="sprint-details flex justify-between items-center mb-4 p-2 shadow-lg bg-white rounded-lg">
@@ -31,22 +31,21 @@ templ sprintBacklog(sprint *database.Sprint, projectRole database.ProjectRole) {
 							<div class="font-medium text-lg" style="padding-left: 15px;">{ story.Title }</div>
 						</div>
 						<div class="flex gap-2 mt-2">
-							<form hx-get="/userstory/details" hx-target="#dialog">
-								<input type="hidden" name="userStoryID" id="userStoryID" value={ strconv.Itoa(int(story.ID)) }/>
-								<button class="btn btn-xs">Details</button>
-							</form>
+							<button hx-get={ fmt.Sprintf("/userstory/%v/details", story.ID) } hx-target="#dialog" class="btn btn-xs">
+								<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+									<path stroke-linecap="round" stroke-linejoin="round" d="M6.75 12a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0ZM12.75 12a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0ZM18.75 12a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Z"></path>
+								</svg>
+							</button>
 							<!-- Create task Button -->
 							if *story.Realized {
-								<form hx-get="/create-task" hx-target="#dialog" title="Can't add tasks to realized user story">
-									<input type="hidden" id="userStoryID" name="userStoryID" value={ strconv.Itoa(int(story.ID)) }/>
+								<form hx-get={ fmt.Sprintf("/userstory/%v/create-task", story.ID) } hx-target="#dialog" title="Can't add tasks to realized user story">
 									<input type="hidden" id="sprintID" name="sprintID" value={ strconv.Itoa(int(sprint.ID)) }/>
 									<input type="hidden" id="projectID" name="projectID" value={ strconv.Itoa(int(story.ProjectID)) }/>
 									<button class="btn btn-xs btn-primary" style="margin-right: 10px;" disabled>Create Task</button>
 								</form>
 							} else {
 								if projectRole == database.ProjectRoleMaster || projectRole == database.ProjectRoleDeveloper {
-									<form hx-get="/create-task" hx-target="#dialog">
-										<input type="hidden" id="userStoryID" name="userStoryID" value={ strconv.Itoa(int(story.ID)) }/>
+									<form hx-get={ fmt.Sprintf("/userstory/%v/create-task", story.ID) } hx-target="#dialog">
 										<input type="hidden" id="sprintID" name="sprintID" value={ strconv.Itoa(int(sprint.ID)) }/>
 										<input type="hidden" id="projectID" name="projectID" value={ strconv.Itoa(int(story.ProjectID)) }/>
 										<button class="btn btn-xs btn-primary" style="margin-right: 10px;">Create Task</button>

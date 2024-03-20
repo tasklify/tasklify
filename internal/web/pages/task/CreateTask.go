@@ -2,7 +2,9 @@ package task
 
 import (
 	"fmt"
+	"github.com/go-chi/chi/v5"
 	"net/http"
+	"strconv"
 	"tasklify/internal/database"
 	"tasklify/internal/handlers"
 
@@ -14,28 +16,31 @@ var decoder = schema.NewDecoder()
 func GetCreateTask(w http.ResponseWriter, r *http.Request, params handlers.RequestParams) error {
 
 	type RequestData struct {
-		UserStoryID uint `schema:"userStoryID,required"`
-		SprintID    uint `schema:"sprintID,required"`
-		ProjectID   uint `schema:"projectID,required"`
+		SprintID  uint `schema:"sprintID,required"`
+		ProjectID uint `schema:"projectID,required"`
+	}
+
+	userStoryID, err := strconv.Atoi(chi.URLParam(r, "userStoryID"))
+	if err != nil {
+		return err
 	}
 
 	var requestData RequestData
-	err := decoder.Decode(&requestData, r.URL.Query())
-	if err != nil {
+	err1 := decoder.Decode(&requestData, r.URL.Query())
+	if err1 != nil {
 		return err
 	}
 
-	userStoryID := requestData.UserStoryID
 	sprintID := requestData.SprintID
 	projectID := requestData.ProjectID
 
-	// TODO Skrbnik metodologije in člani razvojne skupine
-	users, err := database.GetDatabase().GetUsersOnProject(projectID)
+	// only developers
+	users, err := database.GetDatabase().GetUsersWithRoleOnProject(projectID, database.ProjectRoleDeveloper)
 	if err != nil {
 		return err
 	}
 
-	c := createTaskDialog(projectID, sprintID, userStoryID, users)
+	c := createTaskDialog(projectID, sprintID, uint(userStoryID), users)
 	return c.Render(r.Context(), w)
 
 }
@@ -45,7 +50,6 @@ type TaskFormData struct {
 	Description  string   `schema:"description,required"`
 	TimeEstimate *float32 `schema:"time_estimate,required"`
 	UserID       uint     `schema:"user_id"`
-	UserStoryID  uint     `schema:"user_story_id,required"`
 	ProjectID    uint     `schema:"project_id,required"`
 	SprintID     uint     `schema:"sprint_id,required"`
 }
@@ -54,6 +58,11 @@ func PostTask(w http.ResponseWriter, r *http.Request, params handlers.RequestPar
 
 	var taskFormData TaskFormData
 	if err := decoder.Decode(&taskFormData, r.PostForm); err != nil {
+		return err
+	}
+
+	userStoryID, err := strconv.Atoi(chi.URLParam(r, "userStoryID"))
+	if err != nil {
 		return err
 	}
 
@@ -66,7 +75,7 @@ func PostTask(w http.ResponseWriter, r *http.Request, params handlers.RequestPar
 		ProjectID:      taskFormData.ProjectID,
 		UserID:         nil,
 		ProjectHasUser: nil,
-		UserStoryID:    taskFormData.UserStoryID,
+		UserStoryID:    uint(userStoryID),
 	}
 
 	if taskFormData.UserID != 0 {
@@ -83,7 +92,7 @@ func PostTask(w http.ResponseWriter, r *http.Request, params handlers.RequestPar
 		return err
 	}
 
-	redirectURL := fmt.Sprintf("/%d/sprintbacklog", taskFormData.SprintID)
+	redirectURL := fmt.Sprintf("/sprintbacklog/%d", taskFormData.SprintID)
 	w.Header().Set("HX-Redirect", redirectURL)
 	w.WriteHeader(http.StatusSeeOther)
 
