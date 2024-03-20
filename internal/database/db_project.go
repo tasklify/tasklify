@@ -51,10 +51,14 @@ func (db *database) GetUserProjects(userID uint) ([]Project, error) {
 		}
 		return projects, nil
 	} else {
-		if err := db.Preload("Projects").First(&user, userID).Error; err != nil {
-			return []Project{}, err
+		var projects = []Project{}
+		if err := db.
+			Joins("JOIN project_has_users ON projects.id = project_has_users.project_id").
+			Where("project_has_users.user_id = ? AND project_has_users.deleted_at IS NULL", userID).
+			Find(&projects).Error; err != nil {
+			return nil, err
 		}
-		return user.Projects, nil
+		return projects, nil
 	}
 }
 
