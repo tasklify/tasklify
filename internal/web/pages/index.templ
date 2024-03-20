@@ -1,13 +1,18 @@
 package pages
 
-import "net/http"
+import (
+	"net/http"
+	"tasklify/internal/auth"
+	"tasklify/internal/database"
+	"fmt"
+)
 
-func Home(w http.ResponseWriter, r *http.Request) error {
+func Index(w http.ResponseWriter, r *http.Request) error {
 	sessionManager := auth.GetSession()
 	userID, err := sessionManager.GetUserID(r)
 	if err != nil {
 		// User is not logged in; show the guest index
-		c := GuestIndex()
+		c := guestIndex()
 		return Layout(c, "Tasklify", r).Render(r.Context(), w)
 	}
 
@@ -25,11 +30,11 @@ func Home(w http.ResponseWriter, r *http.Request) error {
 		return err
 	}
 
-	c := Index(fmt.Sprint(userID), myProjects, user.SystemRole)
+	c := index(fmt.Sprint(userID), myProjects, user.SystemRole)
 	return Layout(c, "Tasklify", r).Render(r.Context(), w)
 }
 
-templ Index(userID string, myProjects []database.Project, user_SystemRole database.SystemRole) {
+templ index(userID string, myProjects []database.Project, user_SystemRole database.SystemRole) {
 	<div class="bg-base-200 min-h-screen">
 		<div class="p-10">
 			<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -68,7 +73,7 @@ templ Index(userID string, myProjects []database.Project, user_SystemRole databa
 	</div>
 }
 
-templ GuestIndex() {
+templ guestIndex() {
 	<div class="hero min-h-screen bg-base-200">
 		<div class="hero-content flex-col lg:flex-row-reverse">
 			<div class="text-center lg:text-left">
