@@ -1,0 +1,99 @@
+package project
+
+import "net/http"
+import "tasklify/internal/web/pages"
+import "strconv"
+import "github.com/go-chi/chi/v5"
+import "tasklify/internal/handlers"
+import "tasklify/internal/database"
+import "tasklify/internal/web/components/common"
+
+func GetProjectInfo(w http.ResponseWriter, r *http.Request, params handlers.RequestParams) error {
+	projectIDInt, err := strconv.Atoi(chi.URLParam(r, "projectID"))
+	if err != nil {
+		return err
+	}
+	projectID := uint(projectIDInt)
+
+	project, err := database.GetDatabase().GetProjectByID(projectID)
+	if err != nil {
+		return err
+	}
+
+	owners, err := database.GetDatabase().GetUsersWithRoleOnProject(projectID, database.ProjectRoleManager)
+	masters, err := database.GetDatabase().GetUsersWithRoleOnProject(projectID, database.ProjectRoleMaster)
+	developers, err := database.GetDatabase().GetUsersWithRoleOnProject(projectID, database.ProjectRoleDeveloper)
+
+	if err != nil {
+		return err
+	}
+
+	project.Users = append(project.Users, owners...)
+	project.Users = append(project.Users, masters...)
+	project.Users = append(project.Users, developers...)
+
+	projectRole, _ := database.GetDatabase().GetProjectRole(params.UserID, projectID)
+
+	user, err := database.GetDatabase().GetUserByID(params.UserID)
+	if err != nil {
+		return err
+	}
+
+	c := projectInfo(*project, projectRole, user.SystemRole)
+	return pages.Layout(c, "Project Info", r).Render(r.Context(), w)
+}
+
+templ projectInfo(projectData database.Project, projectRole database.ProjectRole, systemRole database.SystemRole) {
+	@common.ProjectNavbar(projectData, projectRole, systemRole, "project_info") {
+		<div class="flex-1 mt-1">
+			<div class="flex flex-col">
+				<small class="font-bold text-gray-700 mb-1">Title</small>
+				<span class="ml-2">
+					{ projectData.Title }
+				</span>
+			</div>
+			<div class="divider mt-1 mb-6 px-1"></div>
+			<div class="flex flex-col">
+				<small class="font-bold text-gray-700 mb-1">Description</small>
+				<span class="ml-2 whitespace-break-spaces max-h-48 overflow-y-scroll overflow-x-hidden">
+					{ projectData.Description }
+				</span>
+			</div>
+			<div class="divider mt-1 mb-6 px-1"></div>
+			<div class="flex flex-col">
+				<small class="font-bold text-gray-700 mb-1">Project members</small>
+				<div class="overflow-x-auto block max-h-80 ml-2">
+					<table class="table table-auto overflow-scroll w-full" id="project_developers_table">
+						<thead class="bg-gray-200 sticky top-0">
+							<tr>
+								<th>User</th>
+								<th>Email</th>
+								<th>Project role</th>
+							</tr>
+						</thead>
+						<tbody class="max-h-80 overflow-y-auto">
+							if len(projectData.Users) > 0 {
+								for _, projectUser := range projectData.Users {
+									<tr class="hover">
+										<td class="text-gray-950">
+											<div class="flex flex-col">
+												<span class="font-semibold text-sm">{ projectUser.FirstName } { projectUser.LastName }</span>
+												<span class="text-xs">{ projectUser.Username }</span>
+											</div>
+										</td>
+										<td class="text-gray-950">{ projectUser.Email }</td>
+										<td class="text-gray-950">{ projectUser.ProjectRole.GetLabel() }</td>
+									</tr>
+								}
+							} else {
+								<tr>
+									<td colspan="100%" class="text-center mt-3 text-gray-950">No users on project</td>
+								</tr>
+							}
+						</tbody>
+					</table>
+				</div>
+			</div>
+		</div>
+	}
+}

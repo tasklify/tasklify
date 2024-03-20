@@ -41,7 +41,16 @@ templ header(title string) {
 templ nav(r *http.Request) {
 	<nav class="navbar bg-primary" hx-boost="true">
 		<div class="navbar-start">
-			<a class="btn btn-ghost text-xxl text-white" href="/">tasklify</a>
+			<a
+				class="btn btn-ghost text-xxl text-white"
+				if isLoggedIn(r) {
+					href="/dashboard"
+				} else {
+					href="/"
+				}
+			>
+				tasklify
+			</a>
 			if isLoggedIn(r) {
 				<a class="btn btn-sm m-0.5" href="/users">Users</a>
 			}

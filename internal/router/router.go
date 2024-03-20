@@ -103,7 +103,12 @@ func Router() *chi.Mux {
 			r.Handle("/edit-project-members/{projectID}/change-scrum-master", ghandlers.MethodHandler{
 				"POST": handlers.UnifiedHandler(handlers.AuthenticatedHandlerFunc(project.EditProjectChangeMaster)),
 			})
-			r.Handle("/{projectID}/createsprint", ghandlers.MethodHandler{
+
+			r.Handle("/project-info/{projectID}", ghandlers.MethodHandler{
+				"GET": handlers.UnifiedHandler(handlers.AuthenticatedHandlerFunc(project.GetProjectInfo)),
+			})
+
+			r.Handle("/createsprint", ghandlers.MethodHandler{
 				"GET":  handlers.UnifiedHandler(handlers.AuthenticatedHandlerFunc(sprint.GetCreateSprint)),
 				"POST": handlers.UnifiedHandler(handlers.AuthenticatedHandlerFunc(sprint.PostSprint)),
 			})
