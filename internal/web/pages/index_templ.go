@@ -10,9 +10,6 @@ import "io"
 import "bytes"
 
 import "net/http"
-import "fmt"
-import "tasklify/internal/database"
-import "tasklify/internal/auth"
 
 func Home(w http.ResponseWriter, r *http.Request) error {
 	sessionManager := auth.GetSession()
@@ -41,7 +38,7 @@ func Home(w http.ResponseWriter, r *http.Request) error {
 	return Layout(c, "Tasklify", r).Render(r.Context(), w)
 }
 
-func Index(userID string, myProjects []database.Project, user_SystemRole database.SystemRole) templ.Component {
+func GuestIndex() templ.Component {
 	return templ.ComponentFunc(func(ctx context.Context, templ_7745c5c3_W io.Writer) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templ_7745c5c3_W.(*bytes.Buffer)
 		if !templ_7745c5c3_IsBuffer {

@@ -9,7 +9,9 @@ import "context"
 import "io"
 import "bytes"
 
-func login(title string) templ.Component {
+import "tasklify/internal/web/components/form"
+
+func login() templ.Component {
 	return templ.ComponentFunc(func(ctx context.Context, templ_7745c5c3_W io.Writer) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templ_7745c5c3_W.(*bytes.Buffer)
 		if !templ_7745c5c3_IsBuffer {
@@ -22,6 +24,7 @@ func login(title string) templ.Component {
 			templ_7745c5c3_Var1 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
+<<<<<<< HEAD
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div hx-ext=\"response-targets\"><div id=\"create-dialog\" hx-ext=\"response-targets\" class=\"fixed top-0 left-0 w-full h-full bg-gray-900 bg-opacity-50 flex justify-center items-center z-50\"><form hx-post=\"/login\" hx-target-400=\"#validation-error\" class=\"bg-white rounded-lg p-8 shadow-lg w-2/5 h-auto\" hx-on::after-request=\"if(event.detail.successful) dialog_container.close()\"><div class=\"text-center\"><h2 class=\"text-xl font-medium mb-4\">Sign in to your account</h2><!-- Username Field --><div class=\"mb-4\"><label for=\"username\" class=\"block text-sm font-medium text-gray-700\">Username</label> <input type=\"username\" name=\"username\" id=\"username\" placeholder=\"Username\" required=\"\" autocomplete=\"username\" class=\"input input-bordered input-primary w-full max-w-s mt-1\" required></div><!-- Password Field --><div class=\"mb-4\"><label for=\"password\" class=\"block text-sm font-medium text-gray-700\">Password</label> <input type=\"password\" name=\"password\" id=\"password\" placeholder=\"Password\" required=\"\" autocomplete=\"current-password\" class=\"input input-bordered input-primary w-full max-w-s mt-1\" required></div>Don’t have an account yet? <a href=\"/register\" class=\"text-secondary\">Register</a></div><div id=\"validation-error\"></div><div class=\"flex justify-end mt-3\"><button class=\"btn btn-ghost btn-sm\" type=\"button\" hx-on:click=\"dialog_container.close()\">Cancel</button> <button class=\"btn btn-primary btn-sm\" type=\"submit\">Sign In</button></div></form></div></div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
@@ -47,6 +50,17 @@ func loginError() templ.Component {
 		}
 		ctx = templ.ClearChildren(ctx)
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<p>Invalid username or password</p>")
+=======
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div class=\"hero min-h-screen bg-base-200\"><div class=\"hero-content flex-col lg:flex-row-reverse\"><div class=\"text-center lg:text-left\"><h1 class=\"text-5xl font-bold\">Login now!</h1><p class=\"py-6\">Tasks await you.</p></div><div class=\"card shrink-0 w-full max-w-sm shadow-2xl bg-base-100\"><form hx-post=\"/login\" hx-target=\"#dialog\" hx-target-400=\"#validation-error\" class=\"card-body\"><div class=\"form-control\"><label class=\"label\"><span class=\"label-text\">Username</span></label> <input type=\"username\" name=\"username\" id=\"username\" placeholder=\"Username\" required=\"\" autocomplete=\"username\" class=\"input input-bordered\" required></div>")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = form.PasswordField().Render(ctx, templ_7745c5c3_Buffer)
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div id=\"validation-error\"></div><div class=\"form-control mt-6\"><button class=\"btn btn-primary\" type=\"submit\">Login</button></div></form></div></div></div>")
+>>>>>>> c9130c3 (users halfway done)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

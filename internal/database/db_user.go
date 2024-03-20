@@ -11,6 +11,7 @@ type User struct {
 	gorm.Model
 	Username    string `gorm:"unique"`
 	Password    string
+	TotpURL     *string
 	FirstName   string
 	LastName    string
 	Email       string `gorm:"unique"`
@@ -20,9 +21,15 @@ type User struct {
 	ProjectRole ProjectRole `gorm:"type:string;-"`                // This field is ignored in database and all queries
 }
 
-func (db *database) GetUsers() ([]User, error) {
+// If you specify callerUserID it will get execluded from list
+func (db *database) GetUsers(callerUserID *uint) ([]User, error) {
 	var users []User
-	err := db.Find(&users).Error
+	var err error
+	if callerUserID != nil {
+		err = db.Find(&users, db.Where("id <> ?", callerUserID)).Error
+	} else {
+		err = db.Find(&users).Error
+	}
 	if err != nil {
 		return []User{}, err
 	}
