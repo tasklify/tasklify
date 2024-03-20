@@ -9,7 +9,7 @@ import (
 	"tasklify/internal/web/components/common"
 	"tasklify/internal/web/pages"
 
-	"github.com/go-chi/chi"
+	"github.com/go-chi/chi/v5"
 )
 
 func GetEditProjectInfo(w http.ResponseWriter, r *http.Request, params handlers.RequestParams) error {
@@ -105,7 +105,7 @@ func GetEditProjectMembers(w http.ResponseWriter, r *http.Request, params handle
 		return err
 	}
 
-	allUsersList, err := database.GetDatabase().GetUsers()
+	allUsersList, err := database.GetDatabase().GetUsers(nil)
 	if err != nil {
 		return err
 	}
@@ -200,7 +200,7 @@ func EditProjectChangeOwner(w http.ResponseWriter, r *http.Request, params handl
 
 	productOwner = *user
 
-	allUsersList, err := database.GetDatabase().GetUsers()
+	allUsersList, err := database.GetDatabase().GetUsers(nil)
 	if err != nil {
 		return err
 	}
@@ -235,7 +235,7 @@ func EditProjectChangeMaster(w http.ResponseWriter, r *http.Request, params hand
 
 	scrumMaster = *user
 
-	allUsersList, err := database.GetDatabase().GetUsers()
+	allUsersList, err := database.GetDatabase().GetUsers(nil)
 	if err != nil {
 		return err
 	}
@@ -320,7 +320,7 @@ func getFilteredUserList() ([]database.User, error) {
 
 		return userList, nil
 	} else {
-		userList, err := database.GetDatabase().GetUsers()
+		userList, err := database.GetDatabase().GetUsers(nil)
 		if err != nil {
 			return []database.User{}, err
 		}

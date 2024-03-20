@@ -40,6 +40,8 @@ Template created from:
 - <https://github.com/bnprtr/go-templ-htmx-template>
 - <https://github.com/jritsema/go-htmx-tailwind-example>
 
+Common password list from [here](https://github.com/danielmiessler/SecLists/blob/master/Passwords/Common-Credentials/10-million-password-list-top-1000000.txt).
+
 ## Documentation
 
 ### Creating User Stories
@@ -114,5 +116,3 @@ Within both the backlog tab and the sprint view, user stories are listed in a ta
 - **Realization Status**: Denotes whether the story has been realized.
 
 To the right of each story is a "Details" button which provides access to additional information.
-
-Common password list from [here](https://github.com/danielmiessler/SecLists/blob/master/Passwords/Common-Credentials/10-million-password-list-top-1000000.txt).
