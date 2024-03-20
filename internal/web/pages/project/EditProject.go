@@ -60,7 +60,7 @@ func UpdateProjectInfo(w http.ResponseWriter, r *http.Request, params handlers.R
 		return err
 	}
 
-	w.Header().Set("HX-Redirect", "/productbacklog?projectID="+strconv.Itoa(int(req.ProjectID)))
+	w.Header().Set("HX-Redirect", fmt.Sprint("/project-info/", req.ProjectID))
 	w.WriteHeader(http.StatusSeeOther)
 
 	return nil
@@ -300,7 +300,7 @@ func UpdateProjectMembers(w http.ResponseWriter, r *http.Request, params handler
 		return err
 	}
 
-	w.Header().Set("HX-Redirect", "/productbacklog?projectID="+strconv.Itoa(int(req.ProjectID)))
+	w.Header().Set("HX-Redirect", fmt.Sprint("/project-info/", req.ProjectID))
 	w.WriteHeader(http.StatusSeeOther)
 
 	return nil
