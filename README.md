@@ -44,6 +44,22 @@ Common password list from [here](https://github.com/danielmiessler/SecLists/blob
 
 ## Documentation
 
+### Creating Projects
+
+Projects can be created by system admin. After clicking on add new project button, a form opens, which is as follows:
+
+- **Project Title**: Short, descriptive title. (Required and can't be a duplicate)
+- **Short Description**: A short description of the project. (Optional)
+- **Product Owner**: Select product owner from list of users (Required and can't be the same user as SCRUM master)
+- **SCRUM Master**: Select SCRUM master from list of users (Required and can't be the same user as product owner)
+
+After filling out the necessary fields, submit the form by clicking on create button. Then a new dialog will open, in which **Project Developers** can be added to project. The dialog is as follows:
+
+- **Add Project Developers**: Select the desired user and click add, to add that user to the list of project developers.
+- **List of Project Developers**: A table that shows all the developers that were added, while there is also an option to remove any of them, by clicking on X button.
+
+When done, click on "I'll add more later" button, to finish the process and close the dialog.
+
 ### Creating User Stories
 
 User stories can be created by product owner and SCRUM master. The form is as follows:
