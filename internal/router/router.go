@@ -14,6 +14,7 @@ import (
 	"tasklify/internal/web/pages/sprintbacklog"
 	"tasklify/internal/web/pages/task"
 	"tasklify/internal/web/pages/users"
+	userSlug "tasklify/internal/web/pages/users/slug"
 	"tasklify/internal/web/pages/userstory"
 
 	ghandlers "github.com/gorilla/handlers"
@@ -58,12 +59,17 @@ func Router() *chi.Mux {
 				"POST": handlers.UnifiedHandler(handlers.PlainHandlerFunc(logout.PostLogout)),
 			})
 
+			// ===== Users endpoints =====
+			r.Handle("/users", ghandlers.MethodHandler{
+				"GET": handlers.UnifiedHandler(handlers.AuthenticatedHandlerFunc(users.Users)),
+			})
+			r.Handle("/users/{userID}", ghandlers.MethodHandler{
+				"GET": handlers.UnifiedHandler(handlers.AuthenticatedHandlerFunc(userSlug.User)),
+			})
+
 			// ===== Create Project endpoints =====
 			r.Handle("/dashboard", ghandlers.MethodHandler{
 				"GET": handlers.UnifiedHandler(handlers.AuthenticatedHandlerFunc(dashboard.Dashboard)),
-			})
-			r.Handle("/users", ghandlers.MethodHandler{
-				"GET": handlers.UnifiedHandler(handlers.AuthenticatedHandlerFunc(users.Users)),
 			})
 			r.Handle("/create-project", ghandlers.MethodHandler{
 				"GET":  handlers.UnifiedHandler(handlers.AuthenticatedHandlerFunc(project.GetCreateProject)),
