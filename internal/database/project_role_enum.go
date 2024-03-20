@@ -32,9 +32,9 @@ func (role *ProjectRole) Scan(value interface{}) error {
 func (role ProjectRole) GetLabel() string {
 	switch role {
 	case ProjectRoleManager:
-		return "Project manager"
+		return "Product owner"
 	case ProjectRoleMaster:
-		return "Project master"
+		return "SCRUM master"
 	case ProjectRoleDeveloper:
 		return "Project developer"
 	default:
