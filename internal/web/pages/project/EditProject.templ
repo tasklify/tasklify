@@ -22,8 +22,7 @@ templ editProjectInfo(projectData database.Project) {
 					<div id="validation-error"></div>
 				</form>
 				<div class="flex justify-end">
-					<form hx-get="/productbacklog" hx-target="#whole" hx-swap="innerHTML" hx-push-url="true">
-						<input type="hidden" id="projectID" name="projectID" value={ fmt.Sprint(projectData.ID) }/>
+					<form hx-get={ fmt.Sprint("/project-info/", projectData.ID) } hx-target="#whole" hx-swap="innerHTML" hx-push-url="true">
 						<button class="btn btn-ghost btn-sm mr-2">Cancel</button>
 					</form>
 					<form hx-post={ fmt.Sprint("/edit-project-info/", projectData.ID) } hx-include="#project_info_form" hx-target-400="#validation-error">
@@ -54,8 +53,7 @@ templ editProjectMembers(projectID uint, productOwner *database.User, scrumMaste
 				</div>
 				<div id="validation-error" class="mb-3"></div>
 				<div class="flex justify-end">
-					<form hx-get="/productbacklog" hx-target="#whole" hx-swap="innerHTML" hx-push-url="true">
-						<input type="hidden" id="projectID" name="projectID" value={ fmt.Sprint(projectID) }/>
+					<form hx-get={ fmt.Sprint("/project-info/", projectID) } hx-target="#whole" hx-swap="innerHTML" hx-push-url="true">
 						<button class="btn btn-ghost btn-sm mr-2">Cancel</button>
 					</form>
 					<form hx-post={ fmt.Sprint("/edit-project-members/", projectID) } hx-target-400="#validation-error">
