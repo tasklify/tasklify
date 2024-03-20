@@ -46,12 +46,11 @@ func (sprint *Sprint) DetermineStatus() Status {
 	}
 }
 
-func (db *database) GetSprintByID(id uint) (*Sprint) {
+func (db *database) GetSprintByID(id uint) (*Sprint, error) {
 	var sprint = &Sprint{}
 	err := db.Preload("UserStories.AcceptanceTests").Preload("UserStories.Tasks").Preload("UserStories").First(sprint, id).Error
 	if err != nil {
-		return nil
+		return nil, err
 	}
-
-	return sprint
+	return sprint, nil
 }

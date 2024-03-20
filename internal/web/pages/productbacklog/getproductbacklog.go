@@ -182,11 +182,7 @@ func PostUserStoryAccepted(w http.ResponseWriter, r *http.Request, params handle
 }
 
 func GetUserStoryRejected(w http.ResponseWriter, r *http.Request, params handlers.RequestParams) error {
-	if err := r.ParseForm(); err != nil {
-		return err
-	}
-
-	userStoryID, err := strconv.Atoi(r.FormValue("userStoryID"))
+	userStoryID, err := strconv.Atoi(chi.URLParam(r, "userStoryID"))
 	if err != nil {
 		return err
 	}
@@ -199,6 +195,11 @@ func GetUserStoryRejected(w http.ResponseWriter, r *http.Request, params handler
 	}
 
 	if projectRole != database.ProjectRoleManager {
+		return pages.NotFound(w, r)
+	}
+
+	sprint,_ := database.GetDatabase().GetSprintByID(*userStory.SprintID)
+	if (*userStory.Realized) || (sprint.DetermineStatus() != database.StatusDone) {
 		return pages.NotFound(w, r)
 	}
 
