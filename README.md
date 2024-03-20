@@ -121,6 +121,8 @@ The Product Backlog page is accessible to all project members. It is structured 
   - A badge that indicates the current status (Done, Active, or Upcoming) is displayed adjacent to the sprint title.
   - For the currently active sprint, a "Sprint backlog" button is available, providing a direct link to the sprint backlog page.
 
+When a sprint is done, it is moved to the "Done" section, where the completed user stories can be accepted or rejected (with a possibility to add a rejection reason) by the product owner.
+
 #### User stories
 
 Within both the backlog tab and the sprint view, user stories are listed in a table format. The basic information presented is as follows:
@@ -132,3 +134,14 @@ Within both the backlog tab and the sprint view, user stories are listed in a ta
 - **Realization Status**: Denotes whether the story has been realized.
 
 To the right of each story is a "Details" button which provides access to additional information.
+
+### Sprint backlog
+
+The Sprint Backlog page is a central hub for project participants, offering a clear breakdown of sprint-specific tasks and user stories:
+
+- **Sprint Information**
+
+  - At the top, users find a concise summary of the sprint, including its title, duration, and a convenient button to navigate back to the Product Backlog. This section sets the context for the sprint, outlining the timeframe and providing a quick link for easy access to broader project details.
+
+- **Tasks and User Stories Breakdown**
+  - The core of the page is dedicated to detailing the user stories within the sprint, along with their associated tasks. Each story is listed with options for deeper exploration or task creation, subject to the user's role and the story's completion status. Tasks are categorized by their current state: Unassigned, Assigned, Active, or Done, making it easy to gauge progress and workload at a glance.
