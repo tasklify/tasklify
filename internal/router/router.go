@@ -6,8 +6,8 @@ import (
 	"tasklify/internal/middlewares"
 	"tasklify/internal/web/pages"
 	"tasklify/internal/web/pages/about"
-	"tasklify/internal/web/pages/dashboard"
 	"tasklify/internal/web/pages/login"
+	"tasklify/internal/web/pages/logout"
 	"tasklify/internal/web/pages/productbacklog"
 	"tasklify/internal/web/pages/project"
 	"tasklify/internal/web/pages/sprint"
@@ -56,9 +56,8 @@ func Router() *chi.Mux {
 			r.Use(
 				middlewares.AuthUser,
 			)
-
-			r.Handle("/dashboard", ghandlers.MethodHandler{
-				"GET": handlers.UnifiedHandler(handlers.AuthenticatedHandlerFunc(dashboard.Dashboard)),
+			r.Handle("/logout", ghandlers.MethodHandler{
+				"POST": handlers.UnifiedHandler(handlers.PlainHandlerFunc(logout.PostLogout)),
 			})
 
 			// ===== Create Project endpoints =====
@@ -111,6 +110,12 @@ func Router() *chi.Mux {
 				"GET":  handlers.UnifiedHandler(handlers.AuthenticatedHandlerFunc(productbacklog.GetProductBacklog)),
 				"POST": handlers.UnifiedHandler(handlers.AuthenticatedHandlerFunc(productbacklog.PostAddUserStoryToSprint)),
 			})
+			r.Handle("/userstory/remove-from-sprint", ghandlers.MethodHandler{
+				"POST": handlers.UnifiedHandler(handlers.AuthenticatedHandlerFunc(productbacklog.RemoveUserStoryFromSprint)),
+			})
+			r.Handle("/userstory/details", ghandlers.MethodHandler{
+				"GET": handlers.UnifiedHandler(handlers.AuthenticatedHandlerFunc(userstory.GetUserStoryDetails)),
+			})
 			r.Handle("/sprintbacklog", ghandlers.MethodHandler{
 				"GET": handlers.UnifiedHandler(handlers.AuthenticatedHandlerFunc(sprintbacklog.GetSprintBacklog)),
 			})
@@ -122,6 +127,9 @@ func Router() *chi.Mux {
 			})
 			r.Handle("/userstory/rejectioncomment", ghandlers.MethodHandler{
 				"POST": handlers.UnifiedHandler(handlers.AuthenticatedHandlerFunc(productbacklog.PostRejectionComment)),
+			})
+			r.Handle("/task/details", ghandlers.MethodHandler{
+				"GET": handlers.UnifiedHandler(handlers.AuthenticatedHandlerFunc(task.GetTaskDetails)),
 			})
 		})
 	})

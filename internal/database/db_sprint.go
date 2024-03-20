@@ -8,7 +8,7 @@ import (
 
 type Sprint struct {
 	gorm.Model
-	Title       string `gorm:"unique"`
+	Title       string
 	StartDate   time.Time
 	EndDate     time.Time
 	Velocity    *float32

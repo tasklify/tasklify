@@ -26,25 +26,37 @@ func GetSprintBacklog(w http.ResponseWriter, r *http.Request, params handlers.Re
 
 	//fetch sprint
 	sprint := database.GetDatabase().GetSprintByID(sprintID)
-
-	//get all users
-	users, err := database.GetDatabase().GetUsers()
-	if err != nil {
-		return err
+	if sprint == nil {
+		return pages.NotFound(w, r)
 	}
 
-	//map users to user ids
-	userMap := mapUserstoUserIDs(users)
+	//get user project role
+	projectRole := database.GetDatabase().GetProjectRole(params.UserID, sprint.ProjectID)
 
-	c := sprintBacklog(sprint, userMap)
+	c := sprintBacklog(sprint, projectRole)
 
-	return pages.Layout(c, "Sprint Backlog").Render(r.Context(), w)
+	return pages.Layout(c, "Sprint Backlog", r).Render(r.Context(), w)
 }
 
-func mapUserstoUserIDs(users []database.User) (userMap map[uint]database.User) {
-	userMap = make(map[uint]database.User)
-	for _, user := range users {
-		userMap[user.ID] = user
+func GetUserFirstAndLastNameFromID(userID uint) string {
+	user, _ := database.GetDatabase().GetUserByID(userID)
+	return user.FirstName + " " + user.LastName
+}
+
+func mapTasksToStatuses(tasks []database.Task) (statusMap map[string][]database.Task) {
+	statusMap = make(map[string][]database.Task)
+	for _, task := range tasks {
+		if task.UserID == nil {
+			statusMap["Unassigned"] = append(statusMap["Unassigned"], task)
+		} else {
+			if *task.Status == database.StatusInProgress {
+				statusMap["Active"] = append(statusMap["Active"], task)
+			} else if *task.Status == database.StatusDone {
+				statusMap["Done"] = append(statusMap["Done"], task)
+			} else {
+				statusMap["Assigned"] = append(statusMap["Assigned"], task)
+			}
+		}
 	}
 	return
 }

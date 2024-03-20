@@ -40,10 +40,15 @@ func PostUserStory(w http.ResponseWriter, r *http.Request, params handlers.Reque
 		return err
 	}
 	// Check if a user story with the same title already exists
-	userStoryExists := database.GetDatabase().UserStoryWithTitleExists(userStoryData.Title)
+	userStoryExists := database.GetDatabase().UserStoryInThisProjectAlreadyExists(userStoryData.Title, userStoryData.ProjectID)
 	if userStoryExists {
 		w.WriteHeader(http.StatusBadRequest)
 		c := common.ValidationError("User story with same title already exists.")
+		return c.Render(r.Context(), w)
+	}
+	if userStoryData.BusinessValue < 0 {
+		w.WriteHeader(http.StatusBadRequest)
+		c := common.ValidationError("Business value must be a positive integer.")
 		return c.Render(r.Context(), w)
 	}
 
