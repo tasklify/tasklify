@@ -51,7 +51,7 @@ func GetProductBacklog(w http.ResponseWriter, r *http.Request, params handlers.R
 			return false
 		}
 
-		return sprints[i].StartDate.After(sprints[j].StartDate)
+		return sprints[i].StartDate.Before(sprints[j].StartDate)
 	})
 
 	if err != nil {
