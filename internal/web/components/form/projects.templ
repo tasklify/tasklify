@@ -1,0 +1,22 @@
+package form
+
+import (
+	"tasklify/internal/database"
+	"fmt"
+)
+
+templ ProjectsField(label string, user *database.User) {
+	<div class="form-control">
+		<label class="label">
+			<span class="label-text">{ label }</span>
+		</label>
+		<div hx-boost="true">
+			for _, project := range user.Projects {
+				<a class="btn btn-outline" href={ templ.URL(fmt.Sprintf("/projects/%d", project.ID)) }>{ project.Title }</a>
+			}
+			if  len(user.Projects) == 0 {
+				<div>empty</div>
+			}
+		</div>
+	</div>
+}

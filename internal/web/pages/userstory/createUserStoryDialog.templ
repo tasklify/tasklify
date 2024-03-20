@@ -2,6 +2,7 @@ package userstory
 
 import "tasklify/internal/web/components/common"
 import "fmt"
+import "net/http"
 
 templ CreateUserStoryDialog(projectID uint) {
 	<script>
@@ -15,7 +16,7 @@ document.getElementById('addAcceptanceTest').addEventListener('click', function(
     container.appendChild(newField);
 });
 </script>
-	@common.CreateDialog("Create user story", fmt.Sprintf("/%v/createuserstory", projectID)) {
+	@common.CreateDialog("Create user story", http.MethodPost, fmt.Sprintf("/%v/createuserstory", projectID), "Create") {
 		<a href="https://github.com/tasklify/tasklify/tree/main?tab=readme-ov-file#creating-user-stories" target="_blank" class="help-button" style="padding-right=10rem;">?</a>
 		<!-- Title Field -->
 		<div class="mb-4">

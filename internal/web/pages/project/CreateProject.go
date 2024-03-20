@@ -13,7 +13,7 @@ import (
 var decoder = schema.NewDecoder()
 
 func GetCreateProject(w http.ResponseWriter, r *http.Request, params handlers.RequestParams) error {
-	users, err := database.GetDatabase().GetUsers(nil)
+	users, err := database.GetDatabase().GetUsers()
 	if err != nil {
 		return err
 	}

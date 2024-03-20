@@ -11,6 +11,7 @@ import "bytes"
 
 import "tasklify/internal/web/components/common"
 import "fmt"
+import "net/http"
 
 func createSprintDialog(projectID uint) templ.Component {
 	return templ.ComponentFunc(func(ctx context.Context, templ_7745c5c3_W io.Writer) (templ_7745c5c3_Err error) {
@@ -40,7 +41,7 @@ func createSprintDialog(projectID uint) templ.Component {
 			}
 			return templ_7745c5c3_Err
 		})
-		templ_7745c5c3_Err = common.CreateDialog("Create sprint", fmt.Sprintf("/%v/createsprint", projectID)).Render(templ.WithChildren(ctx, templ_7745c5c3_Var2), templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = common.CreateDialog("Create sprint", http.MethodPost, fmt.Sprintf("/%v/createsprint", projectID), "Create").Render(templ.WithChildren(ctx, templ_7745c5c3_Var2), templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

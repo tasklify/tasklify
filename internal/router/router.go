@@ -61,10 +61,16 @@ func Router() *chi.Mux {
 
 			// ===== Users endpoints =====
 			r.Handle("/users", ghandlers.MethodHandler{
-				"GET": handlers.UnifiedHandler(handlers.AuthenticatedHandlerFunc(users.Users)),
+				"GET":  handlers.UnifiedHandler(handlers.AuthenticatedHandlerFunc(users.Users)),
+				"POST": handlers.UnifiedHandler(handlers.AuthenticatedHandlerFunc(users.PostUsers)),
+			})
+			r.Handle("/users/new", ghandlers.MethodHandler{
+				"GET": handlers.UnifiedHandler(handlers.AuthenticatedHandlerFunc(users.GetNewUser)),
 			})
 			r.Handle("/users/{userID}", ghandlers.MethodHandler{
-				"GET": handlers.UnifiedHandler(handlers.AuthenticatedHandlerFunc(userSlug.User)),
+				"GET":    handlers.UnifiedHandler(handlers.AuthenticatedHandlerFunc(userSlug.GetUser)),
+				"PATCH":  handlers.UnifiedHandler(handlers.AuthenticatedHandlerFunc(userSlug.PatchUser)),
+				"DELETE": handlers.UnifiedHandler(handlers.AuthenticatedHandlerFunc(userSlug.DeleteUser)),
 			})
 
 			// ===== Create Project endpoints =====

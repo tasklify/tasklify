@@ -5,9 +5,10 @@ import "tasklify/internal/database"
 
 import "fmt"
 import "strconv"
+import "net/http"
 
 templ createTaskDialog(projectID uint, sprintID uint, userStoryID uint, users []database.User) {
-	@common.CreateDialog("Create task", fmt.Sprintf("/userstory/%v/create-task", userStoryID)) {
+	@common.CreateDialog("Create task", http.MethodPost, fmt.Sprintf("/userstory/%v/create-task", userStoryID), "Create") {
 		<a href="https://github.com/tasklify/tasklify/tree/main?tab=readme-ov-file#creating-tasks" target="_blank" class="help-button" style="padding-right=10rem;">?</a>
 		<!-- Title Field -->
 		<div class="mb-4">
