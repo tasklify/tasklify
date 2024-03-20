@@ -221,11 +221,7 @@ func taskStatusCategories(tasks []database.Task, category string) templ.Componen
 		var templ_7745c5c3_Var7 string
 		templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.JoinStringErrs(category)
 		if templ_7745c5c3_Err != nil {
-<<<<<<< HEAD
 			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/web/pages/sprintbacklog/sprintBacklog.templ`, Line: 90, Col: 107}
-=======
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/web/pages/sprintbacklog/sprintBacklog.templ`, Line: 87, Col: 107}
->>>>>>> c9130c3 (users halfway done)
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var7))
 		if templ_7745c5c3_Err != nil {
@@ -359,26 +355,9 @@ func TaskRowSmall(task database.Task) templ.Component {
 		var templ_7745c5c3_Var9 string
 		templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.JoinStringErrs(*task.Title)
 		if templ_7745c5c3_Err != nil {
-<<<<<<< HEAD
 			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/web/pages/sprintbacklog/sprintBacklog.templ`, Line: 132, Col: 61}
-=======
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/web/pages/sprintbacklog/sprintBacklog.templ`, Line: 129, Col: 61}
->>>>>>> c9130c3 (users halfway done)
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var9))
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</div><div class=\"task-description text-sm mb-4\">")
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		var templ_7745c5c3_Var10 string
-		templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.JoinStringErrs(*task.Description)
-		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/web/pages/sprintbacklog/sprintBacklog.templ`, Line: 130, Col: 63}
-		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var10))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -399,7 +378,7 @@ func TaskRowSmall(task database.Task) templ.Component {
 			var templ_7745c5c3_Var10 string
 			templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.JoinStringErrs(GetUserFirstAndLastNameFromID(*task.UserID))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/web/pages/sprintbacklog/sprintBacklog.templ`, Line: 137, Col: 68}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/web/pages/sprintbacklog/sprintBacklog.templ`, Line: 139, Col: 80}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var10))
 			if templ_7745c5c3_Err != nil {
