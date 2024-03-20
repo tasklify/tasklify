@@ -21,7 +21,7 @@ tasks:
       - task: deps
     cmds:
       - npx tailwindcss -c configs/tailwind.config.js -i configs/input.css -o static/css/style.css --watch &
-      - docker compose -f deployments/docker-compose.yml -p tasklify up &
+      - REGISTRY="" docker compose -f deployments/docker-compose.yml -p tasklify up &
       - air -c configs/dev/.air.toml
 
   build:
@@ -40,6 +40,8 @@ tasks:
       - cmd: cp node_modules/htmx.org/dist/htmx.min.js static/script/.
         platforms: [linux, darwin]
       - cmd: cp node_modules/htmx.org/dist/ext/response-targets.js static/script/.
+        platforms: [linux, darwin]
+      - cmd: rm tmp/main # Delete executable
         platforms: [linux, darwin]
 
       - cmd: powershell -Command "New-Item -ItemType Directory -Force -Path 'static\css', 'static\script'"
