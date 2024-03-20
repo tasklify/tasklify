@@ -37,8 +37,8 @@ templ TaskDetailsDialog(task database.Task) {
 				<h3 class="text-md text-gray-600 mb-4">{ GetUserStoryFromTask(task).Title }</h3>
 				<!-- Description -->
 				<div class="mb-4 flex-grow">
-					<div class="font-bold">Description</div>
-					<div class="text-gray-800 break-words">{ *task.Description }</div>
+					<div class="font-medium mb-2">Description</div>
+					<div class="text-gray-800 break-words p-4 bg-gray-100 rounded-lg">{ *task.Description }</div>
 				</div>
 				<!-- Assigned To (Moved to bottom left, smaller and visually distinct) -->
 				if task.UserID != nil {
