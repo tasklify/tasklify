@@ -60,7 +60,7 @@ func GetProductBacklog(w http.ResponseWriter, r *http.Request, params handlers.R
 	}
 
 	c := productBacklog(usInBacklog, sprints, projectID, projectRole, *project, user.SystemRole)
-	return pages.Layout(c, "Backlog").Render(r.Context(), w)
+	return pages.Layout(c, "Backlog", r).Render(r.Context(), w)
 }
 
 func filterBacklog(userStories []database.UserStory) (inBacklog []database.UserStory, inSprint []database.UserStory) {
