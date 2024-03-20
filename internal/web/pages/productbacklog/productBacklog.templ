@@ -43,8 +43,7 @@ templ productBacklog(backlogUserStories []database.UserStory, sprints []database
 							<form hx-get={ fmt.Sprintf("/%v/createuserstory", projectID) } hx-target="#dialog" style="display: inline;">
 								<button class="btn btn-primary btn-sm">Create User Story</button>
 							</form>
-							<form hx-get="/createsprint" hx-target="#dialog" style="display: inline;">
-								<input type="hidden" id="projectID" name="projectID" value={ fmt.Sprint(projectID) }/>
+							<form hx-get={ fmt.Sprintf("/%v/createsprint", projectID) } hx-target="#dialog" style="display: inline;">
 								<button class="btn btn-primary btn-sm ml-2">Create Sprint</button>
 							</form>
 							<a href="https://github.com/tasklify/tasklify/tree/main?tab=readme-ov-file#product-backlog" target="_blank" class="help-button ml-4" style="position: relative;top:0px;right:0px">?</a>
@@ -165,7 +164,7 @@ templ backlog(backlogUserStories []database.UserStory, sprint database.Sprint, c
 								</td>
 								<td>
 									<!--Details button-->
-									<button hx-get="/userstory/details" hx-target="#dialog" hx-indicator="#dialog" hx-vals={ fmt.Sprintf("{\"userStoryID\": \"%s\"}", strconv.Itoa(int(us.ID))) } class="btn btn-xs">
+									<button hx-get={ fmt.Sprintf("userstory/%v/details", us.ID) } hx-target="#dialog" hx-indicator="#dialog" class="btn btn-xs">
 										<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
 											<path stroke-linecap="round" stroke-linejoin="round" d="M6.75 12a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0ZM12.75 12a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0ZM18.75 12a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Z"></path>
 										</svg>
@@ -263,7 +262,7 @@ templ userStoryTableRow(us database.UserStory, status database.Status, projectRo
 			<div class="flex flex-col space-y-2">
 				<div class="flex btn-container space-x-4 max-w-[10rem]">
 					<!--Details button-->
-					<button hx-get="/userstory/details" hx-target="#dialog" hx-indicator="#dialog" hx-vals={ fmt.Sprintf("{\"userStoryID\": \"%s\"}", strconv.Itoa(int(us.ID))) } class="btn btn-xs">
+					<button hx-get={ fmt.Sprintf("userstory/%v/details", us.ID) } hx-target="#dialog" hx-indicator="#dialog" class="btn btn-xs">
 						<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
 							<path stroke-linecap="round" stroke-linejoin="round" d="M6.75 12a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0ZM12.75 12a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0ZM18.75 12a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Z"></path>
 						</svg>
@@ -278,8 +277,7 @@ templ userStoryTableRow(us database.UserStory, status database.Status, projectRo
 							</button>
 						</div>
 					} else {
-						<form class="flex-grow" hx-post="/userstory/remove-from-sprint" hx-target="#dialog">
-							<input type="hidden" name="userStoryID" value={ strconv.Itoa(int(us.ID)) }/>
+						<form class="flex-grow" hx-post={ fmt.Sprintf("userstory/%v/remove-from-sprint", us.ID) } hx-target="#dialog">
 							<input type="hidden" name="callback" value={ callback }/>
 							<button class="btn btn-xs">
 								<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">

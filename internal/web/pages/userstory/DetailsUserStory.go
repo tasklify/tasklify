@@ -1,7 +1,9 @@
 package userstory
 
 import (
+	"github.com/go-chi/chi/v5"
 	"net/http"
+	"strconv"
 	"tasklify/internal/database"
 
 	"tasklify/internal/handlers"
@@ -9,21 +11,22 @@ import (
 
 func GetUserStoryDetails(w http.ResponseWriter, r *http.Request, params handlers.RequestParams) error {
 
-	type RequestData struct {
-		UserStoryID uint `schema:"userStoryID,required"`
+	if err := r.ParseForm(); err != nil {
+		return err
 	}
-	var requestData RequestData
-	err := decoder.Decode(&requestData, r.URL.Query())
+
+	userStoryID, err := strconv.Atoi(chi.URLParam(r, "userStoryID"))
 
 	if err != nil {
 		return err
 	}
 
-	userStory, err := database.GetDatabase().GetUserStoryByID(requestData.UserStoryID)
+	userStory, err := database.GetDatabase().GetUserStoryByID(uint(userStoryID))
 	if err != nil {
 		return err
 	}
 
 	c := UserStoryDetailsDialog(*userStory)
 	return c.Render(r.Context(), w)
+
 }

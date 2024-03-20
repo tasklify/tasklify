@@ -1,6 +1,7 @@
 package sprint
 
 import (
+	"github.com/go-chi/chi/v5"
 	"github.com/gorilla/schema"
 	"net/http"
 	"reflect"
@@ -15,19 +16,12 @@ var decoder = schema.NewDecoder()
 
 func GetCreateSprint(w http.ResponseWriter, r *http.Request, params handlers.RequestParams) error {
 
-	type RequestData struct {
-		ProjectID uint `schema:"projectID,required"`
-	}
-
-	var requestData RequestData
-	err := decoder.Decode(&requestData, r.URL.Query())
+	projectID, err := strconv.Atoi(chi.URLParam(r, "projectID"))
 	if err != nil {
 		return err
 	}
 
-	projectID := requestData.ProjectID
-
-	c := createSprintDialog(projectID)
+	c := createSprintDialog(uint(projectID))
 	return c.Render(r.Context(), w)
 }
 
@@ -73,7 +67,11 @@ func PostSprint(w http.ResponseWriter, r *http.Request, params handlers.RequestP
 		StartDate: sprintFormData.StartDate,
 		EndDate:   sprintFormData.EndDate,
 		Velocity:  sprintFormData.Velocity,
-		ProjectID: sprintFormData.ProjectID,
+	}
+
+	projectID, err := strconv.Atoi(chi.URLParam(r, "projectID"))
+	if err != nil {
+		return err
 	}
 
 	err = database.GetDatabase().CreateSprint(sprint)
@@ -81,7 +79,7 @@ func PostSprint(w http.ResponseWriter, r *http.Request, params handlers.RequestP
 		return err
 	}
 
-	w.Header().Set("HX-Redirect", "/productbacklog?projectID="+strconv.Itoa(int(sprintFormData.ProjectID)))
+	w.Header().Set("HX-Redirect", "/productbacklog?projectID="+strconv.Itoa(projectID))
 	w.WriteHeader(http.StatusSeeOther)
 
 	return nil
