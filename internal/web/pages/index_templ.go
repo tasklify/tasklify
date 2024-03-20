@@ -61,7 +61,7 @@ func index(userID string, myProjects []database.Project, user_SystemRole databas
 			return templ_7745c5c3_Err
 		}
 		if auth.GetAuthorization().HasSystemPermission(user_SystemRole, "/project", auth.ActionCreate) == nil {
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div class=\"card card-compact bg-base-100 shadow-xl hover:shadow-2xl transition-shadow flex justify-center items-center\"><div class=\"card-body\"><h2 class=\"card-title\">Add new project</h2><div class=\"flex justify-center\"><button class=\"btn btn-primary btn-circle btn-lg\" hx-get=\"/create-project\" hx-target=\"#dialog\"><svg xmlns=\"http://www.w3.org/2000/svg\" class=\"h-6 w-6\" fill=\"none\" viewBox=\"0 0 24 24\" stroke=\"currentColor\" stroke-width=\"2\"><path stroke-linecap=\"round\" stroke-linejoin=\"round\" d=\"M12 4v16m8-8H4\"></path></svg></button></div></div></div>")
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div class=\"card card-compact bg-base-100 shadow-xl hover:shadow-2xl transition-shadow flex justify-center items-center\"><div class=\"card-body\"><div><h2 class=\"card-title\">Add new project</h2><a href=\"https://github.com/tasklify/tasklify/tree/main?tab=readme-ov-file#creating-projects\" target=\"_blank\" class=\"help-button\">?</a></div><div class=\"flex justify-center\"><button class=\"btn btn-primary btn-circle btn-lg\" hx-get=\"/create-project\" hx-target=\"#dialog\"><svg xmlns=\"http://www.w3.org/2000/svg\" class=\"h-6 w-6\" fill=\"none\" viewBox=\"0 0 24 24\" stroke=\"currentColor\" stroke-width=\"2\"><path stroke-linecap=\"round\" stroke-linejoin=\"round\" d=\"M12 4v16m8-8H4\"></path></svg></button></div></div></div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -74,7 +74,7 @@ func index(userID string, myProjects []database.Project, user_SystemRole databas
 			var templ_7745c5c3_Var2 string
 			templ_7745c5c3_Var2, templ_7745c5c3_Err = templ.JoinStringErrs(project.Title)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/web/pages/index.templ`, Line: 58, Col: 45}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/web/pages/index.templ`, Line: 61, Col: 45}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var2))
 			if templ_7745c5c3_Err != nil {
@@ -87,7 +87,7 @@ func index(userID string, myProjects []database.Project, user_SystemRole databas
 			var templ_7745c5c3_Var3 string
 			templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinStringErrs(project.Description)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/web/pages/index.templ`, Line: 59, Col: 63}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/web/pages/index.templ`, Line: 62, Col: 63}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var3))
 			if templ_7745c5c3_Err != nil {
