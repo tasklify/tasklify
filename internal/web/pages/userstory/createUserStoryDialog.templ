@@ -15,7 +15,7 @@ document.getElementById('addAcceptanceTest').addEventListener('click', function(
     container.appendChild(newField);
 });
 </script>
-	@common.CreateDialog("Create user story", "/createuserstory") {
+	@common.CreateDialog("Create user story", fmt.Sprintf("/%v/createuserstory", projectID)) {
 		<a href="https://github.com/tasklify/tasklify/tree/main?tab=readme-ov-file#creating-user-stories" target="_blank" class="help-button" style="padding-right=10rem;">?</a>
 		<!-- Title Field -->
 		<div class="mb-4">
@@ -47,6 +47,5 @@ document.getElementById('addAcceptanceTest').addEventListener('click', function(
 			<label for="business_value" class="block text-sm font-medium text-gray-700">Business Value:</label>
 			<input type="number" id="business_value" name="business_value" class="input input-bordered input-primary w-full max-w-s mt-1" required/>
 		</div>
-		<input type="hidden" id="projectID" name="projectID" value={ fmt.Sprint(projectID) }/>
 	}
 }

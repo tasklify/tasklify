@@ -102,7 +102,7 @@ func Router() *chi.Mux {
 				"GET":  handlers.UnifiedHandler(handlers.AuthenticatedHandlerFunc(sprint.GetCreateSprint)),
 				"POST": handlers.UnifiedHandler(handlers.AuthenticatedHandlerFunc(sprint.PostSprint)),
 			})
-			r.Handle("/createuserstory", ghandlers.MethodHandler{
+			r.Handle("/{projectID}/createuserstory", ghandlers.MethodHandler{
 				"GET":  handlers.UnifiedHandler(handlers.AuthenticatedHandlerFunc(userstory.GetUserStory)),
 				"POST": handlers.UnifiedHandler(handlers.AuthenticatedHandlerFunc(userstory.PostUserStory)),
 			})
@@ -120,19 +120,17 @@ func Router() *chi.Mux {
 			r.Handle("/userstory/details", ghandlers.MethodHandler{
 				"GET": handlers.UnifiedHandler(handlers.AuthenticatedHandlerFunc(userstory.GetUserStoryDetails)),
 			})
-			r.Handle("/sprintbacklog", ghandlers.MethodHandler{
-				"GET": handlers.UnifiedHandler(handlers.AuthenticatedHandlerFunc(sprintbacklog.GetSprintBacklog)),
-			})
-			r.Handle("/userstory/accept", ghandlers.MethodHandler{
+			r.Handle("/userstory/{userStoryID}/accept", ghandlers.MethodHandler{
 				"POST": handlers.UnifiedHandler(handlers.AuthenticatedHandlerFunc(productbacklog.PostUserStoryAccepted)),
 			})
-			r.Handle("/userstory/reject", ghandlers.MethodHandler{
+			r.Handle("/userstory/{userStoryID}/reject", ghandlers.MethodHandler{
+				"GET": handlers.UnifiedHandler(handlers.AuthenticatedHandlerFunc(productbacklog.GetUserStoryRejected)),
 				"POST": handlers.UnifiedHandler(handlers.AuthenticatedHandlerFunc(productbacklog.PostUserStoryRejected)),
 			})
-			r.Handle("/userstory/rejectioncomment", ghandlers.MethodHandler{
-				"POST": handlers.UnifiedHandler(handlers.AuthenticatedHandlerFunc(productbacklog.PostRejectionComment)),
+			r.Handle("/sprintbacklog/{sprintID}", ghandlers.MethodHandler{
+				"GET": handlers.UnifiedHandler(handlers.AuthenticatedHandlerFunc(sprintbacklog.GetSprintBacklog)),
 			})
-			r.Handle("/task/details", ghandlers.MethodHandler{
+			r.Handle("/sprintbacklog/task/{taskID}/details", ghandlers.MethodHandler{
 				"GET": handlers.UnifiedHandler(handlers.AuthenticatedHandlerFunc(task.GetTaskDetails)),
 			})
 		})

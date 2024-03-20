@@ -83,7 +83,7 @@ func PostTask(w http.ResponseWriter, r *http.Request, params handlers.RequestPar
 		return err
 	}
 
-	redirectURL := fmt.Sprintf("/sprintbacklog?sprintID=%d", taskFormData.SprintID)
+	redirectURL := fmt.Sprintf("/sprintbacklog/%d", taskFormData.SprintID)
 	w.Header().Set("HX-Redirect", redirectURL)
 	w.WriteHeader(http.StatusSeeOther)
 

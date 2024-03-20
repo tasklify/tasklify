@@ -33,16 +33,14 @@ templ productBacklog(backlogUserStories []database.UserStory, sprints []database
 				<div>
 					if projectRole == database.ProjectRoleManager {
 						<div class="flex">
-							<form hx-get="/createuserstory" hx-target="#dialog" style="display: inline;">
-								<input type="hidden" id="projectID" name="projectID" value={ fmt.Sprint(projectID) }/>
+							<form hx-get={ fmt.Sprintf("/%v/createuserstory", projectID) } hx-target="#dialog" style="display: inline;">
 								<button class="btn btn-primary btn-sm">Create User Story</button>
 							</form>
 							<a href="https://github.com/tasklify/tasklify/tree/main?tab=readme-ov-file#product-backlog" target="_blank" class="help-button ml-4" style="position: relative;top:0px;right:0px">?</a>
 						</div>
 					} else if projectRole == database.ProjectRoleMaster {
 						<div class="flex">
-							<form hx-get="/createuserstory" hx-target="#dialog" style="display: inline;">
-								<input type="hidden" id="projectID" name="projectID" value={ fmt.Sprint(projectID) }/>
+							<form hx-get={ fmt.Sprintf("/%v/createuserstory", projectID) } hx-target="#dialog" style="display: inline;">
 								<button class="btn btn-primary btn-sm">Create User Story</button>
 							</form>
 							<form hx-get="/createsprint" hx-target="#dialog" style="display: inline;">
@@ -91,9 +89,8 @@ templ productBacklog(backlogUserStories []database.UserStory, sprints []database
 									<!-- Places the button nicely -->
 									<!-- Sprint Backlog Button -->
 									if sprint.DetermineStatus() == database.StatusInProgress {
-										<form hx-get="/sprintbacklog" hx-target="#whole" class="ml-auto">
+										<form hx-get={ fmt.Sprint("/sprintbacklog/", sprint.ID) } hx-target="#whole" class="ml-auto">
 											<button class="btn btn-sm bg-primary">Sprint Backlog</button>
-											<input type="hidden" id="sprintID" name="sprintID" value={ fmt.Sprint(sprint.ID) }/>
 										</form>
 									}
 								</div>
@@ -298,42 +295,28 @@ templ userStoryTableRow(us database.UserStory, status database.Status, projectRo
 							<div class="btn-container" title="Not all tasks were realized and not all acceptance tests were passed for this user story.">
 								<button type="submit" class="btn btn-xs" disabled>Accept</button>
 							</div>
-							<form hx-post="/userstory/reject" hx-target="#dialog">
-								<input type="hidden" name="userStoryID" id="userStoryID" value={ strconv.Itoa(int(us.ID)) }/>
-								<input type="hidden" name="callback" value={ callback }/>
-								<input type="hidden" name="projectID" id="projectID" value={ strconv.Itoa(int(us.ProjectID)) }/>
+							<form hx-get={ fmt.Sprintf("userstory/%v/reject", us.ID) } hx-target="#dialog">
 								<button type="submit" class="btn bg-red-500 btn-xs">Reject</button>
 							</form>
 						} else if us.AllTasksRealized() == false && us.AllAcceptanceTestsRealized() == true {
 							<div class="btn-container" title="Not all tasks were realized for this user story.">
 								<button type="submit" class="btn btn-xs" disabled>Accept</button>
 							</div>
-							<form hx-post="/userstory/reject" hx-target="#dialog">
-								<input type="hidden" name="userStoryID" id="userStoryID" value={ strconv.Itoa(int(us.ID)) }/>
-								<input type="hidden" name="projectID" id="projectID" value={ strconv.Itoa(int(us.ProjectID)) }/>
-								<input type="hidden" name="callback" value={ callback }/>
+							<form hx-get={ fmt.Sprintf("userstory/%v/reject", us.ID) } hx-target="#dialog">
 								<button type="submit" class="btn bg-red-500 btn-xs">Reject</button>
 							</form>
 						} else if us.AllTasksRealized() == true && us.AllAcceptanceTestsRealized() == false {
 							<div class="btn-container" title="Not all acceptance tests were passed for this user story.">
 								<button type="submit" class="btn btn-xs" disabled>Accept</button>
 							</div>
-							<form hx-post="/userstory/reject" hx-target="#dialog">
-								<input type="hidden" name="userStoryID" id="userStoryID" value={ strconv.Itoa(int(us.ID)) }/>
-								<input type="hidden" name="projectID" id="projectID" value={ strconv.Itoa(int(us.ProjectID)) }/>
-								<input type="hidden" name="callback" value={ callback }/>
+							<form hx-get={ fmt.Sprintf("userstory/%v/reject", us.ID) } hx-target="#dialog">
 								<button type="submit" class="btn bg-red-500 btn-xs">Reject</button>
 							</form>
 						} else {
-							<form hx-post="/userstory/accept" id="backlogForm">
-								<input type="hidden" name="userStoryID" id="userStoryID" value={ strconv.Itoa(int(us.ID)) }/>
-								<input type="hidden" name="callback" value={ callback }/>
+							<form hx-post={ fmt.Sprintf("userstory/%v/accept", us.ID) } id="backlogForm">
 								<button type="submit" class="btn bg-green-600 btn-xs">Accept</button>
 							</form>
-							<form hx-post="/userstory/reject" hx-target="#dialog">
-								<input type="hidden" name="userStoryID" id="userStoryID" value={ strconv.Itoa(int(us.ID)) }/>
-								<input type="hidden" name="projectID" id="projectID" value={ strconv.Itoa(int(us.ProjectID)) }/>
-								<input type="hidden" name="callback" value={ callback }/>
+							<form hx-get={ fmt.Sprintf("userstory/%v/reject", us.ID) } hx-target="#dialog">
 								<button type="submit" class="btn bg-red-500 btn-xs">Reject</button>
 							</form>
 						}
@@ -344,13 +327,11 @@ templ userStoryTableRow(us database.UserStory, status database.Status, projectRo
 	</tr>
 }
 
-templ CreateRejectionCommentDialog(userStoryID uint, callback string) {
-	@common.CreateDialog("Create rejection comment", "/userstory/rejectioncomment") {
+templ CreateRejectionCommentDialog(userStoryID uint) {
+	@common.CreateDialog("Create rejection comment", fmt.Sprintf("userstory/%v/reject", userStoryID)) {
 		<!-- Rejection Comment Field -->
 		<div class="mb-4">
 			<textarea id="comment" name="comment" placeholder="This can be left empty" class="textarea mt-1 p-2 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50"></textarea>
 		</div>
-		<input type="hidden" name="callback" value={ callback }/>
-		<input type="hidden" id="userStoryID" name="userStoryID" value={ strconv.Itoa(int(userStoryID)) }/>
 	}
 }
