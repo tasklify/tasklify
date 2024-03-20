@@ -49,7 +49,7 @@ templ dashboard(myProjects []database.Project, user_SystemRole database.SystemRo
 							<h2 class="card-title">{ project.Title }</h2>
 							<p class="whitespace-break-spaces">{ project.Description }</p>
 							<div class="card-actions justify-end">
-								<form hx-get="/productbacklog" hx-target="#whole" hx-swap="innerHTML">
+								<form hx-get="/productbacklog" hx-target="#whole" hx-swap="innerHTML" hx-push-url="true">
 									<input type="hidden" id="projectID" name="projectID" value={ fmt.Sprint(project.ID) }/>
 									<button class="btn btn-primary">View project</button>
 								</form>
