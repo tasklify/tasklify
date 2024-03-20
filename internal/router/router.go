@@ -57,14 +57,14 @@ func Router() *chi.Mux {
 			r.Handle("/logout", ghandlers.MethodHandler{
 				"POST": handlers.UnifiedHandler(handlers.PlainHandlerFunc(logout.PostLogout)),
 			})
-
-			// ===== Create Project endpoints =====
 			r.Handle("/dashboard", ghandlers.MethodHandler{
 				"GET": handlers.UnifiedHandler(handlers.AuthenticatedHandlerFunc(dashboard.Dashboard)),
 			})
 			r.Handle("/users", ghandlers.MethodHandler{
 				"GET": handlers.UnifiedHandler(handlers.AuthenticatedHandlerFunc(users.Users)),
 			})
+
+			// ===== Create Project endpoints =====
 			r.Handle("/create-project", ghandlers.MethodHandler{
 				"GET":  handlers.UnifiedHandler(handlers.AuthenticatedHandlerFunc(project.GetCreateProject)),
 				"POST": handlers.UnifiedHandler(handlers.AuthenticatedHandlerFunc(project.PostCreateProject)),
@@ -98,6 +98,10 @@ func Router() *chi.Mux {
 				"POST": handlers.UnifiedHandler(handlers.AuthenticatedHandlerFunc(project.EditProjectChangeMaster)),
 			})
 
+			r.Handle("/project-info/{projectID}", ghandlers.MethodHandler{
+				"GET": handlers.UnifiedHandler(handlers.AuthenticatedHandlerFunc(project.GetProjectInfo)),
+			})
+
 			r.Handle("/createsprint", ghandlers.MethodHandler{
 				"GET":  handlers.UnifiedHandler(handlers.AuthenticatedHandlerFunc(sprint.GetCreateSprint)),
 				"POST": handlers.UnifiedHandler(handlers.AuthenticatedHandlerFunc(sprint.PostSprint)),
@@ -124,7 +128,7 @@ func Router() *chi.Mux {
 				"POST": handlers.UnifiedHandler(handlers.AuthenticatedHandlerFunc(productbacklog.PostUserStoryAccepted)),
 			})
 			r.Handle("/userstory/{userStoryID}/reject", ghandlers.MethodHandler{
-				"GET": handlers.UnifiedHandler(handlers.AuthenticatedHandlerFunc(productbacklog.GetUserStoryRejected)),
+				"GET":  handlers.UnifiedHandler(handlers.AuthenticatedHandlerFunc(productbacklog.GetUserStoryRejected)),
 				"POST": handlers.UnifiedHandler(handlers.AuthenticatedHandlerFunc(productbacklog.PostUserStoryRejected)),
 			})
 			r.Handle("/sprintbacklog/{sprintID}", ghandlers.MethodHandler{
