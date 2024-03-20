@@ -14,7 +14,7 @@ import "tasklify/internal/web/pages"
 
 func About(w http.ResponseWriter, r *http.Request) error {
 	c := about()
-	return pages.Layout(c, "My website").Render(r.Context(), w)
+	return pages.Layout(c, "My website", r).Render(r.Context(), w)
 }
 
 func about() templ.Component {

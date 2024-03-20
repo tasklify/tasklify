@@ -42,7 +42,7 @@ func PostLogin(w http.ResponseWriter, r *http.Request) error {
 			return c.Render(r.Context(), w)
 		}
 
-		w.Header().Set("HX-Redirect", "/dashboard")
+		w.Header().Set("HX-Redirect", "/")
 		w.WriteHeader(http.StatusOK)
 		return nil
 	}

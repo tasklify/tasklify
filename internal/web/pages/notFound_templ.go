@@ -13,7 +13,7 @@ import "net/http"
 
 func NotFound(w http.ResponseWriter, r *http.Request) error {
 	c := notFound()
-	return Layout(c, "Not Found").Render(r.Context(), w)
+	return Layout(c, "Not Found", r).Render(r.Context(), w)
 }
 
 func notFound() templ.Component {

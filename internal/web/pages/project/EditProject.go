@@ -25,7 +25,7 @@ func GetEditProjectInfo(w http.ResponseWriter, r *http.Request, params handlers.
 	}
 
 	c := editProjectInfo(*project)
-	return pages.Layout(c, "Edit project").Render(r.Context(), w)
+	return pages.Layout(c, "Edit project", r).Render(r.Context(), w)
 }
 
 func UpdateProjectInfo(w http.ResponseWriter, r *http.Request, params handlers.RequestParams) error {
@@ -111,7 +111,7 @@ func GetEditProjectMembers(w http.ResponseWriter, r *http.Request, params handle
 	}
 
 	c := editProjectMembers(projectID, &productOwner, &scrumMaster, projectDevelopers, availableUsersList, allUsersList)
-	return pages.Layout(c, "Edit project").Render(r.Context(), w)
+	return pages.Layout(c, "Edit project", r).Render(r.Context(), w)
 }
 
 func EditProjectRemoveDeveloper(w http.ResponseWriter, r *http.Request, params handlers.RequestParams) error {

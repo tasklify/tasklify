@@ -15,8 +15,30 @@ import "tasklify/internal/database"
 import "tasklify/internal/auth"
 
 func Home(w http.ResponseWriter, r *http.Request) error {
-	c := GuestIndex()
-	return Layout(c, "Tasklify").Render(r.Context(), w)
+	sessionManager := auth.GetSession()
+	userID, err := sessionManager.GetUserID(r)
+	if err != nil {
+		// User is not logged in; show the guest index
+		c := GuestIndex()
+		return Layout(c, "Tasklify", r).Render(r.Context(), w)
+	}
+
+	myProjects, err := database.GetDatabase().GetUserProjects(userID)
+	if err != nil {
+		// Handle error
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		return err
+	}
+
+	user, err := database.GetDatabase().GetUserByID(userID)
+	if err != nil {
+		// Handle error
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		return err
+	}
+
+	c := Index(fmt.Sprint(userID), myProjects, user.SystemRole)
+	return Layout(c, "Tasklify", r).Render(r.Context(), w)
 }
 
 func Index(userID string, myProjects []database.Project, user_SystemRole database.SystemRole) templ.Component {
@@ -50,7 +72,7 @@ func Index(userID string, myProjects []database.Project, user_SystemRole databas
 			var templ_7745c5c3_Var2 string
 			templ_7745c5c3_Var2, templ_7745c5c3_Err = templ.JoinStringErrs(project.Title)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/web/pages/index.templ`, Line: 34, Col: 45}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/web/pages/index.templ`, Line: 56, Col: 45}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var2))
 			if templ_7745c5c3_Err != nil {
@@ -63,7 +85,7 @@ func Index(userID string, myProjects []database.Project, user_SystemRole databas
 			var templ_7745c5c3_Var3 string
 			templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinStringErrs(project.Description)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/web/pages/index.templ`, Line: 35, Col: 63}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/web/pages/index.templ`, Line: 57, Col: 63}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var3))
 			if templ_7745c5c3_Err != nil {
@@ -106,7 +128,7 @@ func GuestIndex() templ.Component {
 			templ_7745c5c3_Var4 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div class=\"hero min-h-screen bg-base-200\"><div class=\"hero-content flex-col lg:flex-row-reverse\"><div class=\"text-center lg:text-left\"><h1 class=\"text-5xl font-bold\">Login now!</h1><p class=\"py-6\">Provident cupiditate voluptatem et in. Quaerat fugiat ut assumenda excepturi exercitationem quasi. In deleniti eaque aut repudiandae et a id nisi.</p></div><div class=\"card shrink-0 w-full max-w-sm shadow-2xl bg-base-100\"><form class=\"card-body\" hx-post=\"/login\"><div class=\"form-control\"><label class=\"label\"><span class=\"label-text\">Username</span></label> <input type=\"username\" name=\"username\" id=\"username\" placeholder=\"Username\" required=\"\" autocomplete=\"username\" class=\"input input-bordered\" required></div><div class=\"form-control\"><label class=\"label\"><span class=\"label-text\">Password</span></label> <input type=\"password\" name=\"password\" id=\"password\" placeholder=\"Password\" required=\"\" autocomplete=\"current-password\" class=\"input input-bordered\" required></div><div class=\"form-control mt-6\"><button class=\"btn btn-primary\" type=\"submit\">Login</button></div></form></div></div></div>")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div class=\"hero min-h-screen bg-base-200\"><div class=\"hero-content flex-col lg:flex-row-reverse\"><div class=\"text-center lg:text-left\"><h1 class=\"text-5xl font-bold\">Login now!</h1><p class=\"py-6\">Log in to your account to access all your projects and continue where you left off.</p></div><div class=\"card shrink-0 w-full max-w-sm shadow-2xl bg-base-100\"><form class=\"card-body\" hx-post=\"/login\"><div class=\"form-control\"><label class=\"label\"><span class=\"label-text\">Username</span></label> <input type=\"username\" name=\"username\" id=\"username\" placeholder=\"Username\" required=\"\" autocomplete=\"username\" class=\"input input-bordered\" required></div><div class=\"form-control\"><label class=\"label\"><span class=\"label-text\">Password</span></label> <input type=\"password\" name=\"password\" id=\"password\" placeholder=\"Password\" required=\"\" autocomplete=\"current-password\" class=\"input input-bordered\" required></div><div class=\"form-control mt-6\"><button class=\"btn btn-primary\" type=\"submit\">Login</button></div></form></div></div></div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

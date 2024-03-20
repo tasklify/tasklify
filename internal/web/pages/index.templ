@@ -6,8 +6,30 @@ import "tasklify/internal/database"
 import "tasklify/internal/auth"
 
 func Home(w http.ResponseWriter, r *http.Request) error {
-	c := GuestIndex()
-	return Layout(c, "Tasklify").Render(r.Context(), w)
+	sessionManager := auth.GetSession()
+	userID, err := sessionManager.GetUserID(r)
+	if err != nil {
+		// User is not logged in; show the guest index
+		c := GuestIndex()
+		return Layout(c, "Tasklify", r).Render(r.Context(), w)
+	}
+
+	myProjects, err := database.GetDatabase().GetUserProjects(userID)
+	if err != nil {
+		// Handle error
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		return err
+	}
+
+	user, err := database.GetDatabase().GetUserByID(userID)
+	if err != nil {
+		// Handle error
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		return err
+	}
+
+	c := Index(fmt.Sprint(userID), myProjects, user.SystemRole)
+	return Layout(c, "Tasklify", r).Render(r.Context(), w)
 }
 
 templ Index(userID string, myProjects []database.Project, user_SystemRole database.SystemRole) {
@@ -54,7 +76,7 @@ templ GuestIndex() {
 		<div class="hero-content flex-col lg:flex-row-reverse">
 			<div class="text-center lg:text-left">
 				<h1 class="text-5xl font-bold">Login now!</h1>
-				<p class="py-6">Provident cupiditate voluptatem et in. Quaerat fugiat ut assumenda excepturi exercitationem quasi. In deleniti eaque aut repudiandae et a id nisi.</p>
+				<p class="py-6">Log in to your account to access all your projects and continue where you left off.</p>
 			</div>
 			<div class="card shrink-0 w-full max-w-sm shadow-2xl bg-base-100">
 				<form class="card-body" hx-post="/login">

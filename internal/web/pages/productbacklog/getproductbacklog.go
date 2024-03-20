@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"sort"
 	"strconv"
 	"tasklify/internal/database"
 	"tasklify/internal/handlers"
@@ -37,6 +38,12 @@ func GetProductBacklog(w http.ResponseWriter, r *http.Request, params handlers.R
 	}
 
 	sprints, err := database.GetDatabase().GetSprintByProject(projectID)
+
+	// order sprints by start day
+	sort.Slice(sprints, func(i, j int) bool {
+		return sprints[i].StartDate.Before(sprints[j].StartDate)
+	})
+
 	if err != nil {
 		return err
 	}
@@ -53,7 +60,7 @@ func GetProductBacklog(w http.ResponseWriter, r *http.Request, params handlers.R
 	}
 
 	c := productBacklog(usInBacklog, sprints, projectID, projectRole, *project, user.SystemRole)
-	return pages.Layout(c, "Backlog").Render(r.Context(), w)
+	return pages.Layout(c, "Backlog", r).Render(r.Context(), w)
 }
 
 func filterBacklog(userStories []database.UserStory) (inBacklog []database.UserStory, inSprint []database.UserStory) {
@@ -95,6 +102,40 @@ func PostAddUserStoryToSprint(w http.ResponseWriter, r *http.Request, params han
 
 	fmt.Println("Sprint ID:", sprintID)
 	fmt.Println("User Story IDs:", selectedTaskIds)
+
+	callbackURL := r.FormValue("callback")
+	if callbackURL != "" {
+		w.Header().Set("HX-Redirect", callbackURL)
+	} else {
+		return errors.New("callback URL not provided")
+	}
+
+	w.WriteHeader(http.StatusSeeOther)
+	return nil
+}
+
+func RemoveUserStoryFromSprint(w http.ResponseWriter, r *http.Request, params handlers.RequestParams) error {
+
+	if err := r.ParseForm(); err != nil {
+		return err
+	}
+
+	userStoryID, err := strconv.Atoi(r.FormValue("userStoryID"))
+	if err != nil {
+		return err
+	}
+
+	userStory, err := database.GetDatabase().GetUserStoryByID(uint(userStoryID))
+	if err != nil {
+		return err
+	}
+
+	// remove sprint from userStory
+	userStory.SprintID = nil
+	if err := database.GetDatabase().UpdateUserStory(userStory); err != nil {
+		fmt.Println("Error updating user story")
+		return err
+	}
 
 	callbackURL := r.FormValue("callback")
 	if callbackURL != "" {

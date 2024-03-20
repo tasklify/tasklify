@@ -63,9 +63,9 @@ func (db *database) GetUserStoryByID(id uint) (*UserStory, error) {
 	return userStory, nil
 }
 
-func (db *database) UserStoryWithTitleExists(title string) bool {
+func (db *database) UserStoryInThisProjectAlreadyExists(title string, projectID uint) bool {
 	var count int64
-	db.Model(&UserStory{}).Where("LOWER(title) = LOWER(?)", title).Count(&count)
+	db.Model(&UserStory{}).Where("LOWER(title) = LOWER(?) AND project_id = ?", title, projectID).Count(&count)
 	return count > 0
 }
 
