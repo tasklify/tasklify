@@ -165,17 +165,17 @@ func productBacklog(backlogUserStories []database.UserStory, sprints []database.
 				return templ_7745c5c3_Err
 			}
 			if sprint.DetermineStatus() == database.StatusInProgress {
-				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<span class=\"ml-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-300\">Active</span>")
+				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<span class=\"ml-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-300\">Active\r</span>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 			} else if sprint.DetermineStatus() == database.StatusDone {
-				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<span class=\"ml-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-300\">Done</span>")
+				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<span class=\"ml-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-300\">Done\r</span>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 			} else {
-				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<span class=\"ml-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-300\">Upcoming</span>")
+				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<span class=\"ml-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-300\">Upcoming\r</span>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -302,7 +302,7 @@ func backlog(backlogUserStories []database.UserStory, sprint database.Sprint, ca
 			templ_7745c5c3_Var9 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div class=\"card card-compact bg-base-200 transition-shadow w-2/5 mt-2 ml-2\"><div class=\"card-title collapse-title text-xl font-medium bg-base-300 border-base-300\">Backlog</div><div class=\"card-body\"><form id=\"backlogForm\" hx-post=\"/productbacklog\"><table class=\"table w-full\"><thead><tr><th>Title</th><th>Description</th><th>Details</th>")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div class=\"card card-compact bg-base-200 transition-shadow w-2/5 mt-2 ml-2\"><div class=\"card-title collapse-title text-xl font-medium bg-base-300 border-base-300\">Backlog</div><a href=\"https://github.com/tasklify/tasklify/tree/main?tab=readme-ov-file#adding-user-stories-to-sprint\" target=\"_blank\" class=\"help-button\" style=\"padding-right=10rem;\">?</a><div class=\"card-body\"><form id=\"backlogForm\" hx-post=\"/productbacklog\"><table class=\"table w-full\"><thead><tr><th>Title</th><th>Description</th><th>Details</th>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -324,7 +324,7 @@ func backlog(backlogUserStories []database.UserStory, sprint database.Sprint, ca
 			var templ_7745c5c3_Var10 string
 			templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.JoinStringErrs(us.Title)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal\web\pages\productbacklog\productBacklog.templ`, Line: 155, Col: 22}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal\web\pages\productbacklog\productBacklog.templ`, Line: 156, Col: 22}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var10))
 			if templ_7745c5c3_Err != nil {
@@ -337,7 +337,7 @@ func backlog(backlogUserStories []database.UserStory, sprint database.Sprint, ca
 			var templ_7745c5c3_Var11 string
 			templ_7745c5c3_Var11, templ_7745c5c3_Err = templ.JoinStringErrs(*us.Description)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal\web\pages\productbacklog\productBacklog.templ`, Line: 157, Col: 26}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal\web\pages\productbacklog\productBacklog.templ`, Line: 158, Col: 26}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var11))
 			if templ_7745c5c3_Err != nil {
@@ -457,7 +457,7 @@ func userStoryTableRow(us database.UserStory, status database.Status, projectRol
 		var templ_7745c5c3_Var13 string
 		templ_7745c5c3_Var13, templ_7745c5c3_Err = templ.JoinStringErrs(us.Title)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal\web\pages\productbacklog\productBacklog.templ`, Line: 205, Col: 36}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal\web\pages\productbacklog\productBacklog.templ`, Line: 206, Col: 36}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var13))
 		if templ_7745c5c3_Err != nil {
@@ -470,7 +470,7 @@ func userStoryTableRow(us database.UserStory, status database.Status, projectRol
 		var templ_7745c5c3_Var14 string
 		templ_7745c5c3_Var14, templ_7745c5c3_Err = templ.JoinStringErrs(*us.Description)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal\web\pages\productbacklog\productBacklog.templ`, Line: 209, Col: 20}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal\web\pages\productbacklog\productBacklog.templ`, Line: 210, Col: 20}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var14))
 		if templ_7745c5c3_Err != nil {
