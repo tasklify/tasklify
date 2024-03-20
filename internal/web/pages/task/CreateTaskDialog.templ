@@ -7,7 +7,7 @@ import "fmt"
 import "strconv"
 
 templ createTaskDialog(projectID uint, sprintID uint, userStoryID uint, users []database.User) {
-	@common.CreateDialog("Create task", "/create-task") {
+	@common.CreateDialog("Create task", fmt.Sprintf("/userstory/%v/create-task", userStoryID)) {
 		<a href="https://github.com/tasklify/tasklify/tree/main?tab=readme-ov-file#creating-tasks" target="_blank" class="help-button" style="padding-right=10rem;">?</a>
 		<!-- Title Field -->
 		<div class="mb-4">
@@ -43,8 +43,6 @@ templ createTaskDialog(projectID uint, sprintID uint, userStoryID uint, users []
 				}
 			</select>
 		</div>
-		<!-- UserStoryID (hidden) -->
-		<input type="hidden" id="user_story_id" name="user_story_id" value={ strconv.Itoa(int(userStoryID)) }/>
 		<!-- SprintID (hidden) -->
 		<input type="hidden" id="sprint_id" name="sprint_id" value={ strconv.Itoa(int(sprintID)) }/>
 		<!-- ProjectID (hidden) -->
