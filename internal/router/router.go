@@ -114,7 +114,7 @@ func Router() *chi.Mux {
 				"GET": handlers.UnifiedHandler(handlers.AuthenticatedHandlerFunc(project.GetProjectInfo)),
 			})
 
-			r.Handle("/createsprint", ghandlers.MethodHandler{
+			r.Handle("/{projectID}/createsprint", ghandlers.MethodHandler{
 				"GET":  handlers.UnifiedHandler(handlers.AuthenticatedHandlerFunc(sprint.GetCreateSprint)),
 				"POST": handlers.UnifiedHandler(handlers.AuthenticatedHandlerFunc(sprint.PostSprint)),
 			})
