@@ -26,7 +26,7 @@ func GetSprintBacklog(w http.ResponseWriter, r *http.Request, params handlers.Re
 	}
 
 	projectRole,_ := database.GetDatabase().GetProjectRole(params.UserID, sprint.ProjectID)
-	if (projectRole == database.ProjectRole{}) {
+	if (projectRole == database.ProjectRoleManager) || (projectRole == database.ProjectRole{}) {
 		return pages.NotFound(w, r)
 	}
 

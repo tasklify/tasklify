@@ -70,18 +70,38 @@ templ UserStoryDetailsDialog(us database.UserStory) {
 				</div>
 				<div class="mb-4">
 					<div class="font-medium mb-2">Description</div>
-					<div class="text-gray-800 break-words p-4 bg-gray-100 rounded-lg">{ *us.Description }</div>
+					<div class="text-gray-800 whitespace-break-spaces p-4 bg-gray-100 rounded-lg">{ *us.Description }</div>
 				</div>
 				<!--RejectionComment  -->
 				if us.RejectionComment != nil {
 					<div class="mb-4">
 						<div class="font-medium mb-2">Rejection comment</div>
-						<div class="text-gray-800 break-words p-4 bg-gray-100 rounded-lg">{ *us.RejectionComment }</div>
+						<div class="text-gray-800 whitespace-break-spaces p-4 bg-unassigned-300 rounded-lg">{ *us.RejectionComment }</div>
 					</div>
 				}
 				<div class="flex justify-end mt-4 items-center">
 					<button class="btn btn-primary btn-sm" type="button" hx-on:click="dialog_container.close()">Close</button>
 				</div>
+				if len(us.AcceptanceTests) > 0 {
+					<div class="mb-4">
+						<div class="font-medium mb-2" style="color: #cc8e35;">Acceptance Tests</div>
+						for _, test := range us.AcceptanceTests {
+							<div style="background-color: #f4deb3; color: #654321; padding: 4px 8px; margin-bottom: 4px; border-radius: 4px;">
+								# { *test.Description }
+							</div>
+						}
+					</div>
+				}
+				if len(us.Tasks) > 0 {
+					<div class="mb-4">
+						<div class="font-medium mb-2">Tasks</div>
+						for _, task := range us.Tasks {
+							<div class="flex justify-between items-center p-2 bg-gray-100 rounded-lg mb-2">
+								<div class="text-gray-800">{ *task.Title }</div>
+							</div>
+						}
+					</div>
+				}
 			</div>
 		</div>
 	</div>

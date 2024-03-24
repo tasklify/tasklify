@@ -110,8 +110,11 @@ templ taskStatusCategories(tasks []database.Task, category string) {
 	<div class="card-body bg-base-100 p-0 m-0" style="gap: 10px;">
 		<div class="task-cards-container" style="display: flex; flex-direction: column;">
 			for _, task := range tasks {
-				<div class="task-card bg-base-300 shadow-lg rounded-lg p-1
-				" style="margin-bottom: 10px;">
+				<div
+					class="task-card bg-base-300 shadow-lg rounded-lg p-1
+				"
+					style="margin-bottom: 10px;"
+				>
 					@TaskRowSmall(task, category)
 				</div>
 			}

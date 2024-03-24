@@ -53,9 +53,9 @@ func PostUserStory(w http.ResponseWriter, r *http.Request, params handlers.Reque
 		c := common.ValidationError("User story with same title already exists.")
 		return c.Render(r.Context(), w)
 	}
-	if userStoryData.BusinessValue < 0 {
+	if (userStoryData.BusinessValue < 0) || (userStoryData.BusinessValue > 10) {
 		w.WriteHeader(http.StatusBadRequest)
-		c := common.ValidationError("Business value must be a positive integer.")
+		c := common.ValidationError("Business value must be between 0 and 10.")
 		return c.Render(r.Context(), w)
 	}
 
