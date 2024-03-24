@@ -59,7 +59,7 @@ func GetProductBacklog(w http.ResponseWriter, r *http.Request, params handlers.R
 	}
 
 	// unassigned, unrealized user stories
-	var usInBacklog, _ = filterBacklog(userStories)
+	var usInBacklog, usInFuture, usInDone = filterBacklog(userStories)
 
 	//get user project role
 	projectRole, _ := database.GetDatabase().GetProjectRole(params.UserID, projectID)
@@ -69,20 +69,23 @@ func GetProductBacklog(w http.ResponseWriter, r *http.Request, params handlers.R
 		return err
 	}
 
-	c := productBacklog(usInBacklog, sprints, projectID, projectRole, *project, user.SystemRole)
+	c := productBacklog(usInBacklog, usInDone, usInFuture, sprints, projectID, projectRole, *project, user.SystemRole)
 	return pages.Layout(c, "Backlog", r).Render(r.Context(), w)
 }
 
-func filterBacklog(userStories []database.UserStory) (inBacklog []database.UserStory, inSprint []database.UserStory) {
-
-	for _, us := range userStories {
-		if us.UserID == nil && *us.Realized == false && us.SprintID == nil {
-			inBacklog = append(inBacklog, us)
-		} else {
-			inSprint = append(inSprint, us)
-		}
-	}
-	return
+func filterBacklog(userStories []database.UserStory) (inBacklog, inFuture, inDone []database.UserStory) {
+    for _, us := range userStories {
+		if *us.Realized {
+			inDone = append(inDone, us)
+		} else if us.SprintID == nil {
+			if us.Priority == database.PriorityWontHaveThisTime {
+				inFuture = append(inFuture, us)
+			} else if us.UserID == nil && *us.Realized == false && us.SprintID == nil {
+				inBacklog = append(inBacklog, us)
+			}
+        }
+    }
+    return inBacklog, inFuture, inDone
 }
 
 func PostAddUserStoryToSprint(w http.ResponseWriter, r *http.Request, params handlers.RequestParams) error {
