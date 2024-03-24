@@ -69,7 +69,7 @@ templ productBacklog(backlogUserStories []database.UserStory, sprints []database
 								<div class="flex justify-end">
 									<!-- Places the button nicely -->
 									<!-- Sprint Backlog Button -->
-									if sprint.DetermineStatus() == database.StatusInProgress {
+									if (sprint.DetermineStatus() == database.StatusInProgress) && (projectRole != database.ProjectRoleManager) {
 										<form hx-get={ fmt.Sprint("/sprintbacklog/", sprint.ID) } hx-target="#whole" hx-push-url="true" class="ml-auto">
 											<button class="btn btn-sm bg-primary">Sprint Backlog</button>
 										</form>
