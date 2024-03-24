@@ -25,7 +25,7 @@ templ sprintBacklog(sprint *database.Sprint, projectRole database.ProjectRole) {
 			</div>
 			<!-- User Stories -->
 			for _, story := range sprint.UserStories {
-				<div class="border border-base-300 mb-2 rounded-lg" style="max-height: 400px; overflow-y: auto;">
+				<div class="border border-base-300 mb-2 rounded-lg">
 					<div class="flex justify-between items-center bg-base-300 p-2">
 						<div>
 							<div class="font-medium text-lg" style="padding-left: 15px;">{ story.Title }</div>
@@ -57,12 +57,29 @@ templ sprintBacklog(sprint *database.Sprint, projectRole database.ProjectRole) {
 						</div>
 					</div>
 					<div class="collapse-body card-body bg-base-100 p-2">
-						<div class="task-status-columns" style="display: flex; flex-direction: row; justify-content: space-between;">
+						<div style="display: flex; flex-direction: column;">
+							<div class="text-sm font-bold p-2 text-gray pl-2" style="display: flex;">
+								<div class="w-1/3 text-left" style="flex: 7;">Task</div>
+								<div class="w-1/7 text-left" style="flex: 4;">Assigned To</div>
+								<div class="w-1/7 text-left" style="flex: 2;">Time Estimate (h)</div>
+								<div class="w-1/7 text-left" style="flex: 2;">Logged (h)</div>
+								<div class="w-1/7 text-left" style="flex: 2;"></div>
+								<div class="w-1/8 text-left" style="flex: 1;"></div>
+							</div>
 							<!-- Generate a column for each task status category -->
 							@taskStatusCategories(mapTasksToStatuses(story.Tasks)["Unassigned"], "Unassigned")
+							@taskStatusCategories(mapTasksToStatuses(story.Tasks)["Pending"], "Pending")
 							@taskStatusCategories(mapTasksToStatuses(story.Tasks)["Assigned"], "Assigned")
 							@taskStatusCategories(mapTasksToStatuses(story.Tasks)["Active"], "Active")
 							@taskStatusCategories(mapTasksToStatuses(story.Tasks)["Done"], "Done")
+							<div class="text-sm font-bold p-2 text-gray pl-2" style="display: flex;">
+								<div class="w-1/3 text-left" style="flex: 8;"></div>
+								<div class="w-1/7 text-left" style="flex: 3;"></div>
+								<div class="w-1/7 text-left" style="flex: 2;">{ strconv.FormatFloat(float64(GetSumOfTimeEstimates(story.Tasks)), 'f', 2, 64) }</div>
+								<div class="w-1/7 text-left" style="flex: 2;">0.00</div>
+								<div class="w-1/7 text-left" style="flex: 2;"></div>
+								<div class="w-1/8 text-left" style="flex: 1;"></div>
+							</div>
 						</div>
 					</div>
 				</div>
@@ -90,54 +107,26 @@ templ taskStatusCategories(tasks []database.Task, category string) {
 		color: var(--fallback-bc,oklch(var(--bc)/0.6));
 		}
 	</style>
-	<div class="collapse collapse-arrow border border-unassigned-300 bg-base-100 mb-0" style="margin-left: 3px;margin-right: 3px;">
-		<input type="checkbox" checked/>
-		<div class="collapse-title text-sm font-medium" style="padding-left: 15px; padding-top: 15px;">{ category } Tasks</div>
-		<div class="collapse-content p-0">
-			<div class="card-body bg-base-100 p-0 m-0">
-				if category == "Unassigned" {
-					<div class="task-cards-container" style="display: flex; flex-direction: column; gap: 10px;">
-						for _, task := range tasks {
-							<div class="task-card bg-base-300 shadow-lg rounded-lg p-4">
-								@TaskRowSmall(task)
-							</div>
-						}
-					</div>
-				} else if category == "Assigned" {
-					<div class="task-cards-container" style="display: flex; flex-direction: column; gap: 10px;">
-						for _, task := range tasks {
-							<div class="task-card bg-assigned-100 shadow-lg rounded-lg p-4">
-								@TaskRowSmall(task)
-							</div>
-						}
-					</div>
-				} else if category == "Active" {
-					<div class="task-cards-container" style="display: flex; flex-direction: column; gap: 10px;">
-						for _, task := range tasks {
-							<div class="task-card bg-active-100 shadow-lg rounded-lg p-4">
-								@TaskRowSmall(task)
-							</div>
-						}
-					</div>
-				} else if category == "Done" {
-					<div class="task-cards-container" style="display: flex; flex-direction: column; gap: 10px;">
-						for _, task := range tasks {
-							<div class="task-card bg-done-100 shadow-lg rounded-lg p-4">
-								@TaskRowSmall(task)
-							</div>
-						}
-					</div>
-				}
-			</div>
+	<div class="card-body bg-base-100 p-0 m-0" style="gap: 10px;">
+		<div class="task-cards-container" style="display: flex; flex-direction: column;">
+			for _, task := range tasks {
+				<div
+					class="task-card bg-base-300 shadow-lg rounded-lg p-1
+				"
+					style="margin-bottom: 10px;"
+				>
+					@TaskRowSmall(task, category)
+				</div>
+			}
 		</div>
 	</div>
 }
 
-templ TaskRowSmall(task database.Task) {
-	<div class="task-title font-bold text-md mb-2">{ *task.Title }</div>
+templ TaskRowSmall(task database.Task, category string) {
 	<!-- Flex container for aligning assignee and details button -->
-	<div class="flex justify-between items-center">
-		<div class="task-assignee">
+	<div class="items-center pl-2 pr-2" style="display: flex;">
+		<div class="task-title font-bold text-md" style="flex: 7;">{ *task.Title }</div>
+		<div class="task-assignee text-left" style="flex: 4;">
 			if task.UserID == nil {
 				<span class="badge badge-ghost">Assign</span>
 			} else if !*task.UserAccepted {
@@ -146,7 +135,26 @@ templ TaskRowSmall(task database.Task) {
 				<span class="badge bg-primary">{ GetUserFirstAndLastNameFromID(*task.UserID) }</span>
 			}
 		</div>
-		<div class="task-details">
+		<div class="task-assignee text-left" style="flex: 2;">
+			<span>{ strconv.FormatFloat(float64(*task.TimeEstimate), 'f', 2, 64) }</span>
+		</div>
+		<div class="task-assignee text-left" style="flex: 2;">
+			<span>0.00</span>
+		</div>
+		<div class="task-assignee text-center" style="flex: 2;">
+			if category == "Unassigned" {
+				<span class="text-sm badge bg-unassigned-300">{ category }</span>
+			} else if category == "Pending" {
+				<span class="text-sm badge bg-pending-300">{ category }</span>
+			} else if category == "Assigned" {
+				<span class="text-sm badge bg-assigned-300">{ category }</span>
+			} else if category == "Active" {
+				<span class="text-sm badge bg-active-300">{ category }</span>
+			} else if category == "Done" {
+				<span class="text-sm badge bg-done-300">{ category }</span>
+			}
+		</div>
+		<div class="task-details text-right" style="margin-top:10px; margin-bottom: -10px; flex: 1;">
 			<!--Details button-->
 			<form hx-get={ fmt.Sprintf("/task/%v/details", task.ID) } hx-target="#dialog">
 				<button class="btn btn-xs">

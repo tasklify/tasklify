@@ -26,7 +26,7 @@ func GetSprintBacklog(w http.ResponseWriter, r *http.Request, params handlers.Re
 	}
 
 	projectRole,_ := database.GetDatabase().GetProjectRole(params.UserID, sprint.ProjectID)
-	if (projectRole == database.ProjectRole{}) {
+	if (projectRole == database.ProjectRoleManager) || (projectRole == database.ProjectRole{}) {
 		return pages.NotFound(w, r)
 	}
 
@@ -48,16 +48,28 @@ func GetUserFirstAndLastNameFromID(userID uint) string {
 func mapTasksToStatuses(tasks []database.Task) (statusMap map[string][]database.Task) {
 	statusMap = make(map[string][]database.Task)
 	for _, task := range tasks {
-		if (task.UserID == nil) || !*task.UserAccepted {
+		if (task.UserID == nil) {
 			statusMap["Unassigned"] = append(statusMap["Unassigned"], task)
 		} else {
-			if *task.Status == database.StatusInProgress {
+			if !*task.UserAccepted {
+				statusMap["Pending"] = append(statusMap["Pending"], task)
+			} else if *task.Status == database.StatusInProgress {
 				statusMap["Active"] = append(statusMap["Active"], task)
 			} else if *task.Status == database.StatusDone {
 				statusMap["Done"] = append(statusMap["Done"], task)
 			} else {
 				statusMap["Assigned"] = append(statusMap["Assigned"], task)
 			}
+		}
+	}
+	return
+}
+
+ func GetSumOfTimeEstimates(tasks []database.Task) (sum float32) {
+	sum = 0
+	for _, task := range tasks {
+		if task.TimeEstimate != nil {
+			sum += *task.TimeEstimate
 		}
 	}
 	return
