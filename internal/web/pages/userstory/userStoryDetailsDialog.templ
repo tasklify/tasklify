@@ -72,16 +72,6 @@ templ UserStoryDetailsDialog(us database.UserStory) {
 					<div class="font-medium mb-2">Description</div>
 					<div class="text-gray-800 whitespace-break-spaces p-4 bg-gray-100 rounded-lg">{ *us.Description }</div>
 				</div>
-				<!--RejectionComment  -->
-				if us.RejectionComment != nil {
-					<div class="mb-4">
-						<div class="font-medium mb-2">Rejection comment</div>
-						<div class="text-gray-800 whitespace-break-spaces p-4 bg-unassigned-300 rounded-lg">{ *us.RejectionComment }</div>
-					</div>
-				}
-				<div class="flex justify-end mt-4 items-center">
-					<button class="btn btn-primary btn-sm" type="button" hx-on:click="dialog_container.close()">Close</button>
-				</div>
 				if len(us.AcceptanceTests) > 0 {
 					<div class="mb-4">
 						<div class="font-medium mb-2" style="color: #cc8e35;">Acceptance Tests</div>
@@ -102,6 +92,16 @@ templ UserStoryDetailsDialog(us database.UserStory) {
 						}
 					</div>
 				}
+				<!--RejectionComment  -->
+				if us.RejectionComment != nil {
+					<div class="mb-4">
+						<div class="font-medium mb-2" style="color: #de6561;">Rejection comment</div>
+						<div class="text-gray-800 whitespace-break-spaces p-4 bg-unassigned-300 rounded-lg">{ *us.RejectionComment }</div>
+					</div>
+				}
+				<div class="flex justify-end mt-4 items-center">
+					<button class="btn btn-primary btn-sm" type="button" hx-on:click="dialog_container.close()">Close</button>
+				</div>
 			</div>
 		</div>
 	</div>
