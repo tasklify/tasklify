@@ -267,11 +267,11 @@ func UpdateProjectMembers(w http.ResponseWriter, r *http.Request, params handler
 		return c.Render(r.Context(), w)
 	}
 
-	// if _, ok := projectDevelopers[scrumMaster.ID]; ok {
-	// 	w.WriteHeader(http.StatusBadRequest)
-	// 	c := common.ValidationError(fmt.Sprintf("User %v cannot be SCRUM master and Project developer at the same time.", productOwner.FirstName+" "+productOwner.LastName))
-	// 	return c.Render(r.Context(), w)
-	// }
+	if len(projectDevelopers) == 0 {
+		w.WriteHeader(http.StatusBadRequest)
+		c := common.ValidationError("Please add at least one project developer.")
+		return c.Render(r.Context(), w)
+	}
 
 	var addedUserIDs []uint
 
@@ -293,15 +293,24 @@ func UpdateProjectMembers(w http.ResponseWriter, r *http.Request, params handler
 		addedUserIDs = append(addedUserIDs, userID)
 	}
 
-	fmt.Println(addedUserIDs)
-
 	// Remove all other users from project
 	if err := database.GetDatabase().RemoveUsersNotInList(req.ProjectID, addedUserIDs); err != nil {
 		return err
 	}
 
-	w.Header().Set("HX-Redirect", fmt.Sprint("/project-info/", req.ProjectID))
-	w.WriteHeader(http.StatusSeeOther)
+	currentUser, err := database.GetDatabase().GetUserByID(params.UserID)
+	if err != nil {
+		return err
+	}
+
+	projectRoles, _ := database.GetDatabase().GetProjectRoles(params.UserID, req.ProjectID)
+	if len(projectRoles) != 0 || currentUser.SystemRole == database.SystemRoleAdmin {
+		w.Header().Set("HX-Redirect", fmt.Sprint("/project-info/", req.ProjectID))
+		w.WriteHeader(http.StatusSeeOther)
+	} else {
+		w.Header().Set("HX-Redirect", "/dashboard")
+		w.WriteHeader(http.StatusSeeOther)
+	}
 
 	return nil
 }

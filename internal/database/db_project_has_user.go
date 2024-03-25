@@ -125,7 +125,7 @@ func (db *database) GetProjectRoles(userID uint, projectID uint) ([]ProjectRole,
 	// And check if user is also scrum master
 	db.Model(&Project{}).Where("id = ? AND scrum_master_id = ?", projectID, userID).Count(&count)
 	if count == 1 {
-		projectRoles = append(projectRoles, ProjectRoleDeveloper)
+		projectRoles = append(projectRoles, ProjectRoleMaster)
 	}
 
 	return projectRoles, nil
