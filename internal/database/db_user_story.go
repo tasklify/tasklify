@@ -54,8 +54,8 @@ func (db *database) GetUserStoriesBySprint(sprintID uint) ([]UserStory, error) {
 }
 
 func (db *database) GetUserStoryByID(id uint) (*UserStory, error) {
-	var userStory = &UserStory{}
-	err := db.First(userStory, id).Error
+	var userStory = &UserStory{} 
+	err := db.Preload("Tasks").Preload("AcceptanceTests").First(userStory, id).Error
 	if err != nil {
 		return nil, err
 	}

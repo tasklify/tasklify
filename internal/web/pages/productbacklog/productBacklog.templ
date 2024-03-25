@@ -7,7 +7,28 @@ import "strconv"
 import "net/http"
 import "slices"
 
-templ productBacklog(backlogUserStories []database.UserStory, sprints []database.Sprint, projectID uint, projectRoles []database.ProjectRole, project database.Project, user_SystemRole database.SystemRole) {
+templ productBacklog(backlogUserStories []database.UserStory, doneUserStories []database.UserStory, futureUserStories []database.UserStory, sprints []database.Sprint, projectID uint, projectRoles []database.ProjectRole, project database.Project, user_SystemRole database.SystemRole) {
+	<script>
+function toggleTab(selectedId) {
+    // Hide all tab contents
+    document.querySelectorAll('.tab-content').forEach((content) => {
+        content.style.display = 'none';
+    });
+    // Show the selected tab content
+    document.getElementById(selectedId).style.display = 'block';
+
+    // Remove 'tab-active' class from all tabs
+    document.querySelectorAll('.tabs a').forEach((tab) => {
+        tab.classList.remove('tab-active');
+    });
+    // Add 'tab-active' class to the clicked tab
+    document.querySelector(`.tabs a[data-content="${selectedId}"]`).classList.add('tab-active');
+}
+document.addEventListener("DOMContentLoaded", function() {
+    // Automatically click the Backlog tab on initial load
+    document.querySelector('.tabs a[data-content="backlog"]').click();
+});
+</script>
 	@common.ProjectNavbar(project, projectRoles, user_SystemRole, "project_board") {
 		<div class="flex-1">
 			<!-- Buttons Container -->
@@ -36,13 +57,27 @@ templ productBacklog(backlogUserStories []database.UserStory, sprints []database
 					}
 				</div>
 			</div>
+			<div class="tabs tabs-boxed bg-base-100">
+				<a class="tab tab-active" data-content="backlog" onclick="toggleTab('backlog')">Backlog</a>
+				<a class="tab" data-content="future" onclick="toggleTab('future')">Future Releases</a>
+				<a class="tab" data-content="done" onclick="toggleTab('done')">Done User Stories</a>
+			</div>
 			<div class="flex flex-col w-full lg:flex-row">
-				<!-- Backlog - unassigned, unrealized -->
-				@backlog(backlogUserStories, getActiveSprint(sprints), "/productbacklog?projectID="+strconv.Itoa(int(projectID)), projectRoles)
+				<!-- Tabs container -->
+				<div id="backlog" class="tab-content w-1/3" style="display: block;">
+					<!-- Include the backlog content here -->
+					@backlog(backlogUserStories, getActiveSprint(sprints), "/productbacklog?projectID="+strconv.Itoa(int(projectID)), projectRoles)
+				</div>
+				<div id="future" class="tab-content w-1/3" style="display: none;">
+					@future(futureUserStories, getActiveSprint(sprints), "/productbacklog?projectID="+strconv.Itoa(int(projectID)), projectRoles)
+				</div>
+				<div id="done" class="tab-content w-1/3" style="display: none;">
+					@done(doneUserStories, getActiveSprint(sprints), "/productbacklog?projectID="+strconv.Itoa(int(projectID)), projectRoles)
+				</div>
 				<!-- Divide -->
 				<div class="divider lg:divider-horizontal"></div>
 				<!-- Sprints -->
-				<div class="bg-base-100 join join-vertical w-full mt-2 mr-2">
+				<div class="bg-base-100 join join-vertical w-2/3 mt-2 mr-2">
 					<!-- Sprint -->
 					for _,sprint := range sprints {
 						<div class="collapse collapse-arrow border border-base-300 mb-4">
@@ -70,7 +105,7 @@ templ productBacklog(backlogUserStories []database.UserStory, sprints []database
 								<div class="flex justify-end">
 									<!-- Places the button nicely -->
 									<!-- Sprint Backlog Button -->
-									if sprint.DetermineStatus() == database.StatusInProgress {
+									if (sprint.DetermineStatus() == database.StatusInProgress) && !slices.Contains(projectRoles, database.ProjectRoleManager) {
 										<form hx-get={ fmt.Sprint("/sprintbacklog/", sprint.ID) } hx-target="#whole" hx-push-url="true" class="ml-auto">
 											<button class="btn btn-sm bg-primary">Sprint Backlog</button>
 										</form>
@@ -122,7 +157,7 @@ templ userStoryCard(name string, description string) {
 }
 
 templ backlog(backlogUserStories []database.UserStory, sprint database.Sprint, callback string, projectRoles []database.ProjectRole) {
-	<div class="card card-compact bg-base-200 transition-shadow w-2/5 mt-2">
+	<div class="card card-compact bg-base-200 transition-shadow mt-2">
 		<div class="card-title collapse-title text-xl font-medium bg-base-300 border-base-300">Backlog</div>
 		<a href="https://github.com/tasklify/tasklify/tree/main?tab=readme-ov-file#adding-user-stories-to-sprint" target="_blank" class="help-button" style="padding-right=10rem;">?</a>
 		<div class="card-body">
@@ -171,6 +206,82 @@ templ backlog(backlogUserStories []database.UserStory, sprint database.Sprint, c
 						<button type="submit" class="btn btn-primary">Add to Sprint</button>
 					</div>
 				}
+			</form>
+		</div>
+	</div>
+}
+
+templ future(backlogUserStories []database.UserStory, sprint database.Sprint, callback string, projectRoles []database.ProjectRole) {
+	<div class="card card-compact bg-base-200 transition-shadow mt-2">
+		<div class="card-title collapse-title text-xl font-medium bg-base-300 border-base-300">Future Releases</div>
+		<a href="https://github.com/tasklify/tasklify/tree/main?tab=readme-ov-file#adding-user-stories-to-sprint" target="_blank" class="help-button" style="padding-right=10rem;">?</a>
+		<div class="card-body">
+			<form id="backlogForm" hx-post="/productbacklog">
+				<table class="table w-full">
+					<thead>
+						<tr>
+							<th>Title</th>
+							<th>Description</th>
+							<th>Details</th>
+						</tr>
+					</thead>
+					<tbody>
+						for _, us := range backlogUserStories {
+							<tr>
+								<td>{ us.Title }</td>
+								<td class="min-w-[12rem] max-w-[20rem] truncate">
+									{ *us.Description }
+								</td>
+								<td>
+									<!--Details button-->
+									<button hx-get={ fmt.Sprintf("/userstory/%v/details", us.ID) } hx-target="#dialog" hx-indicator="#dialog" class="btn btn-xs">
+										<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+											<path stroke-linecap="round" stroke-linejoin="round" d="M6.75 12a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0ZM12.75 12a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0ZM18.75 12a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Z"></path>
+										</svg>
+									</button>
+								</td>
+							</tr>
+						}
+					</tbody>
+				</table>
+			</form>
+		</div>
+	</div>
+}
+
+templ done(backlogUserStories []database.UserStory, sprint database.Sprint, callback string, projectRoles []database.ProjectRole) {
+	<div class="card card-compact bg-base-200 transition-shadow mt-2">
+		<div class="card-title collapse-title text-xl font-medium bg-base-300 border-base-300">Done User Stories</div>
+		<a href="https://github.com/tasklify/tasklify/tree/main?tab=readme-ov-file#adding-user-stories-to-sprint" target="_blank" class="help-button" style="padding-right=10rem;">?</a>
+		<div class="card-body">
+			<form id="backlogForm" hx-post="/productbacklog">
+				<table class="table w-full">
+					<thead>
+						<tr>
+							<th>Title</th>
+							<th>Description</th>
+							<th>Details</th>
+						</tr>
+					</thead>
+					<tbody>
+						for _, us := range backlogUserStories {
+							<tr>
+								<td>{ us.Title }</td>
+								<td class="min-w-[12rem] max-w-[20rem] truncate">
+									{ *us.Description }
+								</td>
+								<td>
+									<!--Details button-->
+									<button hx-get={ fmt.Sprintf("/userstory/%v/details", us.ID) } hx-target="#dialog" hx-indicator="#dialog" class="btn btn-xs">
+										<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+											<path stroke-linecap="round" stroke-linejoin="round" d="M6.75 12a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0ZM12.75 12a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0ZM18.75 12a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Z"></path>
+										</svg>
+									</button>
+								</td>
+							</tr>
+						}
+					</tbody>
+				</table>
 			</form>
 		</div>
 	</div>
@@ -312,7 +423,7 @@ templ CreateRejectionCommentDialog(userStoryID uint) {
 	@common.CreateDialog("Create rejection comment", http.MethodPost, fmt.Sprintf("userstory/%v/reject", userStoryID), "Create") {
 		<!-- Rejection Comment Field -->
 		<div class="mb-4">
-			<textarea id="comment" name="comment" placeholder="This can be left empty" class="textarea mt-1 p-2 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50"></textarea>
+			<textarea id="comment" name="comment" class="textarea mt-1 p-2 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50" required></textarea>
 		</div>
 	}
 }

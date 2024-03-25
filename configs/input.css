@@ -6,34 +6,29 @@
   cursor: not-allowed;
 }
 
-.bg-done-300 {
+.bg-unassigned-300 {
   --tw-bg-opacity: 1;
-  background-color: rgb(255 223 186 / var(--tw-bg-opacity));
+  background-color: rgb(255 186 186 / var(--tw-bg-opacity)); /* Pastel Red */
 }
 
-.bg-done-100 {
+.bg-assigned-300 {
   --tw-bg-opacity: 1;
-  background-color: rgb(255 247 237 / var(--tw-bg-opacity));
+  background-color: rgb(186 225 255 / var(--tw-bg-opacity)); /* Pastel Blue */
+}
+
+.bg-pending-300 {
+  --tw-bg-opacity: 1;
+  background-color: rgb(255 223 186 / var(--tw-bg-opacity)); /* Pastel Orange */
 }
 
 .bg-active-300 {
   --tw-bg-opacity: 1;
-  background-color: rgb(162 210 182 / var(--tw-bg-opacity));
+  background-color: rgb(162 210 182 / var(--tw-bg-opacity)); /* Pastel Green */
 }
 
-.bg-active-100 {
+.bg-done-300 {
   --tw-bg-opacity: 1;
-  background-color: rgb(209 228 217 / var(--tw-bg-opacity));
-}
-
-.bg-assigned-100 {
-  --tw-bg-opacity: 1;
-  background-color: rgb(217 228 234 / var(--tw-bg-opacity));
-}
-
-.bg-unassigned-100 {
-  --tw-bg-opacity: 1;
-  background-color: rgb(216 216 216 / var(--tw-bg-opacity));
+  background-color: rgb(202 186 255 / var(--tw-bg-opacity)); /* Pastel Purple */
 }
 
 .help-button {
