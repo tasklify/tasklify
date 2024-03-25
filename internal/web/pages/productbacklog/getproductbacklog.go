@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"slices"
 	"sort"
 	"strconv"
 	"tasklify/internal/database"
@@ -62,14 +63,14 @@ func GetProductBacklog(w http.ResponseWriter, r *http.Request, params handlers.R
 	var usInBacklog, _ = filterBacklog(userStories)
 
 	//get user project role
-	projectRole, _ := database.GetDatabase().GetProjectRole(params.UserID, projectID)
+	projectRoles, _ := database.GetDatabase().GetProjectRoles(params.UserID, projectID)
 
 	user, err := database.GetDatabase().GetUserByID(params.UserID)
 	if err != nil {
 		return err
 	}
 
-	c := productBacklog(usInBacklog, sprints, projectID, projectRole, *project, user.SystemRole)
+	c := productBacklog(usInBacklog, sprints, projectID, projectRoles, *project, user.SystemRole)
 	return pages.Layout(c, "Backlog", r).Render(r.Context(), w)
 }
 
@@ -189,12 +190,12 @@ func GetUserStoryRejected(w http.ResponseWriter, r *http.Request, params handler
 
 	userStory, _ := database.GetDatabase().GetUserStoryByID(uint(userStoryID))
 
-	projectRole, err := database.GetDatabase().GetProjectRole(params.UserID, uint(userStory.ProjectID))
+	projectRoles, err := database.GetDatabase().GetProjectRoles(params.UserID, uint(userStory.ProjectID))
 	if err != nil {
 		return err
 	}
 
-	if projectRole != database.ProjectRoleManager {
+	if !slices.Contains(projectRoles, database.ProjectRoleManager) {
 		return pages.NotFound(w, r)
 	}
 

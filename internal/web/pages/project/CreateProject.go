@@ -51,23 +51,15 @@ func PostCreateProject(w http.ResponseWriter, r *http.Request, params handlers.R
 	}
 
 	newProject := database.Project{
-		Title:       req.Title,
-		Description: req.Description,
+		Title:          req.Title,
+		Description:    req.Description,
+		ProductOwnerID: req.ProductOwnerID,
+		ScrumMasterID:  req.ScrumMasterID,
 	}
 
 	pID, err := database.GetDatabase().CreateProject(&newProject)
 	if err != nil {
 		fmt.Println(err)
-		return err
-	}
-
-	// Add Product owner
-	if err := database.GetDatabase().AddUserToProject(pID, req.ProductOwnerID, database.ProjectRoleManager.Val); err != nil {
-		return err
-	}
-
-	// Add SCRUM master
-	if err := database.GetDatabase().AddUserToProject(pID, req.ScrumMasterID, database.ProjectRoleMaster.Val); err != nil {
 		return err
 	}
 
@@ -92,7 +84,7 @@ func PostAddProjectDeveloper(w http.ResponseWriter, r *http.Request, params hand
 		return err
 	}
 
-	if err := database.GetDatabase().AddUserToProject(req.ProjectID, req.UserID, database.ProjectRoleDeveloper.Val); err != nil {
+	if err := database.GetDatabase().AddDeveloperToProject(req.ProjectID, req.UserID); err != nil {
 		return err
 	}
 

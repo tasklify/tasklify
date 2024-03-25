@@ -6,11 +6,15 @@ import (
 
 type Project struct {
 	gorm.Model
-	Title       string      `gorm:"unique"`
-	Description string      `gorm:"type:TEXT"`
-	Users       []User      `gorm:"many2many:project_has_users;"` // m:n (Project:User)
-	Sprints     []Sprint    // 1:n (Project:Sprint)
-	UserStories []UserStory // 1:n (Project:UserStory)
+	Title          string      `gorm:"unique"`
+	Description    string      `gorm:"type:TEXT"`
+	Developers     []User      `gorm:"many2many:project_has_users;"` // m:n (Project:User)
+	ProductOwnerID uint        // 1:n (User:Project)
+	ProductOwner   User        `gorm:"-"`
+	ScrumMasterID  uint        // 1:n (User:Project)
+	ScrumMaster    User        `gorm:"-"`
+	Sprints        []Sprint    // 1:n (Project:Sprint)
+	UserStories    []UserStory // 1:n (Project:UserStory)
 }
 
 func (db *database) GetProjectByID(id uint) (*Project, error) {
@@ -52,11 +56,19 @@ func (db *database) GetUserProjects(userID uint) ([]Project, error) {
 		return projects, nil
 	} else {
 		var projects = []Project{}
-		if err := db.
-			Joins("JOIN project_has_users ON projects.id = project_has_users.project_id").
-			Where("project_has_users.user_id = ? AND project_has_users.deleted_at IS NULL", userID).
-			Find(&projects).Error; err != nil {
-			return nil, err
+		query := `
+		SELECT DISTINCT * FROM (
+			SELECT * FROM projects WHERE product_owner_id = ?
+			UNION
+			SELECT * FROM projects WHERE scrum_master_id = ?
+    		UNION
+    		SELECT projects.* FROM projects
+    		JOIN project_has_users ON projects.id = project_has_users.project_id
+    		WHERE project_has_users.user_id = ? AND project_has_users.deleted_at IS NULL
+		)
+		`
+		if err := db.Raw(query, userID, userID, userID).Scan(&projects).Error; err != nil {
+			return []Project{}, err
 		}
 		return projects, nil
 	}

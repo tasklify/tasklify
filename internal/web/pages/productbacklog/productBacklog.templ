@@ -5,22 +5,23 @@ import "tasklify/internal/web/components/common"
 import "fmt"
 import "strconv"
 import "net/http"
+import "slices"
 
-templ productBacklog(backlogUserStories []database.UserStory, sprints []database.Sprint, projectID uint, projectRole database.ProjectRole, project database.Project, user_SystemRole database.SystemRole) {
-	@common.ProjectNavbar(project, projectRole, user_SystemRole, "project_board") {
+templ productBacklog(backlogUserStories []database.UserStory, sprints []database.Sprint, projectID uint, projectRoles []database.ProjectRole, project database.Project, user_SystemRole database.SystemRole) {
+	@common.ProjectNavbar(project, projectRoles, user_SystemRole, "project_board") {
 		<div class="flex-1">
 			<!-- Buttons Container -->
 			<div class="flex justify-between items-center mb-4 pt-2 pl-2 pr-2">
 				// <a href="/" class="btn btn-primary btn-sm">Back to Dashboard</a>
 				<div>
-					if projectRole == database.ProjectRoleManager {
+					if slices.Contains(projectRoles, database.ProjectRoleManager) {
 						<div class="flex">
 							<form hx-get={ fmt.Sprintf("/%v/createuserstory", projectID) } hx-target="#dialog" style="display: inline;">
 								<button class="btn btn-primary btn-sm">Create User Story</button>
 							</form>
 							<a href="https://github.com/tasklify/tasklify/tree/main?tab=readme-ov-file#product-backlog" target="_blank" class="help-button ml-4" style="position: relative;top:0px;right:0px">?</a>
 						</div>
-					} else if projectRole == database.ProjectRoleMaster {
+					} else if slices.Contains(projectRoles, database.ProjectRoleMaster) {
 						<div class="flex">
 							<form hx-get={ fmt.Sprintf("/%v/createuserstory", projectID) } hx-target="#dialog" style="display: inline;">
 								<button class="btn btn-primary btn-sm">Create User Story</button>
@@ -37,7 +38,7 @@ templ productBacklog(backlogUserStories []database.UserStory, sprints []database
 			</div>
 			<div class="flex flex-col w-full lg:flex-row">
 				<!-- Backlog - unassigned, unrealized -->
-				@backlog(backlogUserStories, getActiveSprint(sprints), "/productbacklog?projectID="+strconv.Itoa(int(projectID)), projectRole)
+				@backlog(backlogUserStories, getActiveSprint(sprints), "/productbacklog?projectID="+strconv.Itoa(int(projectID)), projectRoles)
 				<!-- Divide -->
 				<div class="divider lg:divider-horizontal"></div>
 				<!-- Sprints -->
@@ -93,7 +94,7 @@ templ productBacklog(backlogUserStories []database.UserStory, sprints []database
 											<tbody>
 												<!-- User stories rows -->
 												for _, v := range sprint.UserStories {
-													@userStoryTableRow(v, sprint.DetermineStatus(), projectRole, "/productbacklog?projectID="+strconv.Itoa(int(projectID)))
+													@userStoryTableRow(v, sprint.DetermineStatus(), projectRoles, "/productbacklog?projectID="+strconv.Itoa(int(projectID)))
 												}
 											</tbody>
 										</table>
@@ -120,7 +121,7 @@ templ userStoryCard(name string, description string) {
 	</div>
 }
 
-templ backlog(backlogUserStories []database.UserStory, sprint database.Sprint, callback string, projectRole database.ProjectRole) {
+templ backlog(backlogUserStories []database.UserStory, sprint database.Sprint, callback string, projectRoles []database.ProjectRole) {
 	<div class="card card-compact bg-base-200 transition-shadow w-2/5 mt-2">
 		<div class="card-title collapse-title text-xl font-medium bg-base-300 border-base-300">Backlog</div>
 		<a href="https://github.com/tasklify/tasklify/tree/main?tab=readme-ov-file#adding-user-stories-to-sprint" target="_blank" class="help-button" style="padding-right=10rem;">?</a>
@@ -132,7 +133,7 @@ templ backlog(backlogUserStories []database.UserStory, sprint database.Sprint, c
 							<th>Title</th>
 							<th>Description</th>
 							<th>Details</th>
-							if projectRole == database.ProjectRoleMaster {
+							if slices.Contains(projectRoles, database.ProjectRoleMaster) {
 								<th>Selected</th>
 							}
 						</tr>
@@ -152,7 +153,7 @@ templ backlog(backlogUserStories []database.UserStory, sprint database.Sprint, c
 										</svg>
 									</button>
 								</td>
-								if projectRole == database.ProjectRoleMaster {
+								if slices.Contains(projectRoles, database.ProjectRoleMaster) {
 									if us.StoryPoints != 0 {
 										<td><input type="checkbox" class="checkbox" name="selectedTasks" value={ strconv.Itoa(int(us.ID)) }/></td>
 									} else {
@@ -163,7 +164,7 @@ templ backlog(backlogUserStories []database.UserStory, sprint database.Sprint, c
 						}
 					</tbody>
 				</table>
-				if projectRole == database.ProjectRoleMaster {
+				if slices.Contains(projectRoles, database.ProjectRoleMaster) {
 					<div class="mt-4 flex justify-end">
 						<input type="hidden" name="sprintID" value={ strconv.Itoa(int(sprint.ID)) }/>
 						<input type="hidden" name="callback" value={ callback }/>
@@ -186,7 +187,7 @@ func getActiveSprint(sprints []database.Sprint) database.Sprint {
 	return activeSprint
 }
 
-templ userStoryTableRow(us database.UserStory, status database.Status, projectRole database.ProjectRole, callback string) {
+templ userStoryTableRow(us database.UserStory, status database.Status, projectRoles []database.ProjectRole, callback string) {
 	<!-- row 1 -->
 	<tr class="hover">
 		<td>
@@ -270,7 +271,7 @@ templ userStoryTableRow(us database.UserStory, status database.Status, projectRo
 					}
 				</div>
 				<div class="flex justify-start space-x-2">
-					if (*us.Realized == false && projectRole == database.ProjectRoleManager && status == database.StatusDone) {
+					if (*us.Realized == false && slices.Contains(projectRoles, database.ProjectRoleManager) && status == database.StatusDone) {
 						if (us.AllTasksRealized() == false && us.AllAcceptanceTestsRealized() == false) {
 							<div class="btn-container" title="Not all tasks were realized and not all acceptance tests were passed for this user story.">
 								<button type="submit" class="btn btn-xs" disabled>Accept</button>

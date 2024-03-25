@@ -14,8 +14,9 @@ import "tasklify/internal/web/components/common"
 import "fmt"
 import "strconv"
 import "net/http"
+import "slices"
 
-func productBacklog(backlogUserStories []database.UserStory, sprints []database.Sprint, projectID uint, projectRole database.ProjectRole, project database.Project, user_SystemRole database.SystemRole) templ.Component {
+func productBacklog(backlogUserStories []database.UserStory, sprints []database.Sprint, projectID uint, projectRoles []database.ProjectRole, project database.Project, user_SystemRole database.SystemRole) templ.Component {
 	return templ.ComponentFunc(func(ctx context.Context, templ_7745c5c3_W io.Writer) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templ_7745c5c3_W.(*bytes.Buffer)
 		if !templ_7745c5c3_IsBuffer {
@@ -38,7 +39,7 @@ func productBacklog(backlogUserStories []database.UserStory, sprints []database.
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			if projectRole == database.ProjectRoleManager {
+			if slices.Contains(projectRoles, database.ProjectRoleManager) {
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div class=\"flex\"><form hx-get=\"")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
@@ -51,7 +52,7 @@ func productBacklog(backlogUserStories []database.UserStory, sprints []database.
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-			} else if projectRole == database.ProjectRoleMaster {
+			} else if slices.Contains(projectRoles, database.ProjectRoleMaster) {
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div class=\"flex\"><form hx-get=\"")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
@@ -82,7 +83,7 @@ func productBacklog(backlogUserStories []database.UserStory, sprints []database.
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = backlog(backlogUserStories, getActiveSprint(sprints), "/productbacklog?projectID="+strconv.Itoa(int(projectID)), projectRole).Render(ctx, templ_7745c5c3_Buffer)
+			templ_7745c5c3_Err = backlog(backlogUserStories, getActiveSprint(sprints), "/productbacklog?projectID="+strconv.Itoa(int(projectID)), projectRoles).Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -98,7 +99,7 @@ func productBacklog(backlogUserStories []database.UserStory, sprints []database.
 				var templ_7745c5c3_Var3 string
 				templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinStringErrs(sprint.Title)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/web/pages/productbacklog/productBacklog.templ`, Line: 50, Col: 23}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/web/pages/productbacklog/productBacklog.templ`, Line: 51, Col: 23}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var3))
 				if templ_7745c5c3_Err != nil {
@@ -111,7 +112,7 @@ func productBacklog(backlogUserStories []database.UserStory, sprints []database.
 				var templ_7745c5c3_Var4 string
 				templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs(sprint.StartDate.Format("Mon Jan _2 2006"))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/web/pages/productbacklog/productBacklog.templ`, Line: 51, Col: 89}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/web/pages/productbacklog/productBacklog.templ`, Line: 52, Col: 89}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var4))
 				if templ_7745c5c3_Err != nil {
@@ -124,7 +125,7 @@ func productBacklog(backlogUserStories []database.UserStory, sprints []database.
 				var templ_7745c5c3_Var5 string
 				templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinStringErrs(sprint.EndDate.Format("Mon Jan _2 2006"))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/web/pages/productbacklog/productBacklog.templ`, Line: 51, Col: 136}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/web/pages/productbacklog/productBacklog.templ`, Line: 52, Col: 136}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var5))
 				if templ_7745c5c3_Err != nil {
@@ -178,7 +179,7 @@ func productBacklog(backlogUserStories []database.UserStory, sprints []database.
 						return templ_7745c5c3_Err
 					}
 					for _, v := range sprint.UserStories {
-						templ_7745c5c3_Err = userStoryTableRow(v, sprint.DetermineStatus(), projectRole, "/productbacklog?projectID="+strconv.Itoa(int(projectID))).Render(ctx, templ_7745c5c3_Buffer)
+						templ_7745c5c3_Err = userStoryTableRow(v, sprint.DetermineStatus(), projectRoles, "/productbacklog?projectID="+strconv.Itoa(int(projectID))).Render(ctx, templ_7745c5c3_Buffer)
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
@@ -207,7 +208,7 @@ func productBacklog(backlogUserStories []database.UserStory, sprints []database.
 			}
 			return templ_7745c5c3_Err
 		})
-		templ_7745c5c3_Err = common.ProjectNavbar(project, projectRole, user_SystemRole, "project_board").Render(templ.WithChildren(ctx, templ_7745c5c3_Var2), templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = common.ProjectNavbar(project, projectRoles, user_SystemRole, "project_board").Render(templ.WithChildren(ctx, templ_7745c5c3_Var2), templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -238,7 +239,7 @@ func userStoryCard(name string, description string) templ.Component {
 		var templ_7745c5c3_Var7 string
 		templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.JoinStringErrs(name)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/web/pages/productbacklog/productBacklog.templ`, Line: 116, Col: 32}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/web/pages/productbacklog/productBacklog.templ`, Line: 117, Col: 32}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var7))
 		if templ_7745c5c3_Err != nil {
@@ -251,7 +252,7 @@ func userStoryCard(name string, description string) templ.Component {
 		var templ_7745c5c3_Var8 string
 		templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.JoinStringErrs(description)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/web/pages/productbacklog/productBacklog.templ`, Line: 117, Col: 19}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/web/pages/productbacklog/productBacklog.templ`, Line: 118, Col: 19}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var8))
 		if templ_7745c5c3_Err != nil {
@@ -268,7 +269,7 @@ func userStoryCard(name string, description string) templ.Component {
 	})
 }
 
-func backlog(backlogUserStories []database.UserStory, sprint database.Sprint, callback string, projectRole database.ProjectRole) templ.Component {
+func backlog(backlogUserStories []database.UserStory, sprint database.Sprint, callback string, projectRoles []database.ProjectRole) templ.Component {
 	return templ.ComponentFunc(func(ctx context.Context, templ_7745c5c3_W io.Writer) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templ_7745c5c3_W.(*bytes.Buffer)
 		if !templ_7745c5c3_IsBuffer {
@@ -285,7 +286,7 @@ func backlog(backlogUserStories []database.UserStory, sprint database.Sprint, ca
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		if projectRole == database.ProjectRoleMaster {
+		if slices.Contains(projectRoles, database.ProjectRoleMaster) {
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<th>Selected</th>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
@@ -303,7 +304,7 @@ func backlog(backlogUserStories []database.UserStory, sprint database.Sprint, ca
 			var templ_7745c5c3_Var10 string
 			templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.JoinStringErrs(us.Title)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/web/pages/productbacklog/productBacklog.templ`, Line: 142, Col: 22}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/web/pages/productbacklog/productBacklog.templ`, Line: 143, Col: 22}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var10))
 			if templ_7745c5c3_Err != nil {
@@ -316,7 +317,7 @@ func backlog(backlogUserStories []database.UserStory, sprint database.Sprint, ca
 			var templ_7745c5c3_Var11 string
 			templ_7745c5c3_Var11, templ_7745c5c3_Err = templ.JoinStringErrs(*us.Description)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/web/pages/productbacklog/productBacklog.templ`, Line: 144, Col: 26}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/web/pages/productbacklog/productBacklog.templ`, Line: 145, Col: 26}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var11))
 			if templ_7745c5c3_Err != nil {
@@ -334,7 +335,7 @@ func backlog(backlogUserStories []database.UserStory, sprint database.Sprint, ca
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			if projectRole == database.ProjectRoleMaster {
+			if slices.Contains(projectRoles, database.ProjectRoleMaster) {
 				if us.StoryPoints != 0 {
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<td><input type=\"checkbox\" class=\"checkbox\" name=\"selectedTasks\" value=\"")
 					if templ_7745c5c3_Err != nil {
@@ -372,7 +373,7 @@ func backlog(backlogUserStories []database.UserStory, sprint database.Sprint, ca
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		if projectRole == database.ProjectRoleMaster {
+		if slices.Contains(projectRoles, database.ProjectRoleMaster) {
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div class=\"mt-4 flex justify-end\"><input type=\"hidden\" name=\"sprintID\" value=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
@@ -416,7 +417,7 @@ func getActiveSprint(sprints []database.Sprint) database.Sprint {
 	return activeSprint
 }
 
-func userStoryTableRow(us database.UserStory, status database.Status, projectRole database.ProjectRole, callback string) templ.Component {
+func userStoryTableRow(us database.UserStory, status database.Status, projectRoles []database.ProjectRole, callback string) templ.Component {
 	return templ.ComponentFunc(func(ctx context.Context, templ_7745c5c3_W io.Writer) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templ_7745c5c3_W.(*bytes.Buffer)
 		if !templ_7745c5c3_IsBuffer {
@@ -436,7 +437,7 @@ func userStoryTableRow(us database.UserStory, status database.Status, projectRol
 		var templ_7745c5c3_Var13 string
 		templ_7745c5c3_Var13, templ_7745c5c3_Err = templ.JoinStringErrs(us.Title)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/web/pages/productbacklog/productBacklog.templ`, Line: 192, Col: 36}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/web/pages/productbacklog/productBacklog.templ`, Line: 193, Col: 36}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var13))
 		if templ_7745c5c3_Err != nil {
@@ -449,7 +450,7 @@ func userStoryTableRow(us database.UserStory, status database.Status, projectRol
 		var templ_7745c5c3_Var14 string
 		templ_7745c5c3_Var14, templ_7745c5c3_Err = templ.JoinStringErrs(*us.Description)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/web/pages/productbacklog/productBacklog.templ`, Line: 196, Col: 20}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/web/pages/productbacklog/productBacklog.templ`, Line: 197, Col: 20}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var14))
 		if templ_7745c5c3_Err != nil {
@@ -559,7 +560,7 @@ func userStoryTableRow(us database.UserStory, status database.Status, projectRol
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		if *us.Realized == false && projectRole == database.ProjectRoleManager && status == database.StatusDone {
+		if *us.Realized == false && slices.Contains(projectRoles, database.ProjectRoleManager) && status == database.StatusDone {
 			if us.AllTasksRealized() == false && us.AllAcceptanceTestsRealized() == false {
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div class=\"btn-container\" title=\"Not all tasks were realized and not all acceptance tests were passed for this user story.\"><button type=\"submit\" class=\"btn btn-xs\" disabled>Accept</button></div><form hx-get=\"")
 				if templ_7745c5c3_Err != nil {

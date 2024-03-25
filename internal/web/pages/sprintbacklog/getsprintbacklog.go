@@ -20,13 +20,13 @@ func GetSprintBacklog(w http.ResponseWriter, r *http.Request, params handlers.Re
 		return err
 	}
 
-	sprint,_ := database.GetDatabase().GetSprintByID(uint(sprintID))
+	sprint, _ := database.GetDatabase().GetSprintByID(uint(sprintID))
 	if sprint == nil {
 		return pages.NotFound(w, r)
 	}
 
-	projectRole,_ := database.GetDatabase().GetProjectRole(params.UserID, sprint.ProjectID)
-	if (projectRole == database.ProjectRole{}) {
+	projectRoles, _ := database.GetDatabase().GetProjectRoles(params.UserID, sprint.ProjectID)
+	if len(projectRoles) == 0 {
 		return pages.NotFound(w, r)
 	}
 
@@ -34,8 +34,8 @@ func GetSprintBacklog(w http.ResponseWriter, r *http.Request, params handlers.Re
 	if sprintStatus != database.StatusInProgress {
 		return pages.NotFound(w, r)
 	}
-	
-	c := sprintBacklog(sprint, projectRole)
+
+	c := sprintBacklog(sprint, projectRoles)
 
 	return pages.Layout(c, "Sprint Backlog", r).Render(r.Context(), w)
 }

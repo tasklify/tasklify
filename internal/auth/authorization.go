@@ -12,6 +12,7 @@ import (
 type Authorization interface {
 	HasSystemPermission(systemRole database.SystemRole, object string, action Action) error
 	HasProjectPermission(systemRole database.ProjectRole, object string, action Action) error
+	CheckProjectPermissions(projectRoles []database.ProjectRole, object string, action Action) bool
 }
 
 type authorization struct {
@@ -72,4 +73,14 @@ func (a *authorization) HasProjectPermission(systemRole database.ProjectRole, ob
 	}
 
 	return nil
+}
+
+func (a *authorization) CheckProjectPermissions(projectRoles []database.ProjectRole, object string, action Action) bool {
+	for _, projectRole := range projectRoles {
+		if a.HasProjectPermission(projectRole, object, action) == nil {
+			return true
+		}
+	}
+
+	return false
 }

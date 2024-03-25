@@ -3,9 +3,10 @@ package sprintbacklog
 import "tasklify/internal/database"
 import "fmt"
 import "strconv"
+import "slices"
 
 // sprintBacklog.templ:
-templ sprintBacklog(sprint *database.Sprint, projectRole database.ProjectRole) {
+templ sprintBacklog(sprint *database.Sprint, projectRoles []database.ProjectRole) {
 	<div class="bg-base-100 min-h-screen">
 		<div class="container mx-auto p-2">
 			<!-- Back to Product Backlog Button -->
@@ -38,7 +39,7 @@ templ sprintBacklog(sprint *database.Sprint, projectRole database.ProjectRole) {
 							</button>
 							<!-- Create task Button -->
 							if *story.Realized {
-								if projectRole == database.ProjectRoleMaster || projectRole == database.ProjectRoleDeveloper {
+								if slices.Contains(projectRoles, database.ProjectRoleMaster) || slices.Contains(projectRoles, database.ProjectRoleDeveloper) {
 									<form hx-get={ fmt.Sprintf("/userstory/%v/create-task", story.ID) } hx-target="#dialog" title="Can't add tasks to realized user story">
 										<input type="hidden" id="sprintID" name="sprintID" value={ strconv.Itoa(int(sprint.ID)) }/>
 										<input type="hidden" id="projectID" name="projectID" value={ strconv.Itoa(int(story.ProjectID)) }/>
@@ -46,7 +47,7 @@ templ sprintBacklog(sprint *database.Sprint, projectRole database.ProjectRole) {
 									</form>
 								}
 							} else {
-								if projectRole == database.ProjectRoleMaster || projectRole == database.ProjectRoleDeveloper {
+								if slices.Contains(projectRoles, database.ProjectRoleMaster) || slices.Contains(projectRoles, database.ProjectRoleDeveloper) {
 									<form hx-get={ fmt.Sprintf("/userstory/%v/create-task", story.ID) } hx-target="#dialog">
 										<input type="hidden" id="sprintID" name="sprintID" value={ strconv.Itoa(int(sprint.ID)) }/>
 										<input type="hidden" id="projectID" name="projectID" value={ strconv.Itoa(int(story.ProjectID)) }/>
