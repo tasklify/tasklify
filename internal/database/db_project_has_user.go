@@ -8,9 +8,9 @@ import (
 
 // This is a JoinTable for m:n relation between Project and User
 type ProjectHasUser struct {
-	ProjectID   uint `gorm:"primaryKey;autoIncrement:false"`
-	UserID      uint `gorm:"primaryKey;autoIncrement:false"`
-	ProjectRole ProjectRole
+	ProjectID uint `gorm:"primaryKey;autoIncrement:false"`
+	UserID    uint `gorm:"primaryKey;autoIncrement:false"`
+	// ProjectRole ProjectRole
 	Tasks       []Task      `gorm:"foreignKey:ProjectID,UserID"` // 1:n (ProjectHasUser:Task) -> Every user that works on a project can work on multiple tasks
 	UserStories []UserStory `gorm:"foreignKey:ProjectID,UserID"` // 1:n (ProjectHasUser:UserStory) -> Every user that works on a project can be owner of multiple user stories
 	CreatedAt   time.Time
@@ -18,13 +18,7 @@ type ProjectHasUser struct {
 	DeletedAt   gorm.DeletedAt `gorm:"index"`
 }
 
-// This struct is used so we can retrieve ProjectRole in addition to all User fields
-type UserWithRole struct {
-	User
-	ProjectRoleStr string
-}
-
-func (db *database) AddUserToProject(projectID uint, userID uint, projectRole string) error {
+func (db *database) AddDeveloperToProject(projectID uint, userID uint) error {
 
 	// If user has been previously removed from project (soft deleted record), we need to add it back by setting field deleted_at to nil
 	var count int64
@@ -33,7 +27,7 @@ func (db *database) AddUserToProject(projectID uint, userID uint, projectRole st
 		if err := db.Unscoped().
 			Model(&ProjectHasUser{}).
 			Where("project_id = ? AND user_id = ?", projectID, userID).
-			Updates(map[string]interface{}{"deleted_at": nil, "project_role": *ProjectRoles.Parse(projectRole)}).Error; err != nil {
+			Updates(map[string]interface{}{"deleted_at": nil}).Error; err != nil {
 			return err
 		}
 		return nil
@@ -41,9 +35,8 @@ func (db *database) AddUserToProject(projectID uint, userID uint, projectRole st
 
 	// If user has not been added to project before, we have to create new record
 	projectHasUser := ProjectHasUser{
-		ProjectID:   projectID,
-		UserID:      userID,
-		ProjectRole: *ProjectRoles.Parse(projectRole),
+		ProjectID: projectID,
+		UserID:    userID,
 	}
 
 	if err := db.Create(&projectHasUser).Error; err != nil {
@@ -53,54 +46,46 @@ func (db *database) AddUserToProject(projectID uint, userID uint, projectRole st
 	return nil
 }
 
-func (db *database) GetUsersOnProject(projectID uint) ([]User, error) {
-	var dbUsers []UserWithRole
-	if err := db.Model(&User{}).
-		Joins("LEFT JOIN project_has_users ON users.id = project_has_users.user_id").
-		Select("users.*, project_has_users.project_role as project_role_str").
-		Where("project_has_users.project_id = ? AND project_has_users.deleted_at IS NULL", projectID).
-		Find(&dbUsers).Error; err != nil {
-		return []User{}, err
-	}
-
-	// TODO: maybe in the future, we can find a beter way of getting project role for each user
-	var users []User
-	for _, u := range dbUsers {
-		user := u.User
-		parsedProjectRole := ProjectRoles.Parse(u.ProjectRoleStr)
-		if parsedProjectRole != nil {
-			user.ProjectRole = *parsedProjectRole
-		}
-		users = append(users, user)
-	}
-
-	return users, nil
-}
-
 func (db *database) GetUsersWithRoleOnProject(projectID uint, projectRole ProjectRole) ([]User, error) {
 	var users []User
-	if err := db.Model(&User{}).
-		Joins("LEFT JOIN project_has_users ON users.id = project_has_users.user_id").
-		Select("users.*, project_has_users.project_role as project_role_str").
-		Where("project_has_users.project_id = ? AND project_has_users.project_role = ? AND project_has_users.deleted_at IS NULL", projectID, projectRole.Val).
-		Find(&users).Error; err != nil {
-		return []User{}, err
-	}
-
-	for i := range users {
-		users[i].ProjectRole = projectRole
+	if projectRole == ProjectRoleManager {
+		if err := db.Model(&User{}).
+			Joins("INNER JOIN projects ON users.id = projects.product_owner_id").
+			Select("users.*").
+			Where("projects.id = ?", projectID).
+			Find(&users).Error; err != nil {
+			return []User{}, err
+		}
+	} else if projectRole == ProjectRoleMaster {
+		if err := db.Model(&User{}).
+			Joins("INNER JOIN projects ON users.id = projects.scrum_master_id").
+			Select("users.*").
+			Where("projects.id = ?", projectID).
+			Find(&users).Error; err != nil {
+			return []User{}, err
+		}
+	} else if projectRole == ProjectRoleDeveloper {
+		if err := db.Model(&User{}).
+			Joins("LEFT JOIN project_has_users ON users.id = project_has_users.user_id").
+			Select("users.*").
+			Where("project_has_users.project_id = ? AND project_has_users.deleted_at IS NULL", projectID).
+			Find(&users).Error; err != nil {
+			return []User{}, err
+		}
 	}
 
 	return users, nil
 }
 
+// Returns all users that can be added to project as developers (this includes scrum master, because he can have both of those roles)
 func (db *database) GetUsersNotOnProject(projectID uint) ([]User, error) {
 	var users []User
 
 	if err := db.
 		Select("users.*").
-		Joins("LEFT JOIN project_has_users AS p ON users.id = p.user_id AND p.project_id = ?", projectID).
-		Where("p.user_id IS NULL OR p.deleted_at IS NOT NULL").
+		Joins("LEFT JOIN project_has_users AS pu ON users.id = pu.user_id AND pu.project_id = ?", projectID).
+		Joins("LEFT JOIN projects AS pr ON users.id = pr.product_owner_id AND pr.id = ?", projectID).
+		Where("(pu.user_id IS NULL OR pu.deleted_at IS NOT NULL) AND pr.product_owner_id IS NULL").
 		Find(&users).Error; err != nil {
 		return nil, err
 	}
@@ -120,11 +105,30 @@ func (db *database) RemoveUserFromProject(projectID uint, userID uint) error {
 	return nil
 }
 
-func (db *database) GetProjectRole(userID uint, projectID uint) (ProjectRole, error) {
-	var projectHasUser ProjectHasUser
-	db.Where("user_id = ? AND project_id = ?", userID, projectID).First(&projectHasUser)
+func (db *database) GetProjectRoles(userID uint, projectID uint) ([]ProjectRole, error) {
+	var count int64
 
-	return projectHasUser.ProjectRole, nil
+	// Check if user is product owner, then return because in that case he can only have one role
+	db.Model(&Project{}).Where("id = ? AND product_owner_id = ?", projectID, userID).Count(&count)
+	if count == 1 {
+		return []ProjectRole{ProjectRoleManager}, nil
+	}
+
+	var projectRoles []ProjectRole
+
+	// Otherwise check if user is developer
+	db.Model(&ProjectHasUser{}).Where("project_id = ? AND user_id = ?", projectID, userID).Count(&count)
+	if count == 1 {
+		projectRoles = append(projectRoles, ProjectRoleDeveloper)
+	}
+
+	// And check if user is also scrum master
+	db.Model(&Project{}).Where("id = ? AND scrum_master_id = ?", projectID, userID).Count(&count)
+	if count == 1 {
+		projectRoles = append(projectRoles, ProjectRoleMaster)
+	}
+
+	return projectRoles, nil
 }
 
 func (db *database) GetProjectHasUserByProjectAndUser(userID uint, projectID uint) (*ProjectHasUser, error) {
@@ -138,27 +142,31 @@ func (db *database) GetProjectHasUserByProjectAndUser(userID uint, projectID uin
 	return projectHasUser, nil
 }
 
-func (db *database) UpsertUserOnProject(projectID uint, userID uint, projectRole string) error {
-	var count int64
+// func (db *database) UpsertUserOnProject(projectID uint, userID uint, projectRole string) error {
+// 	var count int64
 
-	// If user already exists on project, just update it with new data
-	db.Model(&ProjectHasUser{}).Where("project_id = ? AND user_id = ?", projectID, userID).Count(&count)
-	if count == 1 {
-		err := db.Model(&ProjectHasUser{}).Where("project_id = ? AND user_id = ?", projectID, userID).Update("project_role", projectRole).Error
-		if err != nil {
-			return err
-		}
+// 	// If user already exists on project, just update it with new data
+// 	db.Model(&ProjectHasUser{}).Where("project_id = ? AND user_id = ?", projectID, userID).Count(&count)
+// 	if count == 1 {
+// 		err := db.Model(&ProjectHasUser{}).Where("project_id = ? AND user_id = ?", projectID, userID).Update("project_role", projectRole).Error
+// 		if err != nil {
+// 			return err
+// 		}
 
-	} else {
-		err := db.AddUserToProject(projectID, userID, projectRole)
-		if err != nil {
-			return err
-		}
-	}
+// 	} else {
+// 		err := db.AddDeveloperToProject(projectID, userID, projectRole)
+// 		if err != nil {
+// 			return err
+// 		}
+// 	}
 
-	return nil
-}
+// 	return nil
+// }
 
 func (db *database) RemoveUsersNotInList(projectID uint, userIDs []uint) error {
+	if len(userIDs) == 0 {
+		return db.Where("project_id = ?", projectID).Delete(&ProjectHasUser{}).Error
+	}
+
 	return db.Where("project_id = ? AND user_id NOT IN ?", projectID, userIDs).Delete(&ProjectHasUser{}).Error
 }

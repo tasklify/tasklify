@@ -4,7 +4,7 @@ import "tasklify/internal/database"
 import "tasklify/internal/auth"
 import "fmt"
 
-templ ProjectNavbar(project database.Project, projectRole database.ProjectRole, user_SystemRole database.SystemRole, topNavVariant string) {
+templ ProjectNavbar(project database.Project, projectRoles []database.ProjectRole, user_SystemRole database.SystemRole, topNavVariant string) {
 	<div>
 		<div class="flex">
 			<div>
@@ -15,7 +15,7 @@ templ ProjectNavbar(project database.Project, projectRole database.ProjectRole, 
 					case "project_board":
 						@TopNavProjectBoard(project)
 					case "project_info":
-						@TopNavProjectInfo(project, projectRole, user_SystemRole)
+						@TopNavProjectInfo(project, projectRoles, user_SystemRole)
 				}
 				{ children... }
 			</div>
@@ -32,14 +32,14 @@ templ TopNavProjectBoard(project database.Project) {
 	</div>
 }
 
-templ TopNavProjectInfo(project database.Project, projectRole database.ProjectRole, user_SystemRole database.SystemRole) {
+templ TopNavProjectInfo(project database.Project, projectRoles []database.ProjectRole, user_SystemRole database.SystemRole) {
 	<div class="flex p-4 px-0">
 		<div class="flex-1">
 			<h4>Project Info</h4>
 			<h1 class="font-bold text-3xl">{ project.Title }</h1>
 		</div>
 		if auth.GetAuthorization().HasSystemPermission(user_SystemRole, "/project", auth.ActionUpdate) == nil || 
-					auth.GetAuthorization().HasProjectPermission(projectRole, "/project", auth.ActionUpdate) == nil {
+			auth.GetAuthorization().CheckProjectPermissions(projectRoles, "/project", auth.ActionUpdate) {
 			<div class="flex relative">
 				<a href="https://github.com/tasklify/tasklify/tree/main?tab=readme-ov-file#editing-projects" target="_blank" class="help-button" style="top: -10px; right: -10px; z-index: 1">?</a>
 				<details class="dropdown dropdown-bottom dropdown-end">

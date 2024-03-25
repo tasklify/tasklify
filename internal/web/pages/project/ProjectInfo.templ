@@ -21,30 +21,35 @@ func GetProjectInfo(w http.ResponseWriter, r *http.Request, params handlers.Requ
 	}
 
 	owners, err := database.GetDatabase().GetUsersWithRoleOnProject(projectID, database.ProjectRoleManager)
+	if err != nil {
+		return err
+	}
 	masters, err := database.GetDatabase().GetUsersWithRoleOnProject(projectID, database.ProjectRoleMaster)
+	if err != nil {
+		return err
+	}
 	developers, err := database.GetDatabase().GetUsersWithRoleOnProject(projectID, database.ProjectRoleDeveloper)
-
 	if err != nil {
 		return err
 	}
 
-	project.Users = append(project.Users, owners...)
-	project.Users = append(project.Users, masters...)
-	project.Users = append(project.Users, developers...)
+	project.ProductOwner = owners[0]
+	project.ScrumMaster = masters[0]
+	project.Developers = append(project.Developers, developers...)
 
-	projectRole, _ := database.GetDatabase().GetProjectRole(params.UserID, projectID)
+	projectRoles, _ := database.GetDatabase().GetProjectRoles(params.UserID, projectID)
 
 	user, err := database.GetDatabase().GetUserByID(params.UserID)
 	if err != nil {
 		return err
 	}
 
-	c := projectInfo(*project, projectRole, user.SystemRole)
+	c := projectInfo(*project, projectRoles, user.SystemRole)
 	return pages.Layout(c, "Project Info", r).Render(r.Context(), w)
 }
 
-templ projectInfo(projectData database.Project, projectRole database.ProjectRole, systemRole database.SystemRole) {
-	@common.ProjectNavbar(projectData, projectRole, systemRole, "project_info") {
+templ projectInfo(projectData database.Project, projectRoles []database.ProjectRole, systemRole database.SystemRole) {
+	@common.ProjectNavbar(projectData, projectRoles, systemRole, "project_info") {
 		<div class="flex-1 mt-1">
 			<div class="flex flex-col">
 				<small class="font-bold text-gray-700 mb-1">Title</small>
@@ -72,22 +77,36 @@ templ projectInfo(projectData database.Project, projectRole database.ProjectRole
 							</tr>
 						</thead>
 						<tbody class="max-h-80 overflow-y-auto">
-							if len(projectData.Users) > 0 {
-								for _, projectUser := range projectData.Users {
-									<tr class="hover">
-										<td class="text-gray-950">
-											<div class="flex flex-col">
-												<span class="font-semibold text-sm">{ projectUser.FirstName } { projectUser.LastName }</span>
-												<span class="text-xs">{ projectUser.Username }</span>
-											</div>
-										</td>
-										<td class="text-gray-950">{ projectUser.Email }</td>
-										<td class="text-gray-950">{ projectUser.ProjectRole.GetLabel() }</td>
-									</tr>
-								}
-							} else {
-								<tr>
-									<td colspan="100%" class="text-center mt-3 text-gray-950">No users on project</td>
+							<tr class="hover">
+								<td class="text-gray-950">
+									<div class="flex flex-col">
+										<span class="font-semibold text-sm">{ projectData.ProductOwner.FirstName } { projectData.ProductOwner.LastName }</span>
+										<span class="text-xs">{ projectData.ProductOwner.Username }</span>
+									</div>
+								</td>
+								<td class="text-gray-950">{ projectData.ProductOwner.Email }</td>
+								<td class="text-gray-950">{ database.ProjectRoleManager.GetLabel() }</td>
+							</tr>
+							<tr class="hover">
+								<td class="text-gray-950">
+									<div class="flex flex-col">
+										<span class="font-semibold text-sm">{ projectData.ScrumMaster.FirstName } { projectData.ScrumMaster.LastName }</span>
+										<span class="text-xs">{ projectData.ScrumMaster.Username }</span>
+									</div>
+								</td>
+								<td class="text-gray-950">{ projectData.ScrumMaster.Email }</td>
+								<td class="text-gray-950">{ database.ProjectRoleMaster.GetLabel() }</td>
+							</tr>
+							for _, projectDeveloper := range projectData.Developers {
+								<tr class="hover">
+									<td class="text-gray-950">
+										<div class="flex flex-col">
+											<span class="font-semibold text-sm">{ projectDeveloper.FirstName } { projectDeveloper.LastName }</span>
+											<span class="text-xs">{ projectDeveloper.Username }</span>
+										</div>
+									</td>
+									<td class="text-gray-950">{ projectDeveloper.Email }</td>
+									<td class="text-gray-950">{ database.ProjectRoleDeveloper.GetLabel() }</td>
 								</tr>
 							}
 						</tbody>

@@ -32,13 +32,11 @@ type Database interface {
 	CreateTask(task *Task) error
 	GetTaskByID(id uint) (*Task, error)
 	GetProjectByID(id uint) (*Project, error)
-	GetProjectRole(userID uint, projectID uint) (ProjectRole, error)
+	GetProjectRoles(userID uint, projectID uint) ([]ProjectRole, error)
 	GetProjectHasUserByProjectAndUser(userID uint, projectID uint) (*ProjectHasUser, error)
 	CreateProject(project *Project) (uint, error)
-	AddUserToProject(projectID uint, userID uint, projectRole string) error
-	UpsertUserOnProject(projectID uint, userID uint, projectRole string) error
+	AddDeveloperToProject(projectID uint, userID uint) error
 	RemoveUsersNotInList(projectID uint, userIDs []uint) error
-	GetUsersOnProject(projectID uint) ([]User, error)
 	GetUsersWithRoleOnProject(projectID uint, projectRole ProjectRole) ([]User, error)
 	GetUsersNotOnProject(projectID uint) ([]User, error)
 	ProjectWithTitleExists(title string, excludedProjectID *uint) bool

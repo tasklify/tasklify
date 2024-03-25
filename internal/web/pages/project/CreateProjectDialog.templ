@@ -158,16 +158,26 @@ templ addProjectDevelopersDialog(projectID uint, users []database.User, projectD
 			// <div id="validation-error"></div>
 			<div class="mt-4">
 				<input type="hidden" id="redirectProjectID" name="projectID" value={ fmt.Sprint(projectID) }/>
-				<button
-					class="btn btn-primary btn-sm"
-					type="submit"
-					hx-get="/productbacklog"
-					hx-target="#whole"
-					hx-swap="innerHTML"
-					hx-push-url="true"
-					hx-include="#redirectProjectID"
-					hx-trigger="click"
-				>I'll add more later</button>
+				<div
+					if len(projectDevelopers) == 0 {
+						class="tooltip tooltip-right"
+						data-tip="Please add at least one project developer"
+					}
+				>
+					<button
+						class="btn btn-primary btn-sm"
+						type="submit"
+						hx-get="/productbacklog"
+						hx-target="#whole"
+						hx-swap="innerHTML"
+						hx-push-url="true"
+						hx-include="#redirectProjectID"
+						hx-trigger="click"
+						if len(projectDevelopers) == 0 {
+							disabled="disabled"
+						}
+					>I'll add more later</button>
+				</div>
 			</div>
 		</div>
 	</div>

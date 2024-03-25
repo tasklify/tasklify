@@ -11,10 +11,16 @@ templ ProjectsField(label string, user *database.User) {
 			<span class="label-text">{ label }</span>
 		</label>
 		<div hx-boost="true">
-			for _, project := range user.Projects {
+			for _, project := range user.OwnerProjects {
 				<a class="btn btn-outline" href={ templ.URL(fmt.Sprintf("/projects/%d", project.ID)) }>{ project.Title }</a>
 			}
-			if  len(user.Projects) == 0 {
+			for _, project := range user.MasterProjects {
+				<a class="btn btn-outline" href={ templ.URL(fmt.Sprintf("/projects/%d", project.ID)) }>{ project.Title }</a>
+			}
+			for _, project := range user.DeveloperProjects {
+				<a class="btn btn-outline" href={ templ.URL(fmt.Sprintf("/projects/%d", project.ID)) }>{ project.Title }</a>
+			}
+			if  len(user.DeveloperProjects) == 0 && len(user.OwnerProjects) == 0 && len(user.MasterProjects) == 0 {
 				<div>empty</div>
 			}
 		</div>

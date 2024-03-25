@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/http"
 	"reflect"
+	"slices"
 	"strconv"
 	"tasklify/internal/database"
 	"tasklify/internal/handlers"
@@ -17,25 +18,24 @@ import (
 var decoder = schema.NewDecoder()
 
 func init() {
-    decoder.RegisterConverter(database.Priority{""}, priorityConverter)
+	decoder.RegisterConverter(database.Priority{""}, priorityConverter)
 }
 
 func priorityConverter(value string) reflect.Value {
-    priorityPtr := database.Priorities.Parse(value)
-    if priorityPtr == nil {
-        return reflect.Zero(reflect.TypeOf((*database.Priority)(nil)).Elem())
-    }
-    return reflect.ValueOf(*priorityPtr)
+	priorityPtr := database.Priorities.Parse(value)
+	if priorityPtr == nil {
+		return reflect.Zero(reflect.TypeOf((*database.Priority)(nil)).Elem())
+	}
+	return reflect.ValueOf(*priorityPtr)
 }
-
 
 func PostUserStory(w http.ResponseWriter, r *http.Request, params handlers.RequestParams) error {
 	type UserStoryFormData struct {
-		Title         string `schema:"title,required"`
-		Description   string `schema:"description,required"`
-		Priority      database.Priority  `schema:"priority,required"`
-		BusinessValue int    `schema:"business_value,required"`
-		AcceptanceTests []string `schema:"acceptanceTests"`
+		Title           string            `schema:"title,required"`
+		Description     string            `schema:"description,required"`
+		Priority        database.Priority `schema:"priority,required"`
+		BusinessValue   int               `schema:"business_value,required"`
+		AcceptanceTests []string          `schema:"acceptanceTests"`
 	}
 	var userStoryData UserStoryFormData
 	if err := decoder.Decode(&userStoryData, r.PostForm); err != nil {
@@ -60,32 +60,32 @@ func PostUserStory(w http.ResponseWriter, r *http.Request, params handlers.Reque
 	}
 
 	userStory := &database.UserStory{
-		Title:         userStoryData.Title,
-		Description:   &userStoryData.Description,
-		BusinessValue: userStoryData.BusinessValue,
-		Priority:      userStoryData.Priority,
-		ProjectID:     uint(ProjectID),
-		Realized:      new(bool), // Defaults to false
+		Title:           userStoryData.Title,
+		Description:     &userStoryData.Description,
+		BusinessValue:   userStoryData.BusinessValue,
+		Priority:        userStoryData.Priority,
+		ProjectID:       uint(ProjectID),
+		Realized:        new(bool), // Defaults to false
 		AcceptanceTests: []database.AcceptanceTest{},
 	}
 
 	if err := database.GetDatabase().CreateUserStory(userStory); err != nil {
 		return err
 	}
-	
+
 	for _, testDescription := range userStoryData.AcceptanceTests {
 		acceptanceTest := &database.AcceptanceTest{
-			Description:   &testDescription,
-			Realized:      new(bool), // Defaults to false
-			UserStoryID:   userStory.ID,
+			Description: &testDescription,
+			Realized:    new(bool), // Defaults to false
+			UserStoryID: userStory.ID,
 		}
 		if err := database.GetDatabase().CreateAcceptanceTest(acceptanceTest); err != nil {
 			return err
 		}
 	}
 
-    redirectURL := fmt.Sprintf("/productbacklog?projectID=%d", uint(ProjectID))
-    w.Header().Set("HX-Redirect", redirectURL)
+	redirectURL := fmt.Sprintf("/productbacklog?projectID=%d", uint(ProjectID))
+	w.Header().Set("HX-Redirect", redirectURL)
 	w.WriteHeader(http.StatusSeeOther)
 
 	return nil
@@ -97,16 +97,15 @@ func GetUserStory(w http.ResponseWriter, r *http.Request, params handlers.Reques
 		return err
 	}
 
-	projectRole, err := database.GetDatabase().GetProjectRole(params.UserID, uint(ProjectID))
+	projectRoles, err := database.GetDatabase().GetProjectRoles(params.UserID, uint(ProjectID))
 	if err != nil {
 		return err
 	}
 
-	if projectRole == database.ProjectRoleDeveloper || projectRole ==  (database.ProjectRole{}) {
+	if len(projectRoles) == 0 || slices.Contains(projectRoles, database.ProjectRoleDeveloper) {
 		return pages.NotFound(w, r)
 	}
 
 	c := CreateUserStoryDialog(uint(ProjectID))
 	return c.Render(r.Context(), w)
 }
-

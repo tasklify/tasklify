@@ -9,16 +9,17 @@ import (
 
 type User struct {
 	gorm.Model
-	Username    string `gorm:"unique"`
-	Password    string
-	TotpURL     *string
-	FirstName   string
-	LastName    string
-	Email       string `gorm:"unique"`
-	LastLogin   *time.Time
-	SystemRole  SystemRole  `gorm:"type:string"`
-	Projects    []Project   `gorm:"many2many:project_has_users;"` // m:n (User:Project)
-	ProjectRole ProjectRole `gorm:"type:string;-"`                // This field is ignored in database and all queries
+	Username          string `gorm:"unique"`
+	Password          string
+	TotpURL           *string
+	FirstName         string
+	LastName          string
+	Email             string `gorm:"unique"`
+	LastLogin         *time.Time
+	SystemRole        SystemRole `gorm:"type:string"`
+	DeveloperProjects []Project  `gorm:"many2many:project_has_users;"` // m:n (User:Project)	User can be developer on multiple projects, each project having multiple users as developers
+	OwnerProjects     []Project  `gorm:"foreignKey:ProductOwnerID"`    // 1:n (User:Project)		User can be product owner on multiple projects, each project having only one user as owner
+	MasterProjects    []Project  `gorm:"foreignKey:ScrumMasterID"`     // 1:n (User:Project)		User can be scrum master on multiple projects, each project having only one user as master
 }
 
 // If you specify callerUserID it will get execluded from list

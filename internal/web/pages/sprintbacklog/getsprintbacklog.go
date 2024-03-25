@@ -2,6 +2,7 @@ package sprintbacklog
 
 import (
 	"net/http"
+	"slices"
 	"strconv"
 	"tasklify/internal/database"
 	"tasklify/internal/handlers"
@@ -20,13 +21,13 @@ func GetSprintBacklog(w http.ResponseWriter, r *http.Request, params handlers.Re
 		return err
 	}
 
-	sprint,_ := database.GetDatabase().GetSprintByID(uint(sprintID))
+	sprint, _ := database.GetDatabase().GetSprintByID(uint(sprintID))
 	if sprint == nil {
 		return pages.NotFound(w, r)
 	}
 
-	projectRole,_ := database.GetDatabase().GetProjectRole(params.UserID, sprint.ProjectID)
-	if (projectRole == database.ProjectRoleManager) || (projectRole == database.ProjectRole{}) {
+	projectRoles, _ := database.GetDatabase().GetProjectRoles(params.UserID, sprint.ProjectID)
+	if len(projectRoles) == 0 || slices.Contains(projectRoles, database.ProjectRoleManager) {
 		return pages.NotFound(w, r)
 	}
 
@@ -34,8 +35,8 @@ func GetSprintBacklog(w http.ResponseWriter, r *http.Request, params handlers.Re
 	if sprintStatus != database.StatusInProgress {
 		return pages.NotFound(w, r)
 	}
-	
-	c := sprintBacklog(sprint, projectRole)
+
+	c := sprintBacklog(sprint, projectRoles)
 
 	return pages.Layout(c, "Sprint Backlog", r).Render(r.Context(), w)
 }
@@ -48,7 +49,7 @@ func GetUserFirstAndLastNameFromID(userID uint) string {
 func mapTasksToStatuses(tasks []database.Task) (statusMap map[string][]database.Task) {
 	statusMap = make(map[string][]database.Task)
 	for _, task := range tasks {
-		if (task.UserID == nil) {
+		if task.UserID == nil {
 			statusMap["Unassigned"] = append(statusMap["Unassigned"], task)
 		} else {
 			if !*task.UserAccepted {
@@ -65,7 +66,7 @@ func mapTasksToStatuses(tasks []database.Task) (statusMap map[string][]database.
 	return
 }
 
- func GetSumOfTimeEstimates(tasks []database.Task) (sum float32) {
+func GetSumOfTimeEstimates(tasks []database.Task) (sum float32) {
 	sum = 0
 	for _, task := range tasks {
 		if task.TimeEstimate != nil {

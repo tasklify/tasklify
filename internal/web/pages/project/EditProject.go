@@ -267,29 +267,27 @@ func UpdateProjectMembers(w http.ResponseWriter, r *http.Request, params handler
 		return c.Render(r.Context(), w)
 	}
 
-	if _, ok := projectDevelopers[scrumMaster.ID]; ok {
+	if len(projectDevelopers) == 0 {
 		w.WriteHeader(http.StatusBadRequest)
-		c := common.ValidationError(fmt.Sprintf("User %v cannot be SCRUM master and Project developer at the same time.", productOwner.FirstName+" "+productOwner.LastName))
+		c := common.ValidationError("Please add at least one project developer.")
 		return c.Render(r.Context(), w)
 	}
 
 	var addedUserIDs []uint
 
-	// Add project owner
-	if err := database.GetDatabase().UpsertUserOnProject(req.ProjectID, productOwner.ID, database.ProjectRoleManager.Val); err != nil {
-		return err
+	projectData := database.Project{
+		ProductOwnerID: productOwner.ID,
+		ScrumMasterID:  scrumMaster.ID,
 	}
-	addedUserIDs = append(addedUserIDs, productOwner.ID)
 
-	// Add SCRUM master
-	if err := database.GetDatabase().UpsertUserOnProject(req.ProjectID, scrumMaster.ID, database.ProjectRoleMaster.Val); err != nil {
+	// Add project owner and scrum master
+	if err := database.GetDatabase().UpdateProject(req.ProjectID, projectData); err != nil {
 		return err
 	}
-	addedUserIDs = append(addedUserIDs, scrumMaster.ID)
 
 	// Add all project developers
 	for userID := range projectDevelopers {
-		if err := database.GetDatabase().UpsertUserOnProject(req.ProjectID, userID, database.ProjectRoleDeveloper.Val); err != nil {
+		if err := database.GetDatabase().AddDeveloperToProject(req.ProjectID, userID); err != nil {
 			return err
 		}
 		addedUserIDs = append(addedUserIDs, userID)
@@ -300,8 +298,19 @@ func UpdateProjectMembers(w http.ResponseWriter, r *http.Request, params handler
 		return err
 	}
 
-	w.Header().Set("HX-Redirect", fmt.Sprint("/project-info/", req.ProjectID))
-	w.WriteHeader(http.StatusSeeOther)
+	currentUser, err := database.GetDatabase().GetUserByID(params.UserID)
+	if err != nil {
+		return err
+	}
+
+	projectRoles, _ := database.GetDatabase().GetProjectRoles(params.UserID, req.ProjectID)
+	if len(projectRoles) != 0 || currentUser.SystemRole == database.SystemRoleAdmin {
+		w.Header().Set("HX-Redirect", fmt.Sprint("/project-info/", req.ProjectID))
+		w.WriteHeader(http.StatusSeeOther)
+	} else {
+		w.Header().Set("HX-Redirect", "/dashboard")
+		w.WriteHeader(http.StatusSeeOther)
+	}
 
 	return nil
 }
