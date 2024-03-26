@@ -47,7 +47,7 @@ func GetCreateTask(w http.ResponseWriter, r *http.Request, params handlers.Reque
 
 type TaskFormData struct {
 	Title        string   `schema:"title,required"`
-	Description  string   `schema:"description,required"`
+	Description  string   `schema:"description"`
 	TimeEstimate *float32 `schema:"time_estimate,required"`
 	UserID       uint     `schema:"user_id"`
 	ProjectID    uint     `schema:"project_id,required"`
@@ -86,6 +86,12 @@ func PostTask(w http.ResponseWriter, r *http.Request, params handlers.RequestPar
 
 		task.ProjectHasUser = projectHasUser
 		task.UserID = &taskFormData.UserID
+
+		// if user created task and assigned to himself, the user should be automatically accepted
+		if params.UserID == *task.UserID {
+			userAccepted := true
+			task.UserAccepted = &userAccepted
+		}
 	}
 
 	if err := database.GetDatabase().CreateTask(task); err != nil {
