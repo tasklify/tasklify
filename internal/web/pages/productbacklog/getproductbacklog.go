@@ -9,6 +9,7 @@ import (
 	"strconv"
 	"tasklify/internal/database"
 	"tasklify/internal/handlers"
+	"tasklify/internal/web/components/common"
 	"tasklify/internal/web/pages"
 
 	"github.com/go-chi/chi/v5"
@@ -91,31 +92,38 @@ func filterBacklog(userStories []database.UserStory) (inBacklog, inFuture, inDon
 
 func PostAddUserStoryToSprint(w http.ResponseWriter, r *http.Request, params handlers.RequestParams) error {
 	// Parse form data
-	if err := r.ParseForm(); err != nil {
+	type UserStoriesToSprintFormData struct {
+		SprintID         uint     `schema:"sprintID,required"`
+		Velocity         *float32 `schema:"velocity,required"`
+		ActiveSprintLoad *float32 `schema:"active_sprint_load,required"`
+		Callback         string   `schema:"callback,required"`
+		UserStoryIDs     []uint   `schema:"selectedTasks"`
+	}
+
+	var userStoriesToSprintFormData UserStoriesToSprintFormData
+	if err := decoder.Decode(&userStoriesToSprintFormData, r.PostForm); err != nil {
 		return err
 	}
 
-	usIDCount := len(r.Form["selectedTasks"])
-	selectedTaskIds := make([]uint, 0, usIDCount)
+	sprintID := userStoriesToSprintFormData.SprintID
+	selectedUserStoryIds := userStoriesToSprintFormData.UserStoryIDs
+	velocity := userStoriesToSprintFormData.Velocity
+	activeSprintLoad := userStoriesToSprintFormData.ActiveSprintLoad
+	currentLoad, err := database.GetDatabase().GetUserStoriesLoad(selectedUserStoryIds)
 
-	for _, id := range r.Form["selectedTasks"] {
-		if usID, err := strconv.Atoi(id); err == nil {
-			selectedTaskIds = append(selectedTaskIds, uint(usID))
-		}
+	if float32(currentLoad) > (*velocity - *activeSprintLoad) {
+		w.WriteHeader(http.StatusBadRequest)
+		c := common.ValidationError("Sum of user story points exceed sprint velocity.")
+		return c.Render(r.Context(), w)
 	}
 
-	sprintID, err := strconv.Atoi(r.FormValue("sprintID"))
-	if err != nil {
-		return err
-	}
-
-	_, err = database.GetDatabase().AddUserStoryToSprint(uint(sprintID), selectedTaskIds)
+	_, err = database.GetDatabase().AddUserStoryToSprint(sprintID, selectedUserStoryIds)
 	if err != nil {
 		return err
 	}
 
 	fmt.Println("Sprint ID:", sprintID)
-	fmt.Println("User Story IDs:", selectedTaskIds)
+	fmt.Println("User Story IDs:", selectedUserStoryIds)
 
 	callbackURL := r.FormValue("callback")
 	if callbackURL != "" {
