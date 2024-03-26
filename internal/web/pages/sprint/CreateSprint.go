@@ -115,5 +115,15 @@ func fieldValidation(w http.ResponseWriter, r *http.Request, sprintFormData spri
 		}
 	}
 
+	// validation: sprint should not start or end on the weekend
+	if sprintFormData.StartDate.Weekday() == time.Saturday ||
+		sprintFormData.StartDate.Weekday() == time.Sunday ||
+		sprintFormData.EndDate.Weekday() == time.Saturday ||
+		sprintFormData.EndDate.Weekday() == time.Sunday {
+		w.WriteHeader(http.StatusBadRequest)
+		c := common.ValidationError("Start/end date should not be on weekends.")
+
+		return c.Render(r.Context(), w), true
+	}
 	return nil, false
 }

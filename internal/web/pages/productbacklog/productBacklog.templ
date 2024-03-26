@@ -85,7 +85,8 @@ document.addEventListener("DOMContentLoaded", function() {
 							<div class="collapse-title text-xl font-medium bg-base-300 text-base-500" style="display: flex; justify-content: space-between;">
 								<div>
 									{ sprint.Title }
-									<div class="text-sm text-gray-600">({ sprint.StartDate.Format("Mon Jan _2 2006") } - { sprint.EndDate.Format("Mon Jan _2 2006") })</div>
+									<div class="text-sm text-gray-600">{ sprint.StartDate.Format("Mon Jan _2 2006") } - { sprint.EndDate.Format("Mon Jan _2 2006") }</div>
+									<div class="text-sm text-gray-600">Velocity: { strconv.FormatFloat(float64(*sprint.Velocity), 'f', 2, 64) } spt</div>
 								</div>
 								if sprint.DetermineStatus() == database.StatusInProgress {
 									<span class="ml-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-300">
@@ -105,6 +106,7 @@ document.addEventListener("DOMContentLoaded", function() {
 								<div class="flex justify-end">
 									<!-- Places the button nicely -->
 									<!-- Sprint Backlog Button -->
+									<div>Current load: { strconv.FormatFloat(float64(getCurrentLoad(sprint.UserStories)), 'f', 2, 64) } spt</div>
 									if (sprint.DetermineStatus() == database.StatusInProgress) && !slices.Contains(projectRoles, database.ProjectRoleManager) {
 										<form hx-get={ fmt.Sprint("/sprintbacklog/", sprint.ID) } hx-target="#whole" hx-push-url="true" class="ml-auto">
 											<button class="btn btn-sm bg-primary">Sprint Backlog</button>
@@ -146,6 +148,16 @@ document.addEventListener("DOMContentLoaded", function() {
 	}
 }
 
+func getCurrentLoad(userStories []database.UserStory) float32 {
+	var currentLoad int
+
+	for _, us := range userStories {
+		currentLoad += int(us.StoryPoints)
+	}
+
+	return float32(currentLoad)
+}
+
 templ userStoryCard(name string, description string) {
 	<!-- user story -->
 	<div class="card card-compact bg-base-100 shadow-xl hover:shadow-2xl transition-shadow w-full">
@@ -160,8 +172,8 @@ templ backlog(backlogUserStories []database.UserStory, sprint database.Sprint, c
 	<div class="card card-compact bg-base-200 transition-shadow mt-2">
 		<div class="card-title collapse-title text-xl font-medium bg-base-300 border-base-300">Backlog</div>
 		<a href="https://github.com/tasklify/tasklify/tree/main?tab=readme-ov-file#adding-user-stories-to-sprint" target="_blank" class="help-button" style="padding-right=10rem;">?</a>
-		<div class="card-body">
-			<form id="backlogForm" hx-post="/productbacklog">
+		<div class="card-body" hx-ext="response-targets">
+			<form id="backlogForm" hx-post="/productbacklog" hx-target-400="#add-to-sprint-validation-error">
 				<table class="table w-full">
 					<thead>
 						<tr>
@@ -202,9 +214,12 @@ templ backlog(backlogUserStories []database.UserStory, sprint database.Sprint, c
 				if slices.Contains(projectRoles, database.ProjectRoleMaster) {
 					<div class="mt-4 flex justify-end">
 						<input type="hidden" name="sprintID" value={ strconv.Itoa(int(sprint.ID)) }/>
+						<input type="hidden" name="velocity" value={ strconv.FormatFloat(float64(*sprint.Velocity), 'f', 2, 64) }/>
+						<input type="hidden" name="active_sprint_load" value={ strconv.FormatFloat(float64(getCurrentLoad(sprint.UserStories)), 'f', 2, 64) }/>
 						<input type="hidden" name="callback" value={ callback }/>
 						<button type="submit" class="btn btn-primary">Add to Sprint</button>
 					</div>
+					<div id="add-to-sprint-validation-error" class="mt-4"></div>
 				}
 			</form>
 		</div>

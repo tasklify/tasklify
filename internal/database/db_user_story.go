@@ -15,12 +15,12 @@ type UserStory struct {
 	RejectionComment *string `gorm:"type:TEXT"`
 	WorkflowStepID   *uint   // 1:1 (WorkflowStep:UserStory)
 	WorkflowStep     WorkflowStep
-	SprintID         *uint           // 1:n (Sprint:UserStory)
-	ProjectID        uint            // 1:n (Project:UserStory)
-	Tasks            []Task          // 1:n (UserStory:Task)
+	SprintID         *uint            // 1:n (Sprint:UserStory)
+	ProjectID        uint             // 1:n (Project:UserStory)
+	Tasks            []Task           // 1:n (UserStory:Task)
 	AcceptanceTests  []AcceptanceTest // 1:n (UserStory:AcceptanceTest)
-	UserID           *uint           // 1:n (ProjectHasUser:UserStory)
-	ProjectHasUser   *ProjectHasUser `gorm:"foreignKey:ProjectID,UserID"` // 1:n (ProjectHasUser:UserStory)
+	UserID           *uint            // 1:n (ProjectHasUser:UserStory)
+	ProjectHasUser   *ProjectHasUser  `gorm:"foreignKey:ProjectID,UserID"` // 1:n (ProjectHasUser:UserStory)
 }
 
 func (db *database) CreateUserStory(userStory *UserStory) error {
@@ -54,7 +54,7 @@ func (db *database) GetUserStoriesBySprint(sprintID uint) ([]UserStory, error) {
 }
 
 func (db *database) GetUserStoryByID(id uint) (*UserStory, error) {
-	var userStory = &UserStory{} 
+	var userStory = &UserStory{}
 	err := db.Preload("Tasks").Preload("AcceptanceTests").First(userStory, id).Error
 	if err != nil {
 		return nil, err
@@ -82,6 +82,17 @@ func (db *database) AddUserStoryToSprint(sprintID uint, userStoryIDs []uint) (*S
 	}
 
 	return &sprint, nil
+}
+
+func (db *database) GetUserStoriesLoad(userStoryIDs []uint) (uint, error) {
+
+	var totalStoryPoints uint
+	err := db.Model(&UserStory{}).Where("id IN (?)", userStoryIDs).Select("sum(story_points) as total").Scan(&totalStoryPoints).Error
+	if err != nil {
+		return 0, err
+	}
+
+	return totalStoryPoints, nil
 }
 
 func (userStory *UserStory) AllAcceptanceTestsRealized() bool {

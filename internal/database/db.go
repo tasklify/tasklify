@@ -24,6 +24,7 @@ type Database interface {
 	CreateUserStory(userStory *UserStory) error
 	UpdateUserStory(userStory *UserStory) error
 	AddUserStoryToSprint(sprintID uint, userStories []uint) (*Sprint, error)
+	GetUserStoriesLoad(userStoryIDs []uint) (uint, error)
 	GetUserStoriesByProject(projectID uint) ([]UserStory, error)
 	GetUserStoriesBySprint(sprintID uint) ([]UserStory, error)
 	GetUserStoryByID(id uint) (*UserStory, error)
