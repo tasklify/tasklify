@@ -38,7 +38,7 @@ templ TaskDetailsDialog(task database.Task) {
 				<!-- Description -->
 				<div class="mb-4 flex-grow">
 					<div class="font-medium mb-2">Description</div>
-					<div class="text-gray-800 break-words p-4 bg-gray-100 rounded-lg">{ *task.Description }</div>
+					<div class="text-gray-800 whitespace-break-spaces p-4 bg-gray-100 rounded-lg">{ *task.Description }</div>
 				</div>
 				<!-- Assigned To (Moved to bottom left, smaller and visually distinct) -->
 				if !*task.UserAccepted && (task.UserID != nil) {

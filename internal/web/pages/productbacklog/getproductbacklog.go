@@ -42,7 +42,7 @@ func GetProductBacklog(w http.ResponseWriter, r *http.Request, params handlers.R
 
 	sprints, err := database.GetDatabase().GetSprintByProject(projectID)
 
-	// order sprints by start day - active should always be on top
+	// order sprints by create date - active should always be on top
 	sort.Slice(sprints, func(i, j int) bool {
 		statusI := sprints[i].DetermineStatus()
 		statusJ := sprints[j].DetermineStatus()
@@ -53,7 +53,7 @@ func GetProductBacklog(w http.ResponseWriter, r *http.Request, params handlers.R
 			return false
 		}
 
-		return sprints[i].StartDate.Before(sprints[j].StartDate)
+		return sprints[i].CreatedAt.After(sprints[j].StartDate)
 	})
 
 	if err != nil {
