@@ -10,13 +10,12 @@ import (
 	"time"
 
 	"github.com/alexedwards/argon2id"
+	"github.com/aws/smithy-go/ptr"
 	"github.com/pquerna/otp"
 	"github.com/pquerna/otp/totp"
 )
 
 func AuthenticateUser(username, password string) (uint, error) {
-	loginTime := time.Now()
-
 	err := checkPasswordRequirements(password)
 	if err != nil {
 		return 0, err
@@ -37,10 +36,8 @@ func AuthenticateUser(username, password string) (uint, error) {
 		return 0, errors.New("no matching username and password")
 	}
 
-	var userLastLogin = &database.User{}
-	userLastLogin = user
-	userLastLogin.LastLogin = &loginTime
-	err = database.GetDatabase().UpdateUser(userLastLogin)
+	user.LastLogin = ptr.Time(time.Now())
+	err = database.GetDatabase().UpdateUser(user)
 	if err != nil {
 		return 0, err
 	}
@@ -48,7 +45,7 @@ func AuthenticateUser(username, password string) (uint, error) {
 	return user.ID, nil
 }
 
-func CreateUser(issuerUserID *uint, userID *uint, username, password, firstName, lastName, email, systemRoleName string) error {
+func CreateUser(issuerUserID *uint, userID *uint, username, password, passwordRetype, firstName, lastName, email, systemRoleName string) error {
 	if issuerUserID != nil {
 		issuerUser, err := database.GetDatabase().GetUserByID(*issuerUserID)
 		if err != nil {
@@ -60,7 +57,12 @@ func CreateUser(issuerUserID *uint, userID *uint, username, password, firstName,
 		}
 	}
 
-	err := checkPasswordRequirements(password)
+	err := validateConfirmationPassword(password, passwordRetype)
+	if err != nil {
+		return err
+	}
+
+	err = checkPasswordRequirements(password)
 	if err != nil {
 		return err
 	}
@@ -95,13 +97,8 @@ func CreateUser(issuerUserID *uint, userID *uint, username, password, firstName,
 	return database.GetDatabase().UpdateUser(user)
 }
 
-func DeleteUser(issuerUserID uint, issuerPassword string, userID uint) error {
+func DeleteUser(issuerUserID uint, userID uint) error {
 	issuerUser, err := database.GetDatabase().GetUserByID(issuerUserID)
-	if err != nil {
-		return err
-	}
-
-	_, err = AuthenticateUser(issuerUser.Username, issuerPassword)
 	if err != nil {
 		return err
 	}
@@ -117,7 +114,7 @@ func DeleteUser(issuerUserID uint, issuerPassword string, userID uint) error {
 	return database.GetDatabase().DeleteUserByID(userID)
 }
 
-func UpdateUser(issuerUserID uint, issuerPassword string, userID uint, username, password, firstName, lastName, email, systemRoleName *string) error {
+func UpdateUser(issuerUserID uint, issuerPassword string, userID uint, username, password, passwordConfirmation, firstName, lastName, email, systemRoleName *string) error {
 	issuerUser, err := database.GetDatabase().GetUserByID(issuerUserID)
 	if err != nil {
 		return err
@@ -141,8 +138,13 @@ func UpdateUser(issuerUserID uint, issuerPassword string, userID uint, username,
 		user.Username = *username
 	}
 
-	if password != nil {
-		err := checkPasswordRequirements(*password)
+	if password != nil || passwordConfirmation != nil {
+		err := validateConfirmationPassword(*password,*passwordConfirmation)
+		if err != nil {
+			return err
+		}
+
+		err = checkPasswordRequirements(*password)
 		if err != nil {
 			return err
 		}
@@ -182,6 +184,22 @@ func UpdateUser(issuerUserID uint, issuerPassword string, userID uint, username,
 	}
 
 	return database.GetDatabase().UpdateUser(user)
+}
+
+func validateConfirmationPassword(password, confirmationPassword string) error {
+	if len(password) == 0 {
+		return fmt.Errorf("missing password")
+	} 
+	
+	if len(confirmationPassword) == 0 {
+		return fmt.Errorf("missing password confirmation")
+	}
+
+	if password != confirmationPassword {
+		return fmt.Errorf("new password and the confirmation of the new password are not the same")
+	}
+
+	return nil
 }
 
 // CheckPasswordRequirements verifies the password against the specified rules.

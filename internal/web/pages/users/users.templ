@@ -4,12 +4,16 @@ import (
 	"tasklify/internal/handlers"
 	"tasklify/internal/database"
 	"tasklify/internal/web/pages"
-	"time"
 	"fmt"
 	"net/http"
+	"tasklify/internal/web/pages/users/slug"
 )
 
 func Users(w http.ResponseWriter, r *http.Request, params handlers.RequestParams) error {
+	if !pages.IsAdmin(r) {
+		return fmt.Errorf("unauthorized")
+	}
+
 	usersWithoutCaller, err := database.GetDatabase().GetFilteredUsers([]uint{params.UserID})
 	if err != nil {
 		return err
@@ -37,20 +41,19 @@ templ users(users []database.User) {
 					</div>
 				</div>
 				for _, user := range users {
-					<div class="card card-compact bg-base-100 shadow-xl hover:shadow-2xl transition-shadow" hx-get={ fmt.Sprintf("/users/%d", user.ID) } hx-target="#dialog">
+					<div class="card card-compact bg-base-100 shadow-xl hover:shadow-2xl transition-shadow">
 						<div class="card-body">
 							<h2 class="card-title">{ user.FirstName } { user.LastName }</h2>
 							<p class="whitespace-break-spaces">{ user.Username }</p>
 							<p class="whitespace-break-spaces">{ user.Email }</p>
 							<p class="whitespace-break-spaces">
-								Last Login:
-								if user.LastLogin != nil {
-									{ user.LastLogin.Format(time.DateTime) }
-								} else {
-									"never logged in"
-								}
+								Last Login: { userSlug.LastLogin(&user) }
 							</p>
 							<p class="whitespace-break-spaces">Role: { user.SystemRole.Val }</p>
+							<div class="card-actions justify-end">
+								<button class="btn btn-warning" hx-get={ fmt.Sprintf("/users/%d/delete", user.ID) } hx-target="#dialog">Delete</button>
+								<button class="btn btn-primary" hx-get={ fmt.Sprintf("/users/%d", user.ID) } hx-target="#dialog">Edit</button>
+							</div>
 						</div>
 					</div>
 				}

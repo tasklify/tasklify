@@ -1,0 +1,58 @@
+package userSlug
+
+import (
+	"fmt"
+	"github.com/go-chi/chi/v5"
+	"net/http"
+	"strconv"
+	"tasklify/internal/database"
+	"tasklify/internal/handlers"
+	"tasklify/internal/web/components/common"
+)
+
+func GetDeleteUser(w http.ResponseWriter, r *http.Request, params handlers.RequestParams) error {
+	temp, err := strconv.Atoi(chi.URLParam(r, "userID"))
+	if err != nil {
+		return err
+	}
+	requestedUserID := uint(temp)
+
+	requestingUser, err := database.GetDatabase().GetUserByID(params.UserID)
+	if err != nil {
+		return err
+	}
+
+	if requestedUserID == params.UserID || requestingUser.SystemRole == database.SystemRoleAdmin {
+		requestedUser, err := database.GetDatabase().GetUserByID(requestedUserID)
+		if err != nil {
+			return err
+		}
+
+		c := deleteUser(requestedUser)
+		return c.Render(r.Context(), w)
+	}
+
+	w.WriteHeader(http.StatusUnauthorized)
+	return nil
+}
+
+templ deleteUser(user *database.User) {
+	@common.CreateDialog(fmt.Sprintf("User %d", user.ID), http.MethodDelete, fmt.Sprintf("/users/%d", user.ID), "Delete") {
+		<div class="form-control">
+			<div class="card-body text-left">
+				<h2 class="card-title">Confirm the deletion of user { fmt.Sprintf("%d", user.ID) }</h2>
+				<br/>
+				<h3 class=" card-normal">User information:</h3>
+				<br/>
+				<div class="whitespace-break-spaces left-4">
+					<p>Username: { user.Username }</p>
+					<p>First name: { user.FirstName }</p>
+					<p>Last name: { user.LastName }</p>
+					<p>Email: { user.Email }</p>
+					<p>Last login: { LastLogin(user) }</p>
+					<p>System role: { user.SystemRole.Val }</p>
+				</div>
+			</div>
+		</div>
+	}
+}

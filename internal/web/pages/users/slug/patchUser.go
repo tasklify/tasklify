@@ -15,6 +15,7 @@ import (
 type patchUserFormData struct {
 	Username    string `schema:"username,required"`
 	NewPassword string `schema:"new_password"`
+	NewPasswordConfirm string `schema:"new_password_confirm"`
 	FirstName   string `schema:"first_name,required"`
 	LastName    string `schema:"last_name,required"`
 	Email       string `schema:"email,required"`
@@ -41,16 +42,12 @@ func PatchUser(w http.ResponseWriter, r *http.Request, params handlers.RequestPa
 	}
 	userIDToUpdate := uint(temp)
 
-	var newPassword *string
-	if len(patchUserFormData.NewPassword) != 0 {
-		newPassword = &patchUserFormData.NewPassword
-	}
-
 	err = auth.UpdateUser(params.UserID,
 		patchUserFormData.Password,
 		userIDToUpdate,
 		ptr.String(patchUserFormData.Username),
-		newPassword,
+		ptr.String(patchUserFormData.NewPassword),
+		ptr.String(patchUserFormData.NewPasswordConfirm),
 		ptr.String(patchUserFormData.FirstName),
 		ptr.String(patchUserFormData.LastName),
 		ptr.String(patchUserFormData.Email),

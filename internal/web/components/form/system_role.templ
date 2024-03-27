@@ -5,12 +5,12 @@ import (
 	"strings"
 )
 
-templ SystemRoleField(label, inputID string, user *database.User) {
+templ SystemRoleField(label, inputID string, user *database.User, canEdit bool) {
 	<div class="form-control">
 		<label class="label">
 			<span class="label-text">{ label }</span>
 		</label>
-		<select required name={ inputID } id={ inputID } class="select select-bordered">
+		<select required name={ inputID } id={ inputID } disabled?={ !canEdit } class="select select-bordered">
 			for _, role := range database.SystemRoles.Values() {
 				<option
 					value={ role }

@@ -11,6 +11,25 @@ import "bytes"
 
 import "tasklify/internal/web/components/form"
 
+import (
+	"net/http"
+	"tasklify/internal/auth"
+	"tasklify/internal/web/pages"
+)
+
+func GetLogin(w http.ResponseWriter, r *http.Request) error {
+	// User already logged in
+	_, err := auth.GetSession().GetUserID(r)
+	if err == nil {
+		w.Header().Set("HX-Redirect", "/dashboard")
+		w.WriteHeader(http.StatusOK)
+	}
+
+	// User not logged in
+	c := login()
+	return pages.Layout(c, "Login", r).Render(r.Context(), w)
+}
+
 func login() templ.Component {
 	return templ.ComponentFunc(func(ctx context.Context, templ_7745c5c3_W io.Writer) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templ_7745c5c3_W.(*bytes.Buffer)

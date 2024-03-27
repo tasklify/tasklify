@@ -70,6 +70,20 @@ func CreateDialog(title, hxMethod, hxPath, submitButton string) templ.Component 
 				return templ_7745c5c3_Err
 			}
 		}
+		if hxMethod == http.MethodDelete {
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(" hx-delete=\"")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(hxPath))
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("\"")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(" hx-target-400=\"#validation-error\" hx-target-401=\"#validation-error\" class=\"bg-white rounded-lg p-8 shadow-lg w-2/5 h-auto\" hx-on::after-request=\"if(event.detail.successful) dialog_container.close()\"><div class=\"text-center\"><h2 class=\"text-xl font-medium mb-4\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
@@ -77,7 +91,7 @@ func CreateDialog(title, hxMethod, hxPath, submitButton string) templ.Component 
 		var templ_7745c5c3_Var2 string
 		templ_7745c5c3_Var2, templ_7745c5c3_Err = templ.JoinStringErrs(title)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/web/components/common/createDialog.templ`, Line: 23, Col: 49}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/web/components/common/createDialog.templ`, Line: 26, Col: 49}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var2))
 		if templ_7745c5c3_Err != nil {
@@ -98,7 +112,7 @@ func CreateDialog(title, hxMethod, hxPath, submitButton string) templ.Component 
 		var templ_7745c5c3_Var3 string
 		templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinStringErrs(submitButton)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/web/components/common/createDialog.templ`, Line: 29, Col: 72}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/web/components/common/createDialog.templ`, Line: 32, Col: 72}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var3))
 		if templ_7745c5c3_Err != nil {

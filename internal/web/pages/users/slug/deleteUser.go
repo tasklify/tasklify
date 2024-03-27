@@ -10,10 +10,6 @@ import (
 	"github.com/go-chi/chi/v5"
 )
 
-type deleteUserFormData struct {
-	Password string `schema:"password,required"`
-}
-
 func DeleteUser(w http.ResponseWriter, r *http.Request, params handlers.RequestParams) error {
 	temp, err := strconv.Atoi(chi.URLParam(r, "userID"))
 	if err != nil {
@@ -23,15 +19,7 @@ func DeleteUser(w http.ResponseWriter, r *http.Request, params handlers.RequestP
 	}
 	userIDToDelete := uint(temp)
 
-	var deleteUserFormData deleteUserFormData
-	err = decoder.Decode(&deleteUserFormData, r.PostForm)
-	if err != nil {
-		w.WriteHeader(http.StatusBadRequest)
-		c := common.ValidationError(err.Error())
-		return c.Render(r.Context(), w)
-	}
-
-	err = auth.DeleteUser(params.UserID, deleteUserFormData.Password, userIDToDelete)
+	err = auth.DeleteUser(params.UserID, userIDToDelete)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		c := common.ValidationError(err.Error())

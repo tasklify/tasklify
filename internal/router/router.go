@@ -72,6 +72,9 @@ func Router() *chi.Mux {
 				"PATCH":  handlers.UnifiedHandler(handlers.AuthenticatedHandlerFunc(userSlug.PatchUser)),
 				"DELETE": handlers.UnifiedHandler(handlers.AuthenticatedHandlerFunc(userSlug.DeleteUser)),
 			})
+			r.Handle("/users/{userID}/delete", ghandlers.MethodHandler{
+				"GET": handlers.UnifiedHandler(handlers.AuthenticatedHandlerFunc(userSlug.GetDeleteUser)),
+			})
 
 			// ===== Create Project endpoints =====
 			r.Handle("/dashboard", ghandlers.MethodHandler{

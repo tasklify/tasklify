@@ -29,6 +29,7 @@ templ getNewUser() {
 		@form.TextField("Username", "username", "", "Username")
 		// Password
 		@form.PasswordField("Password", "password", true, true)
+		@form.PasswordField("Retype password", "password_retype", true, true)
 		// First name
 		@form.TextField("First name", "first_name", "", "First name")
 		// Last name
@@ -36,6 +37,6 @@ templ getNewUser() {
 		// Email
 		@form.EmailField("Email", "email", "", "your@email.com")
 		// System role
-		@form.SystemRoleField("System role", "system_role", nil)
+		@form.SystemRoleField("System role", "system_role", nil, true)
 	}
 }
