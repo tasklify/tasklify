@@ -13,6 +13,7 @@ import (
 type postUsersFormData struct {
 	Username   string `schema:"username,required"`
 	Password   string `schema:"password,required"`
+	PasswordRetype   string `schema:"password_retype,required"`
 	FirstName  string `schema:"first_name,required"`
 	LastName   string `schema:"last_name,required"`
 	Email      string `schema:"email,required"`
@@ -33,6 +34,7 @@ func PostUsers(w http.ResponseWriter, r *http.Request, params handlers.RequestPa
 	err = auth.CreateUser(ptr.Uint(params.UserID), nil,
 		postUsersFormData.Username,
 		postUsersFormData.Password,
+		postUsersFormData.PasswordRetype,
 		postUsersFormData.FirstName,
 		postUsersFormData.LastName,
 		postUsersFormData.Email,

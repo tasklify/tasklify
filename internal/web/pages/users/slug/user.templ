@@ -30,7 +30,12 @@ func GetUser(w http.ResponseWriter, r *http.Request, params handlers.RequestPara
 			return err
 		}
 
-		c := getUser(requestedUser)
+		canEditSystemRole := true
+		if requestedUserID == params.UserID {
+			canEditSystemRole = false
+		}
+
+		c := getUser(requestedUser, canEditSystemRole)
 		return c.Render(r.Context(), w)
 	}
 
@@ -38,12 +43,13 @@ func GetUser(w http.ResponseWriter, r *http.Request, params handlers.RequestPara
 	return nil
 }
 
-templ getUser(user *database.User) {
+templ getUser(user *database.User, canEditSystemRole bool) {
 	@common.CreateDialog(fmt.Sprintf("User %d", user.ID), http.MethodPatch, fmt.Sprintf("/users/%d", user.ID), "Update") {
 		// Username
 		@form.TextField("Username", "username", user.Username, user.Username)
 		// Password
 		@form.PasswordField("New password", "new_password", false, true)
+		@form.PasswordField("Confirm new password", "new_password_confirm", false, true)
 		// First name
 		@form.TextField("First name", "first_name", user.FirstName, user.FirstName)
 		// Last name
@@ -66,7 +72,7 @@ templ getUser(user *database.User) {
 			/>
 		</div>
 		// System role
-		@form.SystemRoleField("System role", "system_role", user)
+		@form.SystemRoleField("System role", "system_role", user, canEditSystemRole)
 		// Projects
 		@form.ProjectsField("Projects", user)
 		// Conformation password
@@ -76,7 +82,9 @@ templ getUser(user *database.User) {
 
 func LastLogin(user *database.User) string {
 	if user.LastLogin != nil {
-		user.LastLogin.Format(time.DateTime)
+		fmt.Println(user.Username, *user.LastLogin)
+
+		return user.LastLogin.Format(time.DateTime)
 	}
 
 	return "never logged in"

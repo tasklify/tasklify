@@ -3,6 +3,7 @@ package pages
 import "net/http"
 import "tasklify/internal/auth"
 import "fmt"
+import "tasklify/internal/database"
 
 templ Layout(contents templ.Component, title string, r *http.Request) {
 	<html>
@@ -51,7 +52,7 @@ templ nav(r *http.Request) {
 			>
 				tasklify
 			</a>
-			if isLoggedIn(r) {
+			if isLoggedIn(r) && IsAdmin(r) {
 				<a class="btn btn-sm m-0.5" href="/users">Users</a>
 			}
 		</div>
@@ -85,6 +86,23 @@ func isLoggedIn(r *http.Request) bool {
 	isLoggedIn := err == nil // If error is nil, the user is considered logged in
 
 	return isLoggedIn
+}
+
+func IsAdmin(r *http.Request) bool {
+	sessionManager := auth.GetSession()
+	userID, err := sessionManager.GetUserID(r)
+
+	user, err := database.GetDatabase().GetUserByID(userID)
+
+	if err != nil {
+		return false
+	}
+
+	if user.SystemRole != database.SystemRoleAdmin {
+		return false
+	}
+
+	return true
 }
 
 func userSettingsPath(r *http.Request) string {

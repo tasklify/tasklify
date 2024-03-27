@@ -1,7 +1,6 @@
 package logout
 
 import (
-	"log"
 	"net/http"
 	"tasklify/internal/auth"
 )
@@ -14,7 +13,6 @@ func PostLogout(w http.ResponseWriter, r *http.Request) error {
 
 	err := auth.GetSession().Destroy(w, r)
 	if err != nil {
-		log.Println(err)
 		w.WriteHeader(http.StatusInternalServerError)
 		return nil
 	}
