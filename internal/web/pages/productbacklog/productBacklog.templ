@@ -377,7 +377,7 @@ templ userStoryTableRow(us database.UserStory, status database.Status, projectRo
 						</svg>
 					</button>
 					<!--Remove from sprint button-->
-					if *us.Realized {
+					<!--if *us.Realized {
 						<div class="flex-grow" title="Can't remove relaized user story from sprint">
 							<button class="btn btn-xs" disabled>
 								<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
@@ -394,7 +394,7 @@ templ userStoryTableRow(us database.UserStory, status database.Status, projectRo
 								</svg>
 							</button>
 						</form>
-					}
+					}-->
 				</div>
 				<div class="flex justify-start space-x-2">
 					if (*us.Realized == false && slices.Contains(projectRoles, database.ProjectRoleManager) && status == database.StatusDone) {
