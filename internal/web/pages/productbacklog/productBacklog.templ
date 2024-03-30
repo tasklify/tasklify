@@ -88,6 +88,7 @@ document.addEventListener("DOMContentLoaded", function() {
 									<div class="text-sm text-gray-600">{ sprint.StartDate.Format("Mon Jan _2 2006") } - { sprint.EndDate.Format("Mon Jan _2 2006") }</div>
 									<div class="text-sm text-gray-600">Velocity: { strconv.FormatFloat(float64(*sprint.Velocity), 'f', 2, 64) } spt</div>
 								</div>
+
 								if sprint.DetermineStatus() == database.StatusInProgress {
 									<span class="ml-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-300">
 										Active
@@ -214,7 +215,9 @@ templ backlog(backlogUserStories []database.UserStory, sprint database.Sprint, c
 				if slices.Contains(projectRoles, database.ProjectRoleMaster) {
 					<div class="mt-4 flex justify-end">
 						<input type="hidden" name="sprintID" value={ strconv.Itoa(int(sprint.ID)) }/>
-						<input type="hidden" name="velocity" value={ strconv.FormatFloat(float64(*sprint.Velocity), 'f', 2, 64) }/>
+						if sprint.Velocity != nil {
+							<input type="hidden" name="velocity" value={ strconv.FormatFloat(float64(*sprint.Velocity), 'f', 2, 64) }/>
+						}
 						<input type="hidden" name="active_sprint_load" value={ strconv.FormatFloat(float64(getCurrentLoad(sprint.UserStories)), 'f', 2, 64) }/>
 						<input type="hidden" name="callback" value={ callback }/>
 						<button type="submit" class="btn btn-primary">Add to Sprint</button>
