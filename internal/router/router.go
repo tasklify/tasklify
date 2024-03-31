@@ -10,6 +10,8 @@ import (
 	"tasklify/internal/web/pages/logout"
 	"tasklify/internal/web/pages/productbacklog"
 	"tasklify/internal/web/pages/project"
+	"tasklify/internal/web/pages/projectinfo"
+	"tasklify/internal/web/pages/projectwall"
 	"tasklify/internal/web/pages/sprint"
 	"tasklify/internal/web/pages/sprintbacklog"
 	"tasklify/internal/web/pages/task"
@@ -114,7 +116,15 @@ func Router() *chi.Mux {
 			})
 
 			r.Handle("/project-info/{projectID}", ghandlers.MethodHandler{
-				"GET": handlers.UnifiedHandler(handlers.AuthenticatedHandlerFunc(project.GetProjectInfo)),
+				"GET": handlers.UnifiedHandler(handlers.AuthenticatedHandlerFunc(projectinfo.GetProjectInfo)),
+			})
+
+			r.Handle("/project-wall/{projectID}", ghandlers.MethodHandler{
+				"GET": handlers.UnifiedHandler(handlers.AuthenticatedHandlerFunc(projectwall.GetProjectWall)),
+			})
+			r.Handle("/project-wall/{projectID}/post", ghandlers.MethodHandler{
+				"GET":  handlers.UnifiedHandler(handlers.AuthenticatedHandlerFunc(projectwall.GetNewPostDialog)),
+				"POST": handlers.UnifiedHandler(handlers.AuthenticatedHandlerFunc(projectwall.AddNewPost)),
 			})
 
 			r.Handle("/{projectID}/createsprint", ghandlers.MethodHandler{

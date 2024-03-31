@@ -1,0 +1,64 @@
+package projectwall
+
+import "tasklify/internal/web/components/common"
+import "tasklify/internal/database"
+import "net/http"
+import "fmt"
+
+templ projectWall(projectData database.Project, projectRoles []database.ProjectRole, currentUser database.User) {
+	@common.ProjectNavbar(projectData, projectRoles, currentUser.SystemRole, "project_wall") {
+		<div class="flex-1 mt-2">
+			<form hx-get={ fmt.Sprintf("/project-wall/%v/post", projectData.ID) } hx-target="#dialog" style="display: inline;">
+				<button class="btn btn-primary btn-sm">Write a new post</button>
+			</form>
+			<div class="flex flex-col mt-6">
+				if len(projectData.ProjectWallPosts) == 0 {
+					<span class="ml-1">There are no posts on this project wall yet...</span>
+				}
+				for _, post := range projectData.ProjectWallPosts {
+					if currentUser.ID == post.Author.ID {
+						<div class="w-7/12 self-end mb-4">
+							<div class="mr-2 text-right">
+								<span class="font-medium">{ post.Author.Username }</span>
+							</div>
+							<div class="card-body bg-base-300 p-3 rounded-2xl whitespace-break-spaces">
+								// <div class="">
+								// 	<time class="text-xs opacity-50">{ post.CreatedAt.Format("02-01-2006 15:04") }</time>
+								// 	<span class="font-medium">{ post.Author.Username }</span>
+								// </div>
+								{ post.Body }
+							</div>
+							<div class="mr-2 text-right">
+								<time class="text-xs opacity-50">{ post.CreatedAt.Format("02-01-2006 15:04") }</time>
+							</div>
+						</div>
+					} else {
+						<div class="w-7/12 self-start mb-4">
+							<div class="ml-2">
+								<span class="font-medium">{ post.Author.Username }</span>
+							</div>
+							<div class="card-body bg-base-200 p-3 rounded-2xl whitespace-break-spaces">
+								// <div class="">
+								// 	<span class="font-medium">{ post.Author.Username }</span>
+								// 	<time class="text-xs opacity-50">{ post.CreatedAt.Format("02-01-2006 15:04") }</time>
+								// </div>
+								{ post.Body }
+							</div>
+							<div class="ml-2">
+								<time class="text-xs opacity-50">{ post.CreatedAt.Format("02-01-2006 15:04") }</time>
+							</div>
+						</div>
+					}
+				}
+			</div>
+		</div>
+	}
+}
+
+templ AddNewPostDialog(projectID uint) {
+	@common.CreateDialog("New post", http.MethodPost, fmt.Sprintf("/project-wall/%v/post", projectID), "Add") {
+		<div class="mb-4">
+			<textarea rows="6" id="body" name="body" class="textarea mt-1 p-2 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50" style="max-height: 250px; min-height: 50px;" required></textarea>
+		</div>
+	}
+}

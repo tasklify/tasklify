@@ -6,15 +6,16 @@ import (
 
 type Project struct {
 	gorm.Model
-	Title          string      `gorm:"unique"`
-	Description    string      `gorm:"type:TEXT"`
-	Developers     []User      `gorm:"many2many:project_has_users;"` // m:n (Project:User)
-	ProductOwnerID uint        // 1:n (User:Project)
-	ProductOwner   User        `gorm:"-"`
-	ScrumMasterID  uint        // 1:n (User:Project)
-	ScrumMaster    User        `gorm:"-"`
-	Sprints        []Sprint    // 1:n (Project:Sprint)
-	UserStories    []UserStory // 1:n (Project:UserStory)
+	Title            string            `gorm:"unique"`
+	Description      string            `gorm:"type:TEXT"`
+	Developers       []User            `gorm:"many2many:project_has_users;"` // m:n (Project:User)
+	ProductOwnerID   uint              // 1:n (User:Project)
+	ProductOwner     User              `gorm:"-"`
+	ScrumMasterID    uint              // 1:n (User:Project)
+	ScrumMaster      User              `gorm:"-"`
+	Sprints          []Sprint          // 1:n (Project:Sprint)
+	UserStories      []UserStory       // 1:n (Project:UserStory)
+	ProjectWallPosts []ProjectWallPost // 1:n (Project:ProjectWallPost)
 }
 
 func (db *database) GetProjectByID(id uint) (*Project, error) {
