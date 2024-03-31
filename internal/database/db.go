@@ -44,6 +44,11 @@ type Database interface {
 	RemoveUserFromProject(projectID uint, userID uint) error
 	GetUserProjects(userID uint) ([]Project, error)
 	UpdateProject(projectID uint, projectData Project) error
+	GetProjectWallPosts(projectID uint) ([]ProjectWallPost, error)
+	AddProjectWallPost(post ProjectWallPost) error
+	EditProjectWallPost(projectID uint, postID uint, body string) error
+	DeleteProjectWallPost(projectID uint, postID uint) error
+	GetProjectWallPostByID(postID uint) (*ProjectWallPost, error)
 	CreateAcceptanceTest(acceptanceTest *AcceptanceTest) error
 	RawDB() *gorm.DB
 }
@@ -84,7 +89,7 @@ func connectDatabase(config config.Database) *database {
 
 func registerTables(db *database) {
 	// Migrate the schema
-	err := db.AutoMigrate(&User{}, &Project{}, &UserStory{}, &Task{}, &AcceptanceTest{}, &ProjectHasUser{}, &Sprint{}, &WorkflowStep{})
+	err := db.AutoMigrate(&User{}, &Project{}, &ProjectWallPost{}, &UserStory{}, &Task{}, &AcceptanceTest{}, &ProjectHasUser{}, &Sprint{}, &WorkflowStep{})
 	if err != nil {
 		log.Fatal("Schema migration error: ", err)
 	}
