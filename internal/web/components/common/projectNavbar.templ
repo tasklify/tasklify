@@ -8,9 +8,9 @@ templ ProjectNavbar(project database.Project, projectRoles []database.ProjectRol
 	<div>
 		<div class="flex">
 			<div>
-				@SideNav(project.ID)
+				@SideNav(project.ID, projectRoles)
 			</div>
-			<div class="flex-1 bg-base-100 min-h-screen flex flex-col px-4">
+			<div class="flex-1 bg-base-100 flex flex-col px-4" style="max-height: calc(100vh - 64px); min-height: calc(100vh - 64px)">
 				switch topNavVariant {
 					case "project_board":
 						@TopNavProjectBoard(project)
@@ -65,8 +65,8 @@ templ TopNavProjectWall(project database.Project, projectRoles []database.Projec
 	</div>
 }
 
-templ SideNav(projectID uint) {
-	<ul class="menu bg-base-300 border-r-2 border-r-gray-300 h-screen min-h-screen" style="width: 5rem">
+templ SideNav(projectID uint, projectRoles []database.ProjectRole) {
+	<ul class="menu bg-base-300 border-r-2 border-r-gray-300" style="width: 5rem; min-height: calc(100vh - 64px)">
 		<li class=" mt-4">
 			<a href="/dashboard" class="self-center text-center tooltip tooltip-right" style="height: 40px; width: 100%; display: inline-block;" data-tip="Back to dashboard">
 				@GoBackIcon()
@@ -86,19 +86,21 @@ templ SideNav(projectID uint) {
 				@ProductBacklogIcon()
 			</a>
 		</li>
-		<li class="mb-4">
-			<a
-				hx-get={ fmt.Sprint("/project-wall/", fmt.Sprint(projectID)) }
-				hx-target="#whole"
-				hx-swap="innerHTML"
-				hx-push-url="true"
-				class="self-center text-center tooltip tooltip-right"
-				style="height: 40px; width: 100%; display: inline-block;"
-				data-tip="Project Wall"
-			>
-				@ProjectWallIcon()
-			</a>
-		</li>
+		if len(projectRoles) != 0 {
+			<li class="mb-4">
+				<a
+					hx-get={ fmt.Sprint("/project-wall/", fmt.Sprint(projectID)) }
+					hx-target="#whole"
+					hx-swap="innerHTML"
+					hx-push-url="true"
+					class="self-center text-center tooltip tooltip-right"
+					style="height: 40px; width: 100%; display: inline-block;"
+					data-tip="Project Wall"
+				>
+					@ProjectWallIcon()
+				</a>
+			</li>
+		}
 		<li class="mb-4">
 			<a
 				hx-get={ fmt.Sprint("/project-info/", fmt.Sprint(projectID)) }

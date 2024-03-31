@@ -27,6 +27,9 @@ func GetProjectWall(w http.ResponseWriter, r *http.Request, params handlers.Requ
 	}
 
 	projectRoles, _ := database.GetDatabase().GetProjectRoles(params.UserID, projectID)
+	if len(projectRoles) == 0 {
+		return pages.NotFound(w, r)
+	}
 
 	user, err := database.GetDatabase().GetUserByID(params.UserID)
 	if err != nil {
@@ -38,7 +41,6 @@ func GetProjectWall(w http.ResponseWriter, r *http.Request, params handlers.Requ
 		return err
 	}
 	project.ProjectWallPosts = posts
-	// project.ProjectWallPosts = append(project.ProjectWallPosts, posts...)
 
 	c := projectWall(*project, projectRoles, *user)
 	return pages.Layout(c, "Project Wall", r).Render(r.Context(), w)
@@ -79,6 +81,78 @@ func AddNewPost(w http.ResponseWriter, r *http.Request, params handlers.RequestP
 	}
 
 	err = database.GetDatabase().AddProjectWallPost(newPost)
+	if err != nil {
+		return err
+	}
+
+	w.Header().Set("HX-Redirect", fmt.Sprint("/project-wall/", projectID))
+
+	return nil
+}
+
+func GetEditPost(w http.ResponseWriter, r *http.Request, params handlers.RequestParams) error {
+	postIDInt, err := strconv.Atoi(chi.URLParam(r, "postID"))
+	if err != nil {
+		return err
+	}
+	postID := uint(postIDInt)
+
+	postData, err := database.GetDatabase().GetProjectWallPostByID(postID)
+	if err != nil {
+		return err
+	}
+
+	c := EditPostDialog(*postData)
+	return c.Render(r.Context(), w)
+}
+
+func PutPost(w http.ResponseWriter, r *http.Request, params handlers.RequestParams) error {
+	type RequestData struct {
+		Body string `schema:"body,required"`
+	}
+
+	projectIDInt, err := strconv.Atoi(chi.URLParam(r, "projectID"))
+	if err != nil {
+		return err
+	}
+	projectID := uint(projectIDInt)
+
+	postIDInt, err := strconv.Atoi(chi.URLParam(r, "postID"))
+	if err != nil {
+		return err
+	}
+	postID := uint(postIDInt)
+
+	var req RequestData
+	err = decoder.Decode(&req, r.PostForm)
+	if err != nil {
+		return err
+	}
+
+	err = database.GetDatabase().EditProjectWallPost(projectID, postID, req.Body)
+	if err != nil {
+		return err
+	}
+
+	w.Header().Set("HX-Redirect", fmt.Sprint("/project-wall/", projectID))
+
+	return nil
+}
+
+func DeletePost(w http.ResponseWriter, r *http.Request, params handlers.RequestParams) error {
+	projectIDInt, err := strconv.Atoi(chi.URLParam(r, "projectID"))
+	if err != nil {
+		return err
+	}
+	projectID := uint(projectIDInt)
+
+	postIDInt, err := strconv.Atoi(chi.URLParam(r, "postID"))
+	if err != nil {
+		return err
+	}
+	postID := uint(postIDInt)
+
+	err = database.GetDatabase().DeleteProjectWallPost(projectID, postID)
 	if err != nil {
 		return err
 	}

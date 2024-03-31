@@ -22,10 +22,24 @@ func (db *database) GetProjectWallPosts(projectID uint) ([]ProjectWallPost, erro
 	return posts, nil
 }
 
+func (db *database) GetProjectWallPostByID(postID uint) (*ProjectWallPost, error) {
+	var post = &ProjectWallPost{}
+	err := db.First(post, postID).Error
+	if err != nil {
+		return nil, err
+	}
+
+	return post, nil
+}
+
 func (db *database) AddProjectWallPost(post ProjectWallPost) error {
 	return db.Create(&post).Error
 }
 
-func (db *database) EditProjectWallPost(postID uint, body string) error {
-	return db.Model(&ProjectWallPost{}).Where("id = ?", postID).Update("body", body).Error
+func (db *database) EditProjectWallPost(projectID uint, postID uint, body string) error {
+	return db.Model(&ProjectWallPost{}).Where("id = ? AND project_id = ?", postID, projectID).Update("body", body).Error
+}
+
+func (db *database) DeleteProjectWallPost(projectID uint, postID uint) error {
+	return db.Unscoped().Where("id = ? AND project_id = ?", postID, projectID).Delete(&ProjectWallPost{}).Error
 }

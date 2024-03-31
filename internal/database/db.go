@@ -46,7 +46,9 @@ type Database interface {
 	UpdateProject(projectID uint, projectData Project) error
 	GetProjectWallPosts(projectID uint) ([]ProjectWallPost, error)
 	AddProjectWallPost(post ProjectWallPost) error
-	EditProjectWallPost(postID uint, body string) error
+	EditProjectWallPost(projectID uint, postID uint, body string) error
+	DeleteProjectWallPost(projectID uint, postID uint) error
+	GetProjectWallPostByID(postID uint) (*ProjectWallPost, error)
 	CreateAcceptanceTest(acceptanceTest *AcceptanceTest) error
 	RawDB() *gorm.DB
 }

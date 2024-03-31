@@ -126,6 +126,11 @@ func Router() *chi.Mux {
 				"GET":  handlers.UnifiedHandler(handlers.AuthenticatedHandlerFunc(projectwall.GetNewPostDialog)),
 				"POST": handlers.UnifiedHandler(handlers.AuthenticatedHandlerFunc(projectwall.AddNewPost)),
 			})
+			r.Handle("/project-wall/{projectID}/post/{postID}", ghandlers.MethodHandler{
+				"GET":    handlers.UnifiedHandler(handlers.AuthenticatedHandlerFunc(projectwall.GetEditPost)),
+				"PUT":    handlers.UnifiedHandler(handlers.AuthenticatedHandlerFunc(projectwall.PutPost)),
+				"DELETE": handlers.UnifiedHandler(handlers.AuthenticatedHandlerFunc(projectwall.DeletePost)),
+			})
 
 			r.Handle("/{projectID}/createsprint", ghandlers.MethodHandler{
 				"GET":  handlers.UnifiedHandler(handlers.AuthenticatedHandlerFunc(sprint.GetCreateSprint)),
