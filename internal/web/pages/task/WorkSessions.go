@@ -37,15 +37,25 @@ func StartWorkSession(w http.ResponseWriter, r *http.Request, params handlers.Re
 		return err
 	}
 
-	userStory, err := database.GetDatabase().GetUserStoryByID(task.UserStoryID)
+	workSessions, err := database.GetDatabase().GetWorkSessionsForTask(uint(taskID))
 	if err != nil {
 		return err
 	}
 
-	w.Header().Set("HX-Redirect", "/sprintbacklog/"+strconv.Itoa(int(*userStory.SprintID)))
+	todaysWS := []database.WorkSession{}
+	otherWS := []database.WorkSession{}
+	for _, session := range workSessions {
+		if session.OngoingToday {
+			todaysWS = append(todaysWS, session)
+		} else {
+			otherWS = append(otherWS, session)
+		}
+	}
 
-	w.WriteHeader(http.StatusSeeOther)
-	return nil
+	otherWS = sortWorkSessionsByDate(otherWS)
+
+	c := LoggedTimeDialog(todaysWS, otherWS, uint(taskID))
+	return c.Render(r.Context(), w)
 }
 
 func ResumeWorkSession(w http.ResponseWriter, r *http.Request, params handlers.RequestParams) error {
