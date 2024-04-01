@@ -1,0 +1,118 @@
+package task
+
+import "tasklify/internal/database"
+import "fmt"
+import "time"
+
+templ LoggedTimeDialog(todayWS []database.WorkSession, otherWS []database.WorkSession, taskID uint) {
+	<div hx-ext="response-targets">
+		<div id="create-dialog" hx-ext="response-targets" class="fixed top-0 left-0 w-full h-full bg-gray-700 bg-opacity-60 flex justify-center items-center z-50">
+			<form
+				hx-target-400="#validation-error"
+				hx-target-401="#validation-error"
+				class="bg-white rounded-lg p-8 shadow-xl w-2/5 h-auto space-y-4"
+			>
+				<div class="text-center">
+					<h2 class="text-2xl font-semibold text-gray-800 mb-6">Log Details</h2>
+					<div class="mb-4">
+						<h3 class="text-xl font-medium text-gray-700 mb-2 text-left">Past Logs</h3>
+						<table class="w-full text-xs rounded-md">
+							<thead class="bg-gray-200">
+								<tr class="p-2">
+									<th class="text-left p-2 w-1/2">Date</th>
+									<th class="text-left p-2 w-1/4">Duration</th>
+									<th class="text-left p-2 w-1/4">Remaining</th>
+								</tr>
+							</thead>
+							<div class="space-y-2">
+								<tbody>
+									for _, ws := range otherWS {
+										<tr class="border-b">
+											<td class="p-2">{ ws.StartTime.Format("2006-01-02") }</td>
+											<td class="p-2">
+												<div id={ fmt.Sprintf("today-container-%v", ws.ID) }>
+													@DurationDialog(ws)
+												</div>
+											</td>
+											<td class="p-2">XX hours</td>
+										</tr>
+									}
+								</tbody>
+							</div>
+						</table>
+					</div>
+					<div class="mb-4">
+						<h3 class="text-xl font-medium text-gray-700 mb-2 text-left">Today's session</h3>
+						if len(todayWS) == 0 {
+							<div class="text-center py-4">You have not started a session today. Click Start to begin one.</div>
+							<div class="text-center">
+								<button class="btn btn-primary" hx-post={ fmt.Sprintf("/task/%v/start", taskID) } hx-target="#dialog_container">Start</button>
+							</div>
+						}
+						<table class="w-full text-xs rounded-md">
+							<thead class="bg-gray-200">
+								<tr class="p-2">
+									<th class="text-left p-2 w-1/2">Date</th>
+									<th class="text-left p-2 w-1/4">Duration</th>
+									<th class="text-left p-2 w-1/8">Remaining</th>
+									<th class="text-left p-2 w-1/8"></th>
+								</tr>
+							</thead>
+							<div class="space-y-2">
+								for _, ws := range todayWS {
+									<tbody>
+										if ws.EndTime == nil {
+											<tr class="border-b">
+												<td class="p-2">{ ws.StartTime.Format("2006-01-02") }</td>
+												<td class="p-2"></td>
+												<td class="p-2">
+													<div>ongoing</div>
+												</td>
+												<td><button class="btn btn-primary btn-xs" hx-post={ fmt.Sprintf("/session/%v/stop", ws.ID) } hx-target="#dialog_container">Stop</button></td>
+											</tr>
+										} else {
+											<tr class="border-b">
+												<td class="p-2">{ ws.StartTime.Format("2006-01-02") }</td>
+												<td class="p-2">
+													<div id={ fmt.Sprintf("today-container-%v", ws.ID) }>
+														@DurationDialog(ws)
+													</div>
+												</td>
+												<td class="p-2">XX hours</td>
+												<td><button class="btn btn-primary btn-xs" hx-post={ fmt.Sprintf("/session/%v/resume", ws.ID) } hx-target="#dialog_container">Resume</button></td>
+											</tr>
+										}
+									</tbody>
+								}
+							</div>
+						</table>
+					</div>
+				</div>
+				<div id="validation-error"></div>
+				<div class="flex justify-end mt-3">
+					<button class="btn btn-ghost" type="button" hx-on:click="dialog_container.close()">Close</button>
+				</div>
+			</form>
+		</div>
+	</div>
+}
+
+func FormatDuration(d time.Duration) string {
+	rounded := d.Round(time.Minute)
+	hours := rounded / time.Hour
+	minutes := (rounded % time.Hour) / time.Minute
+	return fmt.Sprintf("%dh%02dm", hours, minutes)
+}
+
+templ ChangeDurationDialog(ws database.WorkSession) {
+	<form id="duration-info" style="margin-bottom: 0px;">
+		<input type="text" name="duration" id="duration" value={ fmt.Sprintf("%v", FormatDuration(ws.Duration)) } class="input input-bordered w-20 input-xs mb-0" title="Enter duration in the format: XhXXm. Example: 1h30m for 1 hour and 30 minutes." style="margin-bottom: -20px;"/>
+		<button class="btn btn-primary btn-xs mb-0" hx-post={ fmt.Sprintf("/session/%v/change", ws.ID) } hx-target={ fmt.Sprintf("#today-container-%v", ws.ID) } hx-include="#duration-info" style="margin-bottom: -20px;">Change</button>
+	</form>
+}
+
+templ DurationDialog(ws database.WorkSession) {
+	<div hx-get={ fmt.Sprintf("/session/%v/change", ws.ID) } hx-target={ fmt.Sprintf("#today-container-%v", ws.ID) } hx-swap="innerHTML" id="today-container">
+		{ templ.JoinStringErrs(FormatDuration(ws.Duration)) }
+	</div>
+}

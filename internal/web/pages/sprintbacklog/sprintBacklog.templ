@@ -4,9 +4,10 @@ import "tasklify/internal/database"
 import "fmt"
 import "strconv"
 import "slices"
+import "tasklify/internal/handlers"
 
 // sprintBacklog.templ:
-templ sprintBacklog(sprint *database.Sprint, projectRoles []database.ProjectRole) {
+templ sprintBacklog(sprint *database.Sprint, projectRoles []database.ProjectRole, params handlers.RequestParams) {
 	<div class="bg-base-100 min-h-screen">
 		<div class="container mx-auto p-2">
 			<!-- Back to Product Backlog Button -->
@@ -68,11 +69,11 @@ templ sprintBacklog(sprint *database.Sprint, projectRoles []database.ProjectRole
 								<div class="w-1/8 text-left" style="flex: 1;"></div>
 							</div>
 							<!-- Generate a column for each task status category -->
-							@taskStatusCategories(mapTasksToStatuses(story.Tasks)["Unassigned"], "Unassigned")
-							@taskStatusCategories(mapTasksToStatuses(story.Tasks)["Pending"], "Pending")
-							@taskStatusCategories(mapTasksToStatuses(story.Tasks)["Assigned"], "Assigned")
-							@taskStatusCategories(mapTasksToStatuses(story.Tasks)["Active"], "Active")
-							@taskStatusCategories(mapTasksToStatuses(story.Tasks)["Done"], "Done")
+							@taskStatusCategories(mapTasksToStatuses(story.Tasks)["Unassigned"], "Unassigned", params)
+							@taskStatusCategories(mapTasksToStatuses(story.Tasks)["Pending"], "Pending", params)
+							@taskStatusCategories(mapTasksToStatuses(story.Tasks)["Assigned"], "Assigned", params)
+							@taskStatusCategories(mapTasksToStatuses(story.Tasks)["Active"], "Active", params)
+							@taskStatusCategories(mapTasksToStatuses(story.Tasks)["Done"], "Done", params)
 							<div class="text-sm font-bold p-2 text-gray pl-2" style="display: flex;">
 								<div class="w-1/3 text-left" style="flex: 8;"></div>
 								<div class="w-1/7 text-left" style="flex: 3;"></div>
@@ -89,7 +90,7 @@ templ sprintBacklog(sprint *database.Sprint, projectRoles []database.ProjectRole
 	</div>
 }
 
-templ taskStatusCategories(tasks []database.Task, category string) {
+templ taskStatusCategories(tasks []database.Task, category string, params handlers.RequestParams) {
 	<style>
 	.collapse-title,
 	:where(.collapse > input[type="checkbox"]),
@@ -116,14 +117,14 @@ templ taskStatusCategories(tasks []database.Task, category string) {
 				"
 					style="margin-bottom: 10px;"
 				>
-					@TaskRowSmall(task, category)
+					@TaskRowSmall(task, category, params)
 				</div>
 			}
 		</div>
 	</div>
 }
 
-templ TaskRowSmall(task database.Task, category string) {
+templ TaskRowSmall(task database.Task, category string, params handlers.RequestParams) {
 	<!-- Flex container for aligning assignee and details button -->
 	<div class="items-center pl-2 pr-2" style="display: flex;">
 		<div class="task-title font-bold text-md" style="flex: 7;">{ *task.Title }</div>
@@ -163,7 +164,17 @@ templ TaskRowSmall(task database.Task, category string) {
 						<path stroke-linecap="round" stroke-linejoin="round" d="M6.75 12a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0ZM12.75 12a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0ZM18.75 12a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Z"></path>
 					</svg>
 				</button>
-			</form>
+			</form> <!--Details button-->
+			if (category == "Assigned") && (params.UserID == *task.UserID) {
+				<form hx-post={ fmt.Sprintf("/task/%v/start", task.ID) }>
+					<button type="submit" class="btn btn-xs">Start</button>
+				</form>
+			}
+			if (category == "Active") && (params.UserID == *task.UserID) {
+				<form hx-get={ fmt.Sprintf("/task/%v/logged", task.ID) } hx-target="#dialog">
+					<button class="btn btn-xs">Logged</button>
+				</form>
+			}
 		</div>
 	</div>
 }

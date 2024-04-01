@@ -9,12 +9,8 @@ import (
 	"tasklify/internal/web/pages"
 
 	"github.com/go-chi/chi/v5"
-	"github.com/gorilla/schema"
 )
 
-var decoder = schema.NewDecoder()
-
-// GetSprintBacklog handles the request for fetching and displaying the sprint backlog.
 func GetSprintBacklog(w http.ResponseWriter, r *http.Request, params handlers.RequestParams) error {
 	sprintID, err := strconv.Atoi(chi.URLParam(r, "sprintID"))
 	if err != nil {
@@ -36,7 +32,7 @@ func GetSprintBacklog(w http.ResponseWriter, r *http.Request, params handlers.Re
 		return pages.NotFound(w, r)
 	}
 
-	c := sprintBacklog(sprint, projectRoles)
+	c := sprintBacklog(sprint, projectRoles, params)
 
 	return pages.Layout(c, "Sprint Backlog", r).Render(r.Context(), w)
 }
