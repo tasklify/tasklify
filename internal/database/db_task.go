@@ -41,3 +41,7 @@ func (db *database) GetTaskByID(id uint) (*Task, error) {
 
 	return task, nil
 }
+
+func (db *database) UpdateTask(task *Task) error {
+	return db.Save(task).Error
+}
