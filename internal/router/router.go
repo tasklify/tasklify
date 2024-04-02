@@ -167,6 +167,9 @@ func Router() *chi.Mux {
 			r.Handle("/task/{taskID}/details", ghandlers.MethodHandler{
 				"GET": handlers.UnifiedHandler(handlers.AuthenticatedHandlerFunc(task.GetTaskDetails)),
 			})
+			r.Handle("/sprintbacklog/{sprintID}/task/{taskID}/unassign", ghandlers.MethodHandler{
+				"GET": handlers.UnifiedHandler(handlers.AuthenticatedHandlerFunc(sprintbacklog.UnassignTask)),
+			})
 		})
 	})
 
