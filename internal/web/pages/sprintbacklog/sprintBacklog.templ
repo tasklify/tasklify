@@ -4,6 +4,8 @@ import "tasklify/internal/database"
 import "fmt"
 import "strconv"
 import "slices"
+import "time"
+import "tasklify/internal/web/components/common"
 
 // sprintBacklog.templ:
 templ sprintBacklog(sprint *database.Sprint, projectRoles []database.ProjectRole, userId uint) {
@@ -63,9 +65,9 @@ templ sprintBacklog(sprint *database.Sprint, projectRoles []database.ProjectRole
 								<tr class="text-sm font-bold">
 									<th class="text-left p-2" style="width: 35%;"></th>
 									<th class="text-left p-2" style="width: 20%;">Assigned To</th>
-									<th class="text-left p-2" style="width: 8%;">Estimated (h)</th>
-									<th class="text-left p-2" style="width: 8%;">Logged (h)</th>
-									<th class="text-left p-2" style="width: 8%;">Remaining (h)</th>
+									<th class="text-right p-2" style="width: 8%;">Estimated</th>
+									<th class="text-right p-2" style="width: 8%;">Logged</th>
+									<th class="text-right p-2" style="width: 8%;">Remaining</th>
 									<th class="text-center p-2" style="width: 15%;">Status</th>
 									<th class="text-right p-2" style="width: 6%;"></th>
 								</tr>
@@ -77,8 +79,9 @@ templ sprintBacklog(sprint *database.Sprint, projectRoles []database.ProjectRole
 							</tbody>
 							<tr class="text-left text-sm font-bold">
 								<td class="p-2" colspan="2">Total:</td>
-								<td class="p-2">{ strconv.FormatFloat(float64(GetSumOfTimeEstimates(story.Tasks)), 'f', 2, 64) }</td>
-								<td class="p-2">0.00</td>
+								<td class="p-2 text-right">{ common.FormatDuration(GetSumOfTimeEstimates(story.Tasks)) }</td>
+								<td class="p-2 text-right">{ common.FormatDuration(GetSumOfLogs(story.Tasks)) }</td>
+								<td class="p-2 text-right">{ common.FormatDuration(GetSumOfRemaining(story.Tasks)) }</td>
 								<td class="p-2" colspan="2"></td>
 							</tr>
 						</table>
@@ -111,14 +114,14 @@ templ TaskRowSmall(task database.Task, userId uint, sprintID uint) {
 				</div>
 			}
 		</td>
-		<td class="text-left p-2">
-			<span>{ strconv.FormatFloat(float64(*task.TimeEstimate), 'f', 2, 64) }</span>
+		<td class="text-right p-2">
+			<span>{ common.FormatDuration(task.TimeEstimate) }</span>
 		</td>
-		<td class="text-left p-2">
-			<span>0.00</span>
+		<td class="text-right p-2">
+			<span>{ common.FormatDuration(GetTotalTimeSpentOnTask(task)) }</span>
 		</td>
-		<td class="text-left p-2">
-			<span>0.00</span>
+		<td class="text-right p-2">
+			<span>{ common.FormatDuration(GetRemainingTimeOnTask(task.TimeEstimate, GetTotalTimeSpentOnTask(task))) }</span>
 		</td>
 		<td class="text-center p-2">
 			if GetTaskStatus(task) == "Unassigned" {
@@ -160,4 +163,46 @@ templ TaskRowSmall(task database.Task, userId uint, sprintID uint) {
 		</td>
 		<tr><td style="height: 10px;"></td></tr>
 	</tr>
+}
+
+func GetSumOfTimeEstimates(tasks []database.Task) (sum time.Duration) {
+	sum = 0
+	for _, task := range tasks {
+		if task.TimeEstimate != 0 {
+			sum += task.TimeEstimate
+		}
+	}
+	return
+}
+
+func GetSumOfLogs(tasks []database.Task) (sum time.Duration) {
+	sum = 0
+	for _, task := range tasks {
+		sum += GetTotalTimeSpentOnTask(task)
+	}
+	return sum
+}
+
+func GetSumOfRemaining(tasks []database.Task) (sum time.Duration) {
+	sum = 0
+	for _, task := range tasks {
+		sum += GetRemainingTimeOnTask(task.TimeEstimate, GetTotalTimeSpentOnTask(task))
+	}
+	return sum
+}
+
+func GetTotalTimeSpentOnTask(task database.Task) time.Duration {
+	var totalTimeSpent time.Duration = 0
+	for _, session := range task.WorkSessions {
+		totalTimeSpent += session.Duration
+	}
+	return totalTimeSpent
+}
+
+func GetRemainingTimeOnTask(timeEstimate time.Duration, totalTimeSpent time.Duration) time.Duration {
+	var remainingTime time.Duration = timeEstimate - totalTimeSpent
+	if remainingTime < 0 {
+		return 0
+	}
+	return remainingTime
 }

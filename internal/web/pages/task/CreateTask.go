@@ -2,11 +2,13 @@ package task
 
 import (
 	"fmt"
-	"github.com/go-chi/chi/v5"
 	"net/http"
 	"strconv"
 	"tasklify/internal/database"
 	"tasklify/internal/handlers"
+	"time"
+
+	"github.com/go-chi/chi/v5"
 
 	"github.com/gorilla/schema"
 )
@@ -69,7 +71,7 @@ func PostTask(w http.ResponseWriter, r *http.Request, params handlers.RequestPar
 	var task = &database.Task{
 		Title:          &taskFormData.Title,
 		Description:    &taskFormData.Description,
-		TimeEstimate:   taskFormData.TimeEstimate,
+		TimeEstimate:   time.Duration(*taskFormData.TimeEstimate * float32(time.Hour)),
 		UserAccepted:   new(bool),
 		Status:         &database.StatusTodo,
 		ProjectID:      taskFormData.ProjectID,

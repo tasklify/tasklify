@@ -1,6 +1,8 @@
 package database
 
 import (
+	"time"
+
 	"gorm.io/gorm"
 )
 
@@ -8,7 +10,7 @@ type Task struct {
 	gorm.Model
 	Title          *string
 	Description    *string `gorm:"type:TEXT"`
-	TimeEstimate   *float32
+	TimeEstimate   time.Duration
 	UserAccepted   *bool
 	Status         *Status
 	ProjectID      uint            // 1:n (ProjectHasUser:Task)
