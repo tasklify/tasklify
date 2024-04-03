@@ -1,6 +1,7 @@
 package task
 
 import (
+	"fmt"
 	"net/http"
 	"sort"
 	"strconv"
@@ -31,11 +32,19 @@ func StartWorkSession(w http.ResponseWriter, r *http.Request, params handlers.Re
 	if *task.Status != database.StatusInProgress {
 		*task.Status = database.StatusInProgress
 		err = database.GetDatabase().UpdateTask(task)
+		if err != nil {
+			return err
+		}
+		err = database.GetDatabase().StartWorkSession(params.UserID, uint(taskID))
+		if err != nil {
+			return err
+		}
+		w.Header().Set("HX-Redirect", fmt.Sprint("/sprintbacklog/", sprintID))
+		w.WriteHeader(http.StatusSeeOther)
+
+		return nil
 	}
 
-	if err != nil {
-		return err
-	}
 
 	err = database.GetDatabase().StartWorkSession(params.UserID, uint(taskID))
 	if err != nil {

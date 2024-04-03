@@ -15,38 +15,40 @@ templ LoggedTimeDialog(todayWS []database.WorkSession, otherWS []database.WorkSe
 				<div class="text-center">
 					<h2 class="text-2xl font-semibold text-gray-800 mb-6">Log Details</h2>
 					<div class="mb-4">
-						<h3 class="text-xl font-medium text-gray-700 mb-2 text-left">Past Logs</h3>
-						<table class="w-full text-xs rounded-md">
-							<thead class="bg-gray-200">
-								<tr class="p-2">
-									<th class="text-left p-2 w-1/2">Date</th>
-									<th class="text-left p-2 w-1/4">Duration</th>
-									<th class="text-left p-2 w-1/4">Remaining</th>
-								</tr>
-							</thead>
-							<div class="space-y-2">
-								<tbody>
-									for _, ws := range otherWS {
-										<tr class="border-b">
-											<td class="p-2">{ ws.StartTime.Format("2006-01-02") }</td>
-											<td class="p-2">
-												<div id={ fmt.Sprintf("today-container-%v", ws.ID) }>
-													@DurationDialog(ws, sprintID, taskID)
-												</div>
-											</td>
-											<td class="p-2">XX hours</td>
-										</tr>
-									}
-								</tbody>
-							</div>
-						</table>
+						if len(otherWS) != 0 {
+							<h3 class="text-xl font-medium text-gray-700 mb-2 text-left">Past Logs</h3>
+							<table class="w-full text-xs rounded-md">
+								<thead class="bg-gray-200">
+									<tr class="p-2">
+										<th class="text-left p-2 w-1/2">Date</th>
+										<th class="text-left p-2 w-1/4">Duration</th>
+										<th class="text-left p-2 w-1/4">Remaining</th>
+									</tr>
+								</thead>
+								<div class="space-y-2">
+									<tbody>
+										for _, ws := range otherWS {
+											<tr class="border-b">
+												<td class="p-2">{ ws.StartTime.Format("2006-01-02") }</td>
+												<td class="p-2">
+													<div id={ fmt.Sprintf("today-container-%v", ws.ID) }>
+														@DurationDialog(ws, sprintID, taskID)
+													</div>
+												</td>
+												<td class="p-2">XX hours</td>
+											</tr>
+										}
+									</tbody>
+								</div>
+							</table>
+						}
 					</div>
 					<div class="mb-4">
 						<h3 class="text-xl font-medium text-gray-700 mb-2 text-left">Today's session</h3>
 						if len(todayWS) == 0 {
 							<div class="text-center py-4">You have not started a session today. Click Start to begin one.</div>
 							<div class="text-center">
-								<button class="btn btn-primary btn-sm" hx-post={ fmt.Sprintf("/sprintbacklog/%v/task/%v/unassign", sprintID, taskID) } hx-target="#dialog_container">Start</button>
+								<button class="btn btn-primary btn-sm" hx-post={ fmt.Sprintf("/sprintbacklog/%v/task/%v/start", sprintID, taskID) } hx-target="#dialog_container">Start</button>
 							</div>
 						} else {
 							<table class="w-full text-xs rounded-md">
@@ -91,7 +93,7 @@ templ LoggedTimeDialog(todayWS []database.WorkSession, otherWS []database.WorkSe
 				</div>
 				<div id="validation-error"></div>
 				<div class="flex justify-end mt-3">
-					<button class="btn btn-ghost" type="button" hx-on:click="dialog_container.close()">Close</button>
+					<button class="btn btn-ghost" type="button" hx-get={ fmt.Sprint("/sprintbacklog/", sprintID) } hx-target="#whole">Close</button>
 				</div>
 			</form>
 		</div>
