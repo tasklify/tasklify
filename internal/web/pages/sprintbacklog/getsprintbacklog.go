@@ -59,16 +59,6 @@ func GetTaskStatus(task database.Task) string {
 	}
 }
 
-func GetSumOfTimeEstimates(tasks []database.Task) (sum float32) {
-	sum = 0
-	for _, task := range tasks {
-		if task.TimeEstimate != nil {
-			sum += *task.TimeEstimate
-		}
-	}
-	return
-}
-
 func UnassignTask(w http.ResponseWriter, r *http.Request, params handlers.RequestParams) error {
 
 	sprintID, err := strconv.Atoi(chi.URLParam(r, "sprintID"))

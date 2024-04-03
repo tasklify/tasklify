@@ -42,20 +42,6 @@ func (db *database) UpdateWorkSession(session *WorkSession) error {
 	return db.Save(session).Error
 }
 
-func (db *database) GetTotalTimeSpentOnTask(taskID uint) (time.Duration, error) {
-	var sessions []WorkSession
-	if err := db.Find(&sessions, "task_id = ?", taskID).Error; err != nil {
-		return 0, err
-	}
-
-	var totalTime time.Duration
-	for _, session := range sessions {
-		totalTime += session.Duration
-	}
-
-	return totalTime, nil
-}
-
 func (db *database) GetWorkSessionsForTask(taskID uint) ([]WorkSession, error) {
 	var sessions []WorkSession
 	err := db.Find(&sessions, "task_id = ?", taskID).Error

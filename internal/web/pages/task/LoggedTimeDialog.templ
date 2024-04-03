@@ -2,7 +2,7 @@ package task
 
 import "tasklify/internal/database"
 import "fmt"
-import "time"
+import "tasklify/internal/web/components/common"
 
 templ LoggedTimeDialog(todayWS []database.WorkSession, otherWS []database.WorkSession, taskID uint, sprintID uint) {
 	<div hx-ext="response-targets">
@@ -111,23 +111,16 @@ templ LoggedTimeDialog(todayWS []database.WorkSession, otherWS []database.WorkSe
 	</div>
 }
 
-func FormatDuration(d time.Duration) string {
-	rounded := d.Round(time.Minute)
-	hours := rounded / time.Hour
-	minutes := (rounded % time.Hour) / time.Minute
-	return fmt.Sprintf("%dh%02dm", hours, minutes)
-}
-
 templ ChangeDurationDialog(ws database.WorkSession, taskID uint, sprintID uint) {
 	<form id="duration-info" style="margin-bottom: 0px;">
-		<input type="text" name="duration" id="duration" value={ fmt.Sprintf("%v", FormatDuration(ws.Duration)) } class="input input-bordered w-20 input-xs mb-0" title="Enter duration in the format: XhXXm. Example: 1h30m for 1 hour and 30 minutes." style="margin-bottom: -20px;"/>
+		<input type="text" name="duration" id="duration" value={ fmt.Sprintf("%v", common.FormatDuration(ws.Duration)) } class="input input-bordered w-20 input-xs mb-0" title="Enter duration in the format: XhXXm. Example: 1h30m for 1 hour and 30 minutes." style="margin-bottom: -20px;"/>
 		<button class="btn btn-primary btn-xs mb-0" hx-post={ fmt.Sprintf("/sprintbacklog/%v/task/%v/logged/session/%v/change", sprintID, taskID, ws.ID) } hx-target={ fmt.Sprintf("#today-container-%v", ws.ID) } hx-include="#duration-info" style="margin-bottom: -20px;">Change</button>
 	</form>
 }
 
 templ DurationDialog(ws database.WorkSession, taskID uint, sprintID uint) {
 	<div hx-get={ fmt.Sprintf("/sprintbacklog/%v/task/%v/logged/session/%v/change", sprintID, taskID, ws.ID) } hx-target={ fmt.Sprintf("#today-container-%v", ws.ID) } hx-swap="innerHTML" id="today-container">
-		{ templ.JoinStringErrs(FormatDuration(ws.Duration)) }
+		{ templ.JoinStringErrs(common.FormatDuration(ws.Duration)) }
 	</div>
 }
 

@@ -1,8 +1,8 @@
 package task
 
 import "tasklify/internal/database"
-import "strconv"
 import "tasklify/internal/web/pages/sprintbacklog"
+import "tasklify/internal/web/components/common"
 
 templ TaskDetailsDialog(task database.Task) {
 	<div hx-ext="response-targets">
@@ -29,7 +29,7 @@ templ TaskDetailsDialog(task database.Task) {
 						</div>
 						<!-- Time Estimate -->
 						<div class="text-gray-800">
-							{ strconv.FormatFloat(float64(*task.TimeEstimate), 'f', 2, 64) } hours
+							{ common.FormatDuration(task.TimeEstimate) }
 						</div>
 					</div>
 				</div>

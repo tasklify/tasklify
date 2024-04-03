@@ -5,7 +5,6 @@ import (
 	"log"
 	"sync"
 	"tasklify/internal/config"
-	"time"
 
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
@@ -53,7 +52,6 @@ type Database interface {
 	GetProjectWallPostByID(postID uint) (*ProjectWallPost, error)
 	CreateAcceptanceTest(acceptanceTest *AcceptanceTest) error
 	CreateWorkSession(userID, taskID uint) error
-	GetTotalTimeSpentOnTask(taskID uint) (time.Duration, error)
 	GetWorkSessionsForTask(taskID uint) ([]WorkSession, error)
 	GetWorkSessionByID(sessionID uint) (*WorkSession, error)
 	UpdateWorkSession(session *WorkSession) error
