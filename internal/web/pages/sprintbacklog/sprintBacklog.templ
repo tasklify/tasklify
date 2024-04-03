@@ -4,7 +4,6 @@ import "tasklify/internal/database"
 import "fmt"
 import "strconv"
 import "slices"
-import "tasklify/internal/handlers"
 
 // sprintBacklog.templ:
 templ sprintBacklog(sprint *database.Sprint, projectRoles []database.ProjectRole, userId uint) {
@@ -167,20 +166,20 @@ templ TaskRowSmall(task database.Task, category string, userId uint, sprintID ui
 		</div>
 		<div class="task-details text-right" style="margin-top:10px; margin-bottom: -10px; flex: 1;">
 			<!--Details button-->
-			<form hx-get={ fmt.Sprintf("/task/%v/details", task.ID) } hx-target="#dialog">
+			<form hx-get={ fmt.Sprintf("/sprintbacklog/%v/task/%v/details", sprintID, task.ID) } hx-target="#dialog">
 				<button class="btn btn-xs">
 					<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
 						<path stroke-linecap="round" stroke-linejoin="round" d="M6.75 12a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0ZM12.75 12a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0ZM18.75 12a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Z"></path>
 					</svg>
 				</button>
 			</form> <!--Details button-->
-			if (category == "Assigned") && (params.UserID == *task.UserID) {
-				<form hx-post={ fmt.Sprintf("/task/%v/start", task.ID) }>
+			if (category == "Assigned") && (userId == *task.UserID) {
+				<form hx-post={ fmt.Sprintf("/sprintbacklog/%v/task/%v/start", sprintID, task.ID) }>
 					<button type="submit" class="btn btn-xs">Start</button>
 				</form>
 			}
-			if (category == "Active") && (params.UserID == *task.UserID) {
-				<form hx-get={ fmt.Sprintf("/task/%v/logged", task.ID) } hx-target="#dialog">
+			if (category == "Active") && (userId == *task.UserID) {
+				<form hx-get={ fmt.Sprintf("/sprintbacklog/%v/task/%v/logged", sprintID, task.ID) } hx-target="#dialog">
 					<button class="btn btn-xs">Logged</button>
 				</form>
 			}

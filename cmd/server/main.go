@@ -16,7 +16,6 @@ import (
 	"tasklify/internal/router"
 	"time"
 
-	"github.com/robfig/cron/v3"
 	_ "go.uber.org/automaxprocs" // Automatically set GOMAXPROCS to match Linux container CPU quota
 )
 
@@ -25,9 +24,6 @@ func main() {
 
 	config := config.GetConfig()
 	database.GetDatabase(config)
-	c := cron.New()
-	c.AddFunc("@midnight", func() { database.GetDatabase().CloseOpenSessionsAtMidnight() }) // Runs every day at midnight to stop any open sessions
-	c.Start()
 	auth.GetSession(config)
 	auth.GetAuthorization()
 	auth.GetCommonPasswordList()

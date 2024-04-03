@@ -32,7 +32,6 @@ type Database interface {
 	UserStoryInThisProjectAlreadyExists(title string, projectID uint) bool
 	GetTasksByUserStory(userStoryID uint) ([]Task, error)
 	CreateTask(task *Task) error
-	UpdateTask(task *Task) error
 	GetTaskByID(id uint) (*Task, error)
 	UpdateTask(task *Task) error
 	GetProjectByID(id uint) (*Project, error)

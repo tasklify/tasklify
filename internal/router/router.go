@@ -164,27 +164,27 @@ func Router() *chi.Mux {
 			r.Handle("/sprintbacklog/{sprintID}", ghandlers.MethodHandler{
 				"GET": handlers.UnifiedHandler(handlers.AuthenticatedHandlerFunc(sprintbacklog.GetSprintBacklog)),
 			})
-			r.Handle("/task/{taskID}/details", ghandlers.MethodHandler{
+			r.Handle("/sprintbacklog/{sprintID}/task/{taskID}/details", ghandlers.MethodHandler{
 				"GET": handlers.UnifiedHandler(handlers.AuthenticatedHandlerFunc(task.GetTaskDetails)),
 			})
 			r.Handle("/sprintbacklog/{sprintID}/task/{taskID}/unassign", ghandlers.MethodHandler{
 				"GET": handlers.UnifiedHandler(handlers.AuthenticatedHandlerFunc(sprintbacklog.UnassignTask)),
 			})
-			r.Handle("/task/{taskID}/start", ghandlers.MethodHandler{
+			r.Handle("/sprintbacklog/{sprintID}/task/{taskID}/start", ghandlers.MethodHandler{
 				"POST": handlers.UnifiedHandler(handlers.AuthenticatedHandlerFunc(task.StartWorkSession)),
 			})
-			r.Handle("/session/{workSessionID}/stop", ghandlers.MethodHandler{
+			r.Handle("/sprintbacklog/{sprintID}/task/{taskID}/logged", ghandlers.MethodHandler{
+				"GET": handlers.UnifiedHandler(handlers.AuthenticatedHandlerFunc(task.GetLoggedTime)),
+			})
+			r.Handle("/sprintbacklog/{sprintID}/task/{taskID}/logged/session/{workSessionID}/stop", ghandlers.MethodHandler{
 				"POST": handlers.UnifiedHandler(handlers.AuthenticatedHandlerFunc(task.StopWorkSession)),
 			})
-			r.Handle("/session/{workSessionID}/change", ghandlers.MethodHandler{
+			r.Handle("/sprintbacklog/{sprintID}/task/{taskID}/logged/session/{workSessionID}/change", ghandlers.MethodHandler{
 				"POST": handlers.UnifiedHandler(handlers.AuthenticatedHandlerFunc(task.PostChangeDuration)),
 				"GET": handlers.UnifiedHandler(handlers.AuthenticatedHandlerFunc(task.GetChangeDuration)),
 			})
-			r.Handle("/session/{workSessionID}/resume", ghandlers.MethodHandler{
+			r.Handle("/sprintbacklog/{sprintID}/task/{taskID}/logged/session/{workSessionID}/resume", ghandlers.MethodHandler{
 				"POST": handlers.UnifiedHandler(handlers.AuthenticatedHandlerFunc(task.ResumeWorkSession)),
-			})
-			r.Handle("/task/{taskID}/logged", ghandlers.MethodHandler{
-				"GET": handlers.UnifiedHandler(handlers.AuthenticatedHandlerFunc(task.GetLoggedTime)),
 			})
 		})
 	})
