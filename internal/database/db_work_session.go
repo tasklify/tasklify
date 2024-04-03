@@ -14,6 +14,7 @@ type WorkSession struct {
 	TaskID       uint
 	UserID       uint
 	OngoingToday bool
+	LeftUnfinished bool
 }
 
 func (db *database) GetWorkSessionByID(sessionID uint) (*WorkSession, error) {
@@ -26,39 +27,19 @@ func (db *database) GetWorkSessionByID(sessionID uint) (*WorkSession, error) {
 	return &session, nil
 }
 
-func (db *database) StartWorkSession(userID, taskID uint) error {
+func (db *database) CreateWorkSession(userID, taskID uint) error {
 	session := WorkSession{
 		StartTime:    time.Now(),
 		TaskID:       taskID,
 		UserID:       userID,
 		OngoingToday: true,
+		LeftUnfinished: false,
 	}
 	return db.Create(&session).Error
 }
 
-func (db *database) ResumeWorkSession(sessionID uint) error {
-	var session WorkSession
-	if err := db.First(&session, sessionID).Error; err != nil {
-		return err
-	}
-
-	session.StartTime = time.Now()
-	session.EndTime = nil
-
-	return db.Save(&session).Error
-}
-
-func (db *database) EndWorkSession(sessionID uint) error {
-	var session WorkSession
-	if err := db.First(&session, sessionID).Error; err != nil {
-		return err
-	}
-
-	endTime := time.Now()
-	session.EndTime = &endTime
-	session.Duration += endTime.Sub(session.StartTime)
-
-	return db.Save(&session).Error
+func (db *database) UpdateWorkSession(session *WorkSession) error {
+	return db.Save(session).Error
 }
 
 func (db *database) GetTotalTimeSpentOnTask(taskID uint) (time.Duration, error) {
@@ -83,35 +64,4 @@ func (db *database) GetWorkSessionsForTask(taskID uint) ([]WorkSession, error) {
 	}
 
 	return sessions, nil
-}
-
-func (db *database) CloseOpenSessionsAtMidnight() error {
-	now := time.Now()
-	midnight := time.Date(now.Year(), now.Month(), now.Day(), 23, 59, 59, 0, now.Location())
-
-	var sessions []WorkSession
-	err := db.Model(&WorkSession{}).Where("end_time IS NULL AND start_time < ?", midnight).Find(&sessions).Error
-	if err != nil {
-		return err
-	}
-
-	for _, session := range sessions {
-		endTime := midnight
-		session.EndTime = &endTime
-		session.Duration += endTime.Sub(session.StartTime)
-		session.OngoingToday = false
-	}
-
-	return nil
-}
-
-func (db *database) ChangeDuration(sessionID uint, duration time.Duration) error {
-	var session WorkSession
-	if err := db.First(&session, sessionID).Error; err != nil {
-		return err
-	}
-
-	session.Duration = duration
-
-	return db.Save(&session).Error
 }

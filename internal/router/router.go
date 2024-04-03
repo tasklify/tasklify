@@ -186,6 +186,10 @@ func Router() *chi.Mux {
 			r.Handle("/sprintbacklog/{sprintID}/task/{taskID}/logged/session/{workSessionID}/resume", ghandlers.MethodHandler{
 				"POST": handlers.UnifiedHandler(handlers.AuthenticatedHandlerFunc(task.ResumeWorkSession)),
 			})
+			r.Handle("/sprintbacklog/{sprintID}/task/{taskID}/logged/session/{workSessionID}/unfinished", ghandlers.MethodHandler{
+				"GET": handlers.UnifiedHandler(handlers.AuthenticatedHandlerFunc(task.GetUnfinishedSessionDialog)),
+			})
+			
 		})
 	})
 
