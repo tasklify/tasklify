@@ -52,14 +52,11 @@ type Database interface {
 	DeleteProjectWallPost(projectID uint, postID uint) error
 	GetProjectWallPostByID(postID uint) (*ProjectWallPost, error)
 	CreateAcceptanceTest(acceptanceTest *AcceptanceTest) error
-	StartWorkSession(userID, taskID uint) error
-	ResumeWorkSession(sessionID uint) error
-	EndWorkSession(sessionID uint) error
+	CreateWorkSession(userID, taskID uint) error
 	GetTotalTimeSpentOnTask(taskID uint) (time.Duration, error)
 	GetWorkSessionsForTask(taskID uint) ([]WorkSession, error)
-	CloseOpenSessionsAtMidnight() error
 	GetWorkSessionByID(sessionID uint) (*WorkSession, error)
-	ChangeDuration(sessionID uint, duration time.Duration) error
+	UpdateWorkSession(session *WorkSession) error
 	RawDB() *gorm.DB
 }
 
