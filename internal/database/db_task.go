@@ -15,6 +15,7 @@ type Task struct {
 	UserID         *uint           // 1:n (ProjectHasUser:Task)
 	ProjectHasUser *ProjectHasUser `gorm:"foreignKey:ProjectID,UserID"` // 1:n (ProjectHasUser:Task)
 	UserStoryID    uint            // 1:n (UserStory:Task)
+	WorkSessions   []WorkSession   // 1:n (Task:WorkSession)
 }
 
 func (db *database) GetTasksByUserStory(userStoryID uint) ([]Task, error) {
@@ -32,6 +33,10 @@ func (db *database) CreateTask(task *Task) error {
 	return db.Create(task).Error
 }
 
+func (db *database) UpdateTask(task *Task) error {
+	return db.Save(task).Error
+}
+
 func (db *database) GetTaskByID(id uint) (*Task, error) {
 	var task = &Task{}
 	err := db.First(task, id).Error
@@ -40,8 +45,4 @@ func (db *database) GetTaskByID(id uint) (*Task, error) {
 	}
 
 	return task, nil
-}
-
-func (db *database) UpdateTask(task *Task) error {
-	return db.Save(task).Error
 }

@@ -10,12 +10,8 @@ import (
 	"tasklify/internal/web/pages"
 
 	"github.com/go-chi/chi/v5"
-	"github.com/gorilla/schema"
 )
 
-var decoder = schema.NewDecoder()
-
-// GetSprintBacklog handles the request for fetching and displaying the sprint backlog.
 func GetSprintBacklog(w http.ResponseWriter, r *http.Request, params handlers.RequestParams) error {
 	sprintID, err := strconv.Atoi(chi.URLParam(r, "sprintID"))
 	if err != nil {
@@ -47,24 +43,20 @@ func GetUserFirstAndLastNameFromID(userID uint) string {
 	return user.FirstName + " " + user.LastName
 }
 
-func mapTasksToStatuses(tasks []database.Task) (statusMap map[string][]database.Task) {
-	statusMap = make(map[string][]database.Task)
-	for _, task := range tasks {
-		if task.UserID == nil {
-			statusMap["Unassigned"] = append(statusMap["Unassigned"], task)
+func GetTaskStatus(task database.Task) string {
+	if task.UserID == nil {
+		return "Unassigned"
+	} else {
+		if !*task.UserAccepted {
+			return "Pending"
+		} else if *task.Status == database.StatusInProgress {
+			return "Active"
+		} else if *task.Status == database.StatusDone {
+			return "Done"
 		} else {
-			if !*task.UserAccepted {
-				statusMap["Pending"] = append(statusMap["Pending"], task)
-			} else if *task.Status == database.StatusInProgress {
-				statusMap["Active"] = append(statusMap["Active"], task)
-			} else if *task.Status == database.StatusDone {
-				statusMap["Done"] = append(statusMap["Done"], task)
-			} else {
-				statusMap["Assigned"] = append(statusMap["Assigned"], task)
-			}
+			return "Unassigned"
 		}
 	}
-	return
 }
 
 func GetSumOfTimeEstimates(tasks []database.Task) (sum float32) {

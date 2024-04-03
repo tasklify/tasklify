@@ -5,6 +5,7 @@ import (
 	"log"
 	"sync"
 	"tasklify/internal/config"
+	"time"
 
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
@@ -51,6 +52,14 @@ type Database interface {
 	DeleteProjectWallPost(projectID uint, postID uint) error
 	GetProjectWallPostByID(postID uint) (*ProjectWallPost, error)
 	CreateAcceptanceTest(acceptanceTest *AcceptanceTest) error
+	StartWorkSession(userID, taskID uint) error
+	ResumeWorkSession(sessionID uint) error
+	EndWorkSession(sessionID uint) error
+	GetTotalTimeSpentOnTask(taskID uint) (time.Duration, error)
+	GetWorkSessionsForTask(taskID uint) ([]WorkSession, error)
+	CloseOpenSessionsAtMidnight() error
+	GetWorkSessionByID(sessionID uint) (*WorkSession, error)
+	ChangeDuration(sessionID uint, duration time.Duration) error
 	RawDB() *gorm.DB
 }
 
@@ -90,7 +99,7 @@ func connectDatabase(config config.Database) *database {
 
 func registerTables(db *database) {
 	// Migrate the schema
-	err := db.AutoMigrate(&User{}, &Project{}, &ProjectWallPost{}, &UserStory{}, &Task{}, &AcceptanceTest{}, &ProjectHasUser{}, &Sprint{}, &WorkflowStep{})
+	err := db.AutoMigrate(&User{}, &Project{}, &ProjectWallPost{}, &UserStory{}, &Task{}, &AcceptanceTest{}, &ProjectHasUser{}, &Sprint{}, &WorkflowStep{}, &WorkSession{})
 	if err != nil {
 		log.Fatal("Schema migration error: ", err)
 	}
