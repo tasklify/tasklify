@@ -1,6 +1,7 @@
 package sprintbacklog
 
 import (
+	"fmt"
 	"net/http"
 	"slices"
 	"strconv"
@@ -32,7 +33,7 @@ func GetSprintBacklog(w http.ResponseWriter, r *http.Request, params handlers.Re
 		return pages.NotFound(w, r)
 	}
 
-	c := sprintBacklog(sprint, projectRoles, params)
+	c := sprintBacklog(sprint, projectRoles, params.UserID)
 
 	return pages.Layout(c, "Sprint Backlog", r).Render(r.Context(), w)
 }
@@ -70,4 +71,32 @@ func GetSumOfTimeEstimates(tasks []database.Task) (sum float32) {
 		}
 	}
 	return
+}
+
+func UnassignTask(w http.ResponseWriter, r *http.Request, params handlers.RequestParams) error {
+
+	sprintID, err := strconv.Atoi(chi.URLParam(r, "sprintID"))
+	if err != nil {
+		return err
+	}
+
+	taskID, err := strconv.Atoi(chi.URLParam(r, "taskID"))
+	if err != nil {
+		return err
+	}
+
+	task, err := database.GetDatabase().GetTaskByID(uint(taskID))
+	if err != nil {
+		return err
+	}
+
+	task.UserAccepted = new(bool)
+	task.UserID = nil
+
+	err = database.GetDatabase().UpdateTask(task)
+
+	w.Header().Set("HX-Redirect", fmt.Sprint("/sprintbacklog/", sprintID))
+	w.WriteHeader(http.StatusSeeOther)
+
+	return nil
 }

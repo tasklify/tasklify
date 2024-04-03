@@ -7,7 +7,7 @@ import "slices"
 import "tasklify/internal/handlers"
 
 // sprintBacklog.templ:
-templ sprintBacklog(sprint *database.Sprint, projectRoles []database.ProjectRole, params handlers.RequestParams) {
+templ sprintBacklog(sprint *database.Sprint, projectRoles []database.ProjectRole, userId uint) {
 	<div class="bg-base-100 min-h-screen">
 		<div class="container mx-auto p-2">
 			<!-- Back to Product Backlog Button -->
@@ -69,11 +69,11 @@ templ sprintBacklog(sprint *database.Sprint, projectRoles []database.ProjectRole
 								<div class="w-1/8 text-left" style="flex: 1;"></div>
 							</div>
 							<!-- Generate a column for each task status category -->
-							@taskStatusCategories(mapTasksToStatuses(story.Tasks)["Unassigned"], "Unassigned", params)
-							@taskStatusCategories(mapTasksToStatuses(story.Tasks)["Pending"], "Pending", params)
-							@taskStatusCategories(mapTasksToStatuses(story.Tasks)["Assigned"], "Assigned", params)
-							@taskStatusCategories(mapTasksToStatuses(story.Tasks)["Active"], "Active", params)
-							@taskStatusCategories(mapTasksToStatuses(story.Tasks)["Done"], "Done", params)
+							@taskStatusCategories(mapTasksToStatuses(story.Tasks)["Unassigned"], "Unassigned", userId, sprint.ID)
+							@taskStatusCategories(mapTasksToStatuses(story.Tasks)["Pending"], "Pending", userId, sprint.ID)
+							@taskStatusCategories(mapTasksToStatuses(story.Tasks)["Assigned"], "Assigned", userId, sprint.ID)
+							@taskStatusCategories(mapTasksToStatuses(story.Tasks)["Active"], "Active", userId, sprint.ID)
+							@taskStatusCategories(mapTasksToStatuses(story.Tasks)["Done"], "Done", userId, sprint.ID)
 							<div class="text-sm font-bold p-2 text-gray pl-2" style="display: flex;">
 								<div class="w-1/3 text-left" style="flex: 8;"></div>
 								<div class="w-1/7 text-left" style="flex: 3;"></div>
@@ -90,7 +90,7 @@ templ sprintBacklog(sprint *database.Sprint, projectRoles []database.ProjectRole
 	</div>
 }
 
-templ taskStatusCategories(tasks []database.Task, category string, params handlers.RequestParams) {
+templ taskStatusCategories(tasks []database.Task, category string, userId uint, sprintID uint) {
 	<style>
 	.collapse-title,
 	:where(.collapse > input[type="checkbox"]),
@@ -117,14 +117,14 @@ templ taskStatusCategories(tasks []database.Task, category string, params handle
 				"
 					style="margin-bottom: 10px;"
 				>
-					@TaskRowSmall(task, category, params)
+					@TaskRowSmall(task, category, userId, sprintID)
 				</div>
 			}
 		</div>
 	</div>
 }
 
-templ TaskRowSmall(task database.Task, category string, params handlers.RequestParams) {
+templ TaskRowSmall(task database.Task, category string, userId uint, sprintID uint) {
 	<!-- Flex container for aligning assignee and details button -->
 	<div class="items-center pl-2 pr-2" style="display: flex;">
 		<div class="task-title font-bold text-md" style="flex: 7;">{ *task.Title }</div>
@@ -134,7 +134,16 @@ templ TaskRowSmall(task database.Task, category string, params handlers.RequestP
 			} else if !*task.UserAccepted {
 				<span class="badge bg-primary">{ GetUserFirstAndLastNameFromID(*task.UserID) }</span> <span class="text-xs italic">(pending)</span>
 			} else {
-				<span class="badge bg-primary">{ GetUserFirstAndLastNameFromID(*task.UserID) }</span>
+				<div class="flex items-center">
+					<span class="badge bg-primary mr-2">{ GetUserFirstAndLastNameFromID(*task.UserID) }</span>
+					if *task.UserID == userId {
+						<button hx-get={ fmt.Sprintf("/sprintbacklog/%v/task/%v/unassign", sprintID, task.ID) } class="btn btn-xs" title="Unassign">
+							<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" class="w-5 h-5">
+								<path d="M11 5a3 3 0 1 1-6 0 3 3 0 0 1 6 0ZM2.046 15.253c-.058.468.172.92.57 1.175A9.953 9.953 0 0 0 8 18c1.982 0 3.83-.578 5.384-1.573.398-.254.628-.707.57-1.175a6.001 6.001 0 0 0-11.908 0ZM12.75 7.75a.75.75 0 0 0 0 1.5h5.5a.75.75 0 0 0 0-1.5h-5.5Z"></path>
+							</svg>
+						</button>
+					}
+				</div>
 			}
 		</div>
 		<div class="task-assignee text-left" style="flex: 2;">
