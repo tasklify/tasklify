@@ -74,7 +74,17 @@ templ sprintBacklog(sprint *database.Sprint, projectRoles []database.ProjectRole
 							</thead>
 							<tbody>
 								for _, task := range story.Tasks {
-									@TaskRowSmall(task, userId, sprint.ID)
+
+                                    if !*task.UserAccepted && task.UserID != nil && *task.UserID == userId {
+                                        <tr class="bg-warning shadow-lg">
+                                            @TaskRowSmall(task, userId, sprint.ID)
+                                        </tr>
+									} else {
+                                        <tr class="bg-base-300 shadow-lg">
+                                            @TaskRowSmall(task, userId, sprint.ID)
+                                        </tr>
+
+									}
 								}
 							</tbody>
 							<tr class="text-left text-sm font-bold">
@@ -94,13 +104,55 @@ templ sprintBacklog(sprint *database.Sprint, projectRoles []database.ProjectRole
 
 templ TaskRowSmall(task database.Task, userId uint, sprintID uint) {
 	<!-- Flex container for aligning assignee and details button -->
-	<tr class="bg-base-300 shadow-lg">
-		<td class="font-bold text-md pl-4">{ *task.Title }</td>
+
+		<td class="font-bold text-md pl-4">
+            <div class="flex items-center">
+
+            if !*task.UserAccepted && task.UserID != nil && *task.UserID == userId{
+                <div class="mr-2" title="The task needs to be accepted or rejected.">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 3.75h.008v.008H12v-.008Z" />
+                    </svg>
+                </div>
+                }
+                { *task.Title }
+            </div>
+		</td>
 		<td class="text-left p-2">
 			if task.UserID == nil {
-				<span class="badge badge-ghost">Assign</span>
+                <div class="flex items-center">
+                    <span class="badge badge-ghost mr-2">Unassigned</span>
+                    <span>
+                        <button hx-get={ fmt.Sprintf("/sprintbacklog/%v/task/%v/assign", sprintID, task.ID) } class="btn btn-xs" title="Assign">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-5 h-5">
+                              <path d="M10 5a3 3 0 1 1-6 0 3 3 0 0 1 6 0ZM1.615 16.428a1.224 1.224 0 0 1-.569-1.175 6.002 6.002 0 0 1 11.908 0c.058.467-.172.92-.57 1.174A9.953 9.953 0 0 1 7 18a9.953 9.953 0 0 1-5.385-1.572ZM16.25 5.75a.75.75 0 0 0-1.5 0v2h-2a.75.75 0 0 0 0 1.5h2v2a.75.75 0 0 0 1.5 0v-2h2a.75.75 0 0 0 0-1.5h-2v-2Z" />
+                            </svg>
+                        </button>
+                    </span>
+                </div>
 			} else if !*task.UserAccepted {
-				<span class="badge bg-primary">{ GetUserFirstAndLastNameFromID(*task.UserID) }</span> <span class="text-xs italic">(pending)</span>
+				<!--accept in decline se vidi samo če smo current user-->
+				if *task.UserID == userId {
+
+				<div class="flex items-center">
+				    <span class="badge bg-primary mr-2">{ GetUserFirstAndLastNameFromID(*task.UserID) }</span>
+
+                    <button hx-get={ fmt.Sprintf("/sprintbacklog/%v/task/%v/assign", sprintID, task.ID) } class="btn btn-xs mr-1" title="Accept task">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-5 h-5">
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 1 0 0-16 8 8 0 0 0 0 16Zm3.857-9.809a.75.75 0 0 0-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 1 0-1.06 1.061l2.5 2.5a.75.75 0 0 0 1.137-.089l4-5.5Z" clip-rule="evenodd" />
+                        </svg>
+                    </button>
+
+                    <button hx-get={ fmt.Sprintf("/sprintbacklog/%v/task/%v/unassign", sprintID, task.ID) } class="btn btn-xs" title="Decline task">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-5 h-5">
+                          <path fill-rule="evenodd" d="M10 18a8 8 0 1 0 0-16 8 8 0 0 0 0 16ZM8.28 7.22a.75.75 0 0 0-1.06 1.06L8.94 10l-1.72 1.72a.75.75 0 1 0 1.06 1.06L10 11.06l1.72 1.72a.75.75 0 1 0 1.06-1.06L11.06 10l1.72-1.72a.75.75 0 0 0-1.06-1.06L10 8.94 8.28 7.22Z" clip-rule="evenodd" />
+                        </svg>
+                    </button>
+                </div>
+                } else {
+                    <span class="badge bg-primary">{ GetUserFirstAndLastNameFromID(*task.UserID) }</span>
+                    <span class="text-xs italic">(pending)</span>
+                }
 			} else {
 				<div class="flex items-center">
 					<span class="badge bg-primary mr-2">{ GetUserFirstAndLastNameFromID(*task.UserID) }</span>
@@ -162,7 +214,7 @@ templ TaskRowSmall(task database.Task, userId uint, sprintID uint) {
 			</div>
 		</td>
 		<tr><td style="height: 10px;"></td></tr>
-	</tr>
+
 }
 
 func GetSumOfTimeEstimates(tasks []database.Task) (sum time.Duration) {
