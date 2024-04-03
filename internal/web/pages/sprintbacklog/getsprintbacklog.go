@@ -86,3 +86,32 @@ func UnassignTask(w http.ResponseWriter, r *http.Request, params handlers.Reques
 
 	return nil
 }
+
+func AssignTask(w http.ResponseWriter, r *http.Request, params handlers.RequestParams) error {
+
+	sprintID, err := strconv.Atoi(chi.URLParam(r, "sprintID"))
+	if err != nil {
+		return err
+	}
+
+	taskID, err := strconv.Atoi(chi.URLParam(r, "taskID"))
+	if err != nil {
+		return err
+	}
+
+	task, err := database.GetDatabase().GetTaskByID(uint(taskID))
+	if err != nil {
+		return err
+	}
+
+	accept := true
+	task.UserAccepted = &accept
+	task.UserID = &params.UserID
+
+	err = database.GetDatabase().UpdateTask(task)
+
+	w.Header().Set("HX-Redirect", fmt.Sprint("/sprintbacklog/", sprintID))
+	w.WriteHeader(http.StatusSeeOther)
+
+	return nil
+}

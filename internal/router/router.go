@@ -170,6 +170,9 @@ func Router() *chi.Mux {
 			r.Handle("/sprintbacklog/{sprintID}/task/{taskID}/unassign", ghandlers.MethodHandler{
 				"GET": handlers.UnifiedHandler(handlers.AuthenticatedHandlerFunc(sprintbacklog.UnassignTask)),
 			})
+			r.Handle("/sprintbacklog/{sprintID}/task/{taskID}/assign", ghandlers.MethodHandler{
+				"GET": handlers.UnifiedHandler(handlers.AuthenticatedHandlerFunc(sprintbacklog.AssignTask)),
+			})
 			r.Handle("/sprintbacklog/{sprintID}/task/{taskID}/start", ghandlers.MethodHandler{
 				"POST": handlers.UnifiedHandler(handlers.AuthenticatedHandlerFunc(task.StartWorkSession)),
 			})
@@ -181,7 +184,7 @@ func Router() *chi.Mux {
 			})
 			r.Handle("/sprintbacklog/{sprintID}/task/{taskID}/logged/session/{workSessionID}/change", ghandlers.MethodHandler{
 				"POST": handlers.UnifiedHandler(handlers.AuthenticatedHandlerFunc(task.PostChangeDuration)),
-				"GET": handlers.UnifiedHandler(handlers.AuthenticatedHandlerFunc(task.GetChangeDuration)),
+				"GET":  handlers.UnifiedHandler(handlers.AuthenticatedHandlerFunc(task.GetChangeDuration)),
 			})
 			r.Handle("/sprintbacklog/{sprintID}/task/{taskID}/logged/session/{workSessionID}/resume", ghandlers.MethodHandler{
 				"POST": handlers.UnifiedHandler(handlers.AuthenticatedHandlerFunc(task.ResumeWorkSession)),
@@ -189,7 +192,7 @@ func Router() *chi.Mux {
 			r.Handle("/sprintbacklog/{sprintID}/task/{taskID}/logged/session/{workSessionID}/unfinished", ghandlers.MethodHandler{
 				"GET": handlers.UnifiedHandler(handlers.AuthenticatedHandlerFunc(task.GetUnfinishedSessionDialog)),
 			})
-			
+
 		})
 	})
 
