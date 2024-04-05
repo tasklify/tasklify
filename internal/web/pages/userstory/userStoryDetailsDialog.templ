@@ -4,105 +4,142 @@ import "tasklify/internal/database"
 import "strconv"
 
 templ UserStoryDetailsDialog(us database.UserStory) {
+	<script>
+		function toggleTab(selectedId) {
+			container = document.querySelector('#user_story_tabs')
+			container.querySelectorAll('.tab-content').forEach((content) => {
+				content.style.display = 'none';
+			});
+			container.querySelector('#' + selectedId).style.display = 'block';
+
+			container.querySelectorAll('.tabs input').forEach((tab) => {
+				tab.classList.remove('tab-active');
+			});
+			document.querySelector(`.tabs input[data-content="${selectedId}"]`).classList.add('tab-active');
+		}
+		document.addEventListener("DOMContentLoaded", function() {
+			container = document.querySelector('#user_story_tabs')
+			container.querySelector('.tabs input[data-content="details"]').click();
+		});
+	</script>
 	<div hx-ext="response-targets">
-		<div id="create-dialog" hx-ext="response-targets" class="fixed top-0 left-0 w-full h-full bg-gray-900 bg-opacity-50 flex justify-center items-center z-50">
+		<div id="create-dialog" hx-ext="response-targets" class="fixed top-0 left-0 w-full h-full bg-gray-900 bg-opacity-50 flex justify-center items-start pt-11 z-50">
 			<div class="bg-white rounded-lg p-8 shadow-lg w-2/5 h-auto">
 				<!-- Title -->
 				<div class="mb-4">
 					<h2 class="text-xl font-bold mb-2">{ us.Title }</h2>
 				</div>
-				<div class="grid grid-cols-2 gap-4 mb-4">
-					<div>
-						<!-- Realized Status -->
-						<div class="flex items-center gap-4 mb-4">
-							<div class="font-medium">Realized:</div>
-							<div>
-								if *us.Realized {
-									<span class="text-green-500 text-lg">
-										<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
-											<path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5"></path>
-										</svg>
-									</span> <!-- Display a check mark if realized is true -->
-								} else {
-									<span class="text-red-500 text-lg">
-										<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
-											<path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12"></path>
-										</svg>
-									</span> <!-- Display a cross mark if realized is false -->
-								}
-							</div>
-						</div>
-						<!--Priority -->
-						<div class="flex items-center gap-4 mb-4">
-							<div class="font-medium">Priority:</div>
-							<div>
-								switch us.Priority {
-									case database.PriorityMustHave:
-										<div class="badge badge-error">Must have</div>
-									case database.PriorityCouldHave:
-										<div class="badge badge-warning">Could have</div>
-									case database.PriorityShouldHave:
-										<div class="badge badge-success">Should have</div>
-									case database.PriorityWontHaveThisTime:
-										<div class="badge badge-info">Won't have this time</div>
-									default:
-										<span></span>
-								}
-							</div>
-						</div>
+				<div id="user_story_tabs">
+					<div role="tablist" class="tabs tabs-bordered">
+						<input type="radio" name="user_story_tab" role="tab" class="tab tab-active" aria-label="Details" data-content="details" onclick="toggleTab('details')"/>
+						<input type="radio" name="user_story_tab" role="tab" class="tab" aria-label="Tasks" data-content="tasks" onclick="toggleTab('tasks')"/>
+						<input type="radio" name="user_story_tab" role="tab" class="tab" aria-label="Comments" data-content="comments" onclick="toggleTab('comments')"/>
 					</div>
-					<div>
-						<!--BusinessValue-->
-						<div class="flex items-center gap-4 mb-4">
-							<div class="font-medium">Business Value:</div>
-							<div>
-								<div class="badge badge-primary">{ strconv.Itoa(us.BusinessValue) }</div>
-							</div>
-						</div>
-						<!--Story points-->
-						<div class="flex items-center gap-4 mb-4">
-							<div class="font-medium">Story Points:</div>
-							<div>
-								<div class="badge badge-primary">{ strconv.Itoa(int(us.StoryPoints)) }</div>
-							</div>
-						</div>
+					<div id="details" role="tabpanel" class="tab-content block pt-8">
+						@UserStoryDetails(us)
+					</div>
+					<div id="tasks" role="tabpanel" class="tab-content pt-8">
+						Tasks...
+					</div>
+					<div id="comments" role="tabpanel" class="tab-content pt-8">
+						Comments...
 					</div>
 				</div>
-				<div class="mb-4">
-					<div class="font-medium mb-2">Description</div>
-					<div class="text-gray-800 whitespace-break-spaces p-4 bg-gray-100 rounded-lg">{ *us.Description }</div>
-				</div>
-				if len(us.AcceptanceTests) > 0 {
-					<div class="mb-4">
-						<div class="font-medium mb-2" style="color: #cc8e35;">Acceptance Tests</div>
-						for _, test := range us.AcceptanceTests {
-							<div style="background-color: #f4deb3; color: #654321; padding: 4px 8px; margin-bottom: 4px; border-radius: 4px;">
-								# { *test.Description }
-							</div>
-						}
-					</div>
-				}
-				if len(us.Tasks) > 0 {
-					<div class="mb-4">
-						<div class="font-medium mb-2">Tasks</div>
-						for _, task := range us.Tasks {
-							<div class="flex justify-between items-center p-2 bg-gray-100 rounded-lg mb-2">
-								<div class="text-gray-800">{ *task.Title }</div>
-							</div>
-						}
-					</div>
-				}
-				<!--RejectionComment  -->
-				if us.RejectionComment != nil {
-					<div class="mb-4">
-						<div class="font-medium mb-2" style="color: #de6561;">Rejection comment</div>
-						<div class="text-gray-800 whitespace-break-spaces p-4 bg-unassigned-300 rounded-lg">{ *us.RejectionComment }</div>
-					</div>
-				}
 				<div class="flex justify-end mt-4 items-center">
 					<button class="btn btn-primary btn-sm" type="button" hx-on:click="dialog_container.close()">Close</button>
 				</div>
 			</div>
 		</div>
 	</div>
+}
+
+templ UserStoryDetails(us database.UserStory) {
+	<div class="grid grid-cols-2 gap-4 mb-4">
+		<div>
+			<!-- Realized Status -->
+			<div class="flex items-center gap-4 mb-4">
+				<div class="font-medium">Realized:</div>
+				<div>
+					if *us.Realized {
+						<span class="text-green-500 text-lg">
+							<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+								<path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5"></path>
+							</svg>
+						</span> <!-- Display a check mark if realized is true -->
+					} else {
+						<span class="text-red-500 text-lg">
+							<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+								<path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12"></path>
+							</svg>
+						</span> <!-- Display a cross mark if realized is false -->
+					}
+				</div>
+			</div>
+			<!--Priority -->
+			<div class="flex items-center gap-4 mb-4">
+				<div class="font-medium">Priority:</div>
+				<div>
+					switch us.Priority {
+						case database.PriorityMustHave:
+							<div class="badge badge-error">Must have</div>
+						case database.PriorityCouldHave:
+							<div class="badge badge-warning">Could have</div>
+						case database.PriorityShouldHave:
+							<div class="badge badge-success">Should have</div>
+						case database.PriorityWontHaveThisTime:
+							<div class="badge badge-info">Won't have this time</div>
+						default:
+							<span></span>
+					}
+				</div>
+			</div>
+		</div>
+		<div>
+			<!--BusinessValue-->
+			<div class="flex items-center gap-4 mb-4">
+				<div class="font-medium">Business Value:</div>
+				<div>
+					<div class="badge badge-primary">{ strconv.Itoa(us.BusinessValue) }</div>
+				</div>
+			</div>
+			<!--Story points-->
+			<div class="flex items-center gap-4 mb-4">
+				<div class="font-medium">Story Points:</div>
+				<div>
+					<div class="badge badge-primary">{ strconv.Itoa(int(us.StoryPoints)) }</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="mb-4">
+		<div class="font-medium mb-2">Description</div>
+		<div class="text-gray-800 whitespace-break-spaces p-4 bg-gray-100 rounded-lg">{ *us.Description }</div>
+	</div>
+	if len(us.AcceptanceTests) > 0 {
+		<div class="mb-4">
+			<div class="font-medium mb-2" style="color: #cc8e35;">Acceptance Tests</div>
+			for _, test := range us.AcceptanceTests {
+				<div style="background-color: #f4deb3; color: #654321; padding: 4px 8px; margin-bottom: 4px; border-radius: 4px;">
+					# { *test.Description }
+				</div>
+			}
+		</div>
+	}
+	if len(us.Tasks) > 0 {
+		<div class="mb-4">
+			<div class="font-medium mb-2">Tasks</div>
+			for _, task := range us.Tasks {
+				<div class="flex justify-between items-center p-2 bg-gray-100 rounded-lg mb-2">
+					<div class="text-gray-800">{ *task.Title }</div>
+				</div>
+			}
+		</div>
+	}
+	<!--RejectionComment  -->
+	if us.RejectionComment != nil {
+		<div class="mb-4">
+			<div class="font-medium mb-2" style="color: #de6561;">Rejection comment</div>
+			<div class="text-gray-800 whitespace-break-spaces p-4 bg-unassigned-300 rounded-lg">{ *us.RejectionComment }</div>
+		</div>
+	}
 }
