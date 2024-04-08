@@ -1,5 +1,3 @@
-version: "3"
-
 services:
   tasklify:
     image: ${REGISTRY}tasklify/tasklify:latest

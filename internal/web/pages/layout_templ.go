@@ -96,7 +96,7 @@ func header(title string) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</title><link rel=\"icon\" type=\"image/x-icon\" href=\"/static/assets/favicon.ico\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\"><meta name=\"htmx-config\" content=\"{&#34;responseTargetUnsetsError&#34;: false}\"><script src=\"/static/script/htmx.min.js\"></script><script src=\"/static/script/response-targets.js\"></script><link rel=\"stylesheet\" href=\"/static/css/style.css\"></head>")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</title><link rel=\"icon\" type=\"image/x-icon\" href=\"/static/assets/favicon.ico\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\"><meta name=\"htmx-config\" content=\"{&#34;responseTargetUnsetsError&#34;: false}\"><script src=\"/static/script/htmx.min.js\"></script><script src=\"/static/script/response-targets.js\"></script><link rel=\"stylesheet\" href=\"/static/css/style.css\"><link rel=\"stylesheet\" href=\"/static/css/github-markdown-light.css\"></head>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -145,12 +145,12 @@ func nav(r *http.Request) templ.Component {
 				return templ_7745c5c3_Err
 			}
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</div><div class=\"navbar-end\">")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</div><div class=\"navbar-end\"><a class=\"btn btn-sm m-0.5\" href=\"/docs\">Docs</a> ")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		if isLoggedIn(r) {
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div class=\"dropdown dropdown-hover dropdown-bottom dropdown-end mr-2\"><div tabindex=\"0\" class=\"avatar max-w-full\"><div class=\"w-12 h-12 rounded-full\"><img src=\"/static/assets/tasklify_icon.svg\"></div></div><ul tabindex=\"0\" class=\"dropdown-content z-[10] menu p-2 shadow bg-base-100 rounded-box w-52\"><li><a class=\"btn btn-sm m-0.5\" hx-get=\"")
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div class=\"dropdown dropdown-hover dropdown-bottom dropdown-end ml-4 mr-2\"><div tabindex=\"0\" class=\"avatar max-w-full\"><div class=\"w-12 h-12 rounded-full\"><img src=\"/static/assets/tasklify_icon.svg\"></div></div><ul tabindex=\"0\" class=\"dropdown-content z-[10] menu p-2 shadow bg-base-100 rounded-box w-52\"><li><a class=\"btn btn-sm m-0.5\" hx-get=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
