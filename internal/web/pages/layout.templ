@@ -36,6 +36,7 @@ templ header(title string) {
 		<script src="/static/script/htmx.min.js"></script>
 		<script src="/static/script/response-targets.js"></script>
 		<link rel="stylesheet" href="/static/css/style.css"/>
+		<link rel="stylesheet" href="/static/css/github-markdown-light.css"/>
 	</head>
 }
 
@@ -57,8 +58,9 @@ templ nav(r *http.Request) {
 			}
 		</div>
 		<div class="navbar-end">
+			<a class="btn btn-sm m-0.5" href="/docs">Docs</a>
 			if isLoggedIn(r) {
-				<div class="dropdown dropdown-hover dropdown-bottom dropdown-end mr-2">
+				<div class="dropdown dropdown-hover dropdown-bottom dropdown-end ml-4 mr-2">
 					<div tabindex="0" class="avatar max-w-full">
 						<div class="w-12 h-12 rounded-full">
 							<img src="/static/assets/tasklify_icon.svg"/>
