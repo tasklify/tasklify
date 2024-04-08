@@ -2,6 +2,7 @@ package router
 
 import (
 	"net/http"
+	"tasklify/internal/docs"
 	"tasklify/internal/handlers"
 	"tasklify/internal/middlewares"
 	"tasklify/internal/web/pages"
@@ -29,6 +30,9 @@ func Router() *chi.Mux {
 	r := chi.NewRouter()
 
 	r.Handle("/static/*", http.StripPrefix("/static/", http.FileServer(http.Dir("./static"))))
+
+	r.Get("/docs", handlers.DocsHandler(docs.RenderDoc))
+	r.Handle("/docs/*", http.StripPrefix("/docs/", handlers.DocsHandler(docs.RenderDoc)))
 
 	r.Group(func(r chi.Router) {
 		r.Use(

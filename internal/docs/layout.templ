@@ -1,0 +1,87 @@
+package docs
+
+import (
+	"net/http"
+	"fmt"
+	"tasklify/internal/web/pages"
+)
+
+func RenderDoc(w http.ResponseWriter, r *http.Request) error {
+	docsFs := GetDocs()
+
+	filePath := r.URL.Path
+	if filePath == "" || filePath == "/docs" {
+		filePath = "index"
+	}
+
+	document, ok := docsFs.Get(filePath)
+	if !ok {
+		return fmt.Errorf("404")
+	}
+
+	c := content(string(document.data.Bytes()))
+	c = docsLayout(nav(r, docsFs), c)
+	return pages.Layout(c, "Tasklify", r).Render(r.Context(), w)
+}
+
+func content(text string) templ.Component {
+	return templ.ComponentFunc(func(ctx context.Context, w io.Writer) error {
+		_, err := io.WriteString(w, text)
+		return err
+	})
+}
+
+templ docsLayout(nav, contents templ.Component) {
+	<div class="flex flex-1 min-h-screen">
+		@nav
+		<main class="flex-1 markdown-body p-10 m-10">
+			<!-- markdown-body is for github-markdown.css -->
+			@contents
+		</main>
+	</div>
+	<style>
+		.markdown-body {
+			box-sizing: border-box;
+			min-width: 200px;
+			max-width: 980px;
+			margin: 0 auto;
+			padding: 45px;
+		}
+
+		@media (max-width: 767px) {
+			.markdown-body {
+				padding: 15px;
+			}
+		}
+
+		/* Override goldmark highlighting extension background to Githubs */
+		.markdown-body pre {
+			background-color: #f6f8fa !important;
+		}
+	</style>
+}
+
+templ nav(r *http.Request, docsFs *docs) {
+	<nav class="flex-none bg-secondary w-64" hx-boost="true">
+		<ul class="menu bg-base-200 h-full">
+			for _, key := range docsFs.Keys() {
+				<li>
+					<a
+						href={ ifIndex(key) }
+						if r.URL.Path == key || ((r.URL.Path == "" || r.URL.Path == "/docs") && key == "index") {
+							class="active"
+						}
+					>{ docsFs.GetOrDefault(key, file{}).metadata.title }</a>
+				</li>
+			}
+		</ul>
+	</nav>
+}
+
+func ifIndex(key string) templ.SafeURL {
+	if key == "index" {
+		return templ.URL("/docs")
+	}
+
+	return templ.URL("/docs/" + key)
+}

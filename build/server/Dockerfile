@@ -18,6 +18,7 @@ WORKDIR /
 COPY --chown=nonroot --from=build-stage /entrypoint /entrypoint
 # Assets
 COPY --chown=nonroot --from=build-stage /app/static /static
+COPY --chown=nonroot --from=build-stage /app/docs /docs
 COPY --chown=nonroot --from=build-stage /app/configs/rbac* /configs/
 COPY --chown=nonroot --from=build-stage /app/configs/common_password_list.txt /configs/
 

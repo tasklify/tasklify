@@ -13,6 +13,7 @@ import (
 	"tasklify/internal/auth"
 	"tasklify/internal/config"
 	"tasklify/internal/database"
+	"tasklify/internal/docs"
 	"tasklify/internal/router"
 	"time"
 
@@ -23,6 +24,7 @@ func main() {
 	logger := slog.New(slog.NewJSONHandler(os.Stdout, nil))
 
 	config := config.GetConfig()
+	docs.GetDocs()
 	database.GetDatabase(config)
 	auth.GetSession(config)
 	auth.GetAuthorization()
