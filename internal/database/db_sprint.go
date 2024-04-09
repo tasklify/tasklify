@@ -54,3 +54,7 @@ func (db *database) GetSprintByID(id uint) (*Sprint, error) {
 	}
 	return sprint, nil
 }
+
+func (db *database) UpdateSprint(sprint *Sprint) error {
+	return db.Save(sprint).Error
+}
