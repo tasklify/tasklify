@@ -11,74 +11,80 @@ templ projectWall(projectData database.Project, projectRoles []database.ProjectR
 			<form hx-get={ fmt.Sprintf("/project-wall/%v/post", projectData.ID) } hx-target="#dialog" style="display: inline; all: unset;">
 				<button class="btn btn-primary btn-sm">Write a new post</button>
 			</form>
-			<div id="" class="flex flex-col flex-1 mt-6 pt-2 mb-2 overflow-y-auto border-y-gray-300" style="border-top-width: 1px; border-bottom-width: 1px">
-				if len(projectData.ProjectWallPosts) == 0 {
-					<span class="ml-1">There are no posts on this project wall yet...</span>
-				}
-				for _, post := range projectData.ProjectWallPosts {
-					if currentUser.ID == post.Author.ID {
-						<div class="w-7/12 self-end mb-4 group">
-							<div class="flex items-center">
-								<div class="invisible group-hover:visible mr-3 ml-1">
-									<a hx-get={ fmt.Sprintf("/project-wall/%v/post/%v", projectData.ID, post.ID) } class="link link-hover link-info mr-2" hx-target="#dialog"><small>Edit</small></a>
-									<a hx-delete={ fmt.Sprintf("/project-wall/%v/post/%v", projectData.ID, post.ID) } class="link link-hover link-error" hx-confirm="Are you sure you want to delete this post?"><small class="">Delete</small></a>
-								</div>
-								<div class="mr-2 flex-1 text-right text-sm">
-									<span class="font-medium">{ post.Author.Username }</span>
-								</div>
-							</div>
-							<div class="card-body bg-base-300 p-3 rounded-2xl whitespace-break-spaces text-sm">
-								// <div class="">
-								// 	<time class="text-xs opacity-50">{ post.CreatedAt.Format("02-01-2006 15:04") }</time>
-								// 	<span class="font-medium">{ post.Author.Username }</span>
-								// </div>
-								{ post.Body }
-							</div>
-							<div class="mr-2 text-right">
-								if post.CreatedAt != post.UpdatedAt {
-									<div class="tooltip tooltip-left" data-tip={ fmt.Sprint("Last edited on ", post.UpdatedAt.Format("02-01-2006 15:04")) }>
-										<time class="text-xs opacity-50">
-											* { post.CreatedAt.Format("02-01-2006 15:04") }
-										</time>
-									</div>
-								} else {
-									<time class="text-xs opacity-50">{ post.CreatedAt.Format("02-01-2006 15:04") }</time>
-								}
-							</div>
-						</div>
-					} else {
-						<div class="w-7/12 self-start mb-4">
-							<div class="ml-2 text-sm">
-								<span class="font-medium">{ post.Author.Username }</span>
-							</div>
-							<div class="card-body bg-base-200 p-3 rounded-2xl whitespace-break-spaces  text-sm">
-								// <div class="">
-								// 	<span class="font-medium">{ post.Author.Username }</span>
-								// 	<time class="text-xs opacity-50">{ post.CreatedAt.Format("02-01-2006 15:04") }</time>
-								// </div>
-								{ post.Body }
-							</div>
-							<div class="ml-2">
-								if post.CreatedAt != post.UpdatedAt {
-									<div class="tooltip tooltip-right" data-tip={ fmt.Sprint("Last edited on ", post.UpdatedAt.Format("02-01-2006 15:04")) }>
-										<time class="text-xs opacity-50">
-											{ post.CreatedAt.Format("02-01-2006 15:04") } *
-										</time>
-									</div>
-								} else {
-									<time class="text-xs opacity-50">{ post.CreatedAt.Format("02-01-2006 15:04") }</time>
-								}
-							</div>
-						</div>
-					}
-				}
+			<div id="" class="flex flex-col-reverse flex-1 mt-6 pt-2 mb-2 overflow-y-auto border-y-gray-300" style="border-top-width: 1px; border-bottom-width: 1px">
+				<div id="PostListContainer" class="flex flex-1 flex-col-reverse justify-end">
+					@PostList(projectData, projectRoles, currentUser)
+				</div>
 			</div>
 		</div>
 	}
 }
 
+templ PostList(projectData database.Project, projectRoles []database.ProjectRole, currentUser database.User) {
+	if len(projectData.ProjectWallPosts) == 0 {
+		<span class="ml-1">There are no posts on this project wall yet...</span>
+	}
+	for _, post := range projectData.ProjectWallPosts {
+		if currentUser.ID == post.Author.ID {
+			<div class="w-7/12 self-end mb-4 group">
+				<div class="flex items-center">
+					<div class="invisible group-hover:visible mr-3 ml-1">
+						<a hx-get={ fmt.Sprintf("/project-wall/%v/post/%v", projectData.ID, post.ID) } class="link link-hover link-info mr-2" hx-target="#dialog"><small>Edit</small></a>
+						<a hx-delete={ fmt.Sprintf("/project-wall/%v/post/%v", projectData.ID, post.ID) } hx-target="#PostListContainer" class="link link-hover link-error" hx-confirm="Are you sure you want to delete this post?"><small class="">Delete</small></a>
+					</div>
+					<div class="mr-2 flex-1 text-right text-sm">
+						<span class="font-medium">{ post.Author.Username }</span>
+					</div>
+				</div>
+				<div class="card-body bg-base-300 p-3 rounded-2xl whitespace-break-spaces text-sm">
+					// <div class="">
+					// 	<time class="text-xs opacity-50">{ post.CreatedAt.Format("02-01-2006 15:04") }</time>
+					// 	<span class="font-medium">{ post.Author.Username }</span>
+					// </div>
+					{ post.Body }
+				</div>
+				<div class="mr-2 text-right">
+					if post.CreatedAt != post.UpdatedAt {
+						<div class="tooltip tooltip-left" data-tip={ fmt.Sprint("Last edited on ", post.UpdatedAt.Format("02-01-2006 15:04")) }>
+							<time class="text-xs opacity-50">
+								* { post.CreatedAt.Format("02-01-2006 15:04") }
+							</time>
+						</div>
+					} else {
+						<time class="text-xs opacity-50">{ post.CreatedAt.Format("02-01-2006 15:04") }</time>
+					}
+				</div>
+			</div>
+		} else {
+			<div class="w-7/12 self-start mb-4">
+				<div class="ml-2 text-sm">
+					<span class="font-medium">{ post.Author.Username }</span>
+				</div>
+				<div class="card-body bg-base-200 p-3 rounded-2xl whitespace-break-spaces  text-sm">
+					// <div class="">
+					// 	<span class="font-medium">{ post.Author.Username }</span>
+					// 	<time class="text-xs opacity-50">{ post.CreatedAt.Format("02-01-2006 15:04") }</time>
+					// </div>
+					{ post.Body }
+				</div>
+				<div class="ml-2">
+					if post.CreatedAt != post.UpdatedAt {
+						<div class="tooltip tooltip-right" data-tip={ fmt.Sprint("Last edited on ", post.UpdatedAt.Format("02-01-2006 15:04")) }>
+							<time class="text-xs opacity-50">
+								{ post.CreatedAt.Format("02-01-2006 15:04") } *
+							</time>
+						</div>
+					} else {
+						<time class="text-xs opacity-50">{ post.CreatedAt.Format("02-01-2006 15:04") }</time>
+					}
+				</div>
+			</div>
+		}
+	}
+}
+
 templ AddNewPostDialog(projectID uint) {
-	@common.CreateDialog("New post", http.MethodPost, fmt.Sprintf("/project-wall/%v/post", projectID), "Add") {
+	@CreateDialog("New post", http.MethodPost, fmt.Sprintf("/project-wall/%v/post", projectID), "Add", "#PostListContainer") {
 		<div class="mb-4">
 			<textarea rows="6" id="body" name="body" class="textarea mt-1 p-2 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50" style="max-height: 250px; min-height: 50px;" required></textarea>
 		</div>
@@ -86,11 +92,45 @@ templ AddNewPostDialog(projectID uint) {
 }
 
 templ EditPostDialog(postData database.ProjectWallPost) {
-	@common.CreateDialog("Edit post", http.MethodPut, fmt.Sprintf("/project-wall/%v/post/%v", postData.ProjectID, postData.ID), "Save") {
+	@CreateDialog("Edit post", http.MethodPut, fmt.Sprintf("/project-wall/%v/post/%v", postData.ProjectID, postData.ID), "Save", "#PostListContainer") {
 		<div class="mb-4">
 			<textarea rows="6" id="body" name="body" class="textarea mt-1 p-2 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50" style="max-height: 250px; min-height: 50px;" required>
 				{ postData.Body }
 			</textarea>
 		</div>
 	}
+}
+
+templ CreateDialog(title, hxMethod, hxPath, submitButton string, hxTarget string) {
+	<div hx-ext="response-targets">
+		<div id="create-dialog" hx-ext="response-targets" class="fixed top-0 left-0 w-full h-full bg-gray-900 bg-opacity-50 flex justify-center items-center z-50">
+			<form
+				if hxMethod == http.MethodPost {
+					hx-post={ hxPath }
+				}
+				if hxMethod == http.MethodPut {
+					hx-put={ hxPath }
+				}
+				if hxMethod == http.MethodPatch {
+					hx-patch={ hxPath }
+				}
+				if hxMethod == http.MethodDelete {
+					hx-delete={ hxPath }
+				}
+				class="bg-white rounded-lg p-8 shadow-lg w-2/5 h-auto"
+				hx-on::after-request="if(event.detail.successful) dialog_container.close()"
+				hx-target={ hxTarget }
+			>
+				<div class="text-center">
+					<h2 class="text-xl font-medium mb-4">{ title }</h2>
+					{ children... }
+				</div>
+				<div id="validation-error"></div>
+				<div class="flex justify-end mt-3">
+					<button class="btn btn-ghost btn-sm mr-2" type="button" hx-on:click="dialog_container.close()">Cancel</button>
+					<button class="btn btn-primary btn-sm" type="submit">{ submitButton }</button>
+				</div>
+			</form>
+		</div>
+	</div>
 }
