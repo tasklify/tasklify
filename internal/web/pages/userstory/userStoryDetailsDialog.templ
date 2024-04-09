@@ -201,7 +201,7 @@ templ UserStoryComments(us database.UserStory, inEditComment *database.UserStory
 
 templ CommentList(us database.UserStory, inEditComment *database.UserStoryComment, currentUser database.User) {
 	if len(us.UserStoryComments) == 0 {
-		<span class="ml-1">There are no comments on this user story yet...</span>
+		<span class="ml-1 mb-2">There are no comments on this user story yet...</span>
 	}
 	for _, comment := range us.UserStoryComments {
 		if currentUser.ID == comment.Author.ID {
