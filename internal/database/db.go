@@ -56,7 +56,10 @@ type Database interface {
 	GetWorkSessionByID(sessionID uint) (*WorkSession, error)
 	UpdateWorkSession(session *WorkSession) error
 	GetUserStoryComments(userStoryID uint) ([]UserStoryComment, error)
+	GetUserStoryCommentByID(commentID uint) (*UserStoryComment, error)
 	AddUserStoryComment(comment UserStoryComment) error
+	EditUserStoryComment(userStoryID uint, commentID uint, body string) error
+	DeleteUserStoryComment(userStoryID uint, commentID uint) error
 	RawDB() *gorm.DB
 }
 

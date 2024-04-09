@@ -164,6 +164,14 @@ func Router() *chi.Mux {
 			r.Handle("/userstory/{userStoryID}/comment", ghandlers.MethodHandler{
 				"POST": handlers.UnifiedHandler(handlers.AuthenticatedHandlerFunc(userstory.PostComment)),
 			})
+			r.Handle("/userstory/{userStoryID}/comment/{commentID}", ghandlers.MethodHandler{
+				"GET":    handlers.UnifiedHandler(handlers.AuthenticatedHandlerFunc(userstory.GetEditComment)),
+				"PUT":    handlers.UnifiedHandler(handlers.AuthenticatedHandlerFunc(userstory.PutComment)),
+				"DELETE": handlers.UnifiedHandler(handlers.AuthenticatedHandlerFunc(userstory.DeleteComment)),
+			})
+			r.Handle("/userstory/{userStoryID}/comment/{commentID}/cancel-edit", ghandlers.MethodHandler{
+				"GET": handlers.UnifiedHandler(handlers.AuthenticatedHandlerFunc(userstory.GetCancelEditComment)),
+			})
 			r.Handle("/sprintbacklog/{sprintID}", ghandlers.MethodHandler{
 				"GET": handlers.UnifiedHandler(handlers.AuthenticatedHandlerFunc(sprintbacklog.GetSprintBacklog)),
 			})

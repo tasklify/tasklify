@@ -80,7 +80,7 @@ templ UserStoryDetailsDialog(us database.UserStory, activeTab string, currentUse
 								style="padding-right: 5px; padding-bottom: 5px; padding-left: 5px; margin-right: -5px; margin-bottom: -5px; margin-left: -5px"
 								class="flex flex-col overflow-hidden tab-content"
 							>
-								@UserStoryComments(us, currentUser)
+								@UserStoryComments(us, nil, currentUser)
 							</div>
 						</div>
 					}
@@ -181,81 +181,93 @@ templ UserStoryDetails(us database.UserStory) {
 	}
 }
 
-templ UserStoryComments(us database.UserStory, currentUser database.User) {
-	// <div class="flex flex-col flex-1 overflow-y-hidden">
-	<div id="" class="flex flex-1 mb-2 overflow-y-auto flex-col-reverse" style="scrollbar-width: thin">
-		if len(us.UserStoryComments) == 0 {
-			<span class="ml-1">There are no comments on this user story yet...</span>
-		}
-		for _, comment := range us.UserStoryComments {
-			if currentUser.ID == comment.Author.ID {
-				<div class="w-7/12 self-end mb-4 group">
-					<div class="flex items-center">
-						// <div class="invisible group-hover:visible mr-3 ml-1">
-						// 	<a hx-get={ fmt.Sprintf("/project-wall/%v/post/%v", projectData.ID, post.ID) } class="link link-hover link-info mr-2" hx-target="#dialog"><small>Edit</small></a>
-						// 	<a hx-delete={ fmt.Sprintf("/project-wall/%v/post/%v", projectData.ID, post.ID) } class="link link-hover link-error" hx-confirm="Are you sure you want to delete this post?"><small class="">Delete</small></a>
-						// </div>
-						<div class="mr-2 flex-1 text-right text-sm">
-							<span class="font-medium">{ comment.Author.Username }</span>
-						</div>
-					</div>
-					<div class="card-body bg-base-300 p-3 rounded-2xl whitespace-break-spaces text-sm">
-						// <div class="">
-						// 	<time class="text-xs opacity-50">{ post.CreatedAt.Format("02-01-2006 15:04") }</time>
-						// 	<span class="font-medium">{ post.Author.Username }</span>
-						// </div>
-						{ comment.Body }
-					</div>
-					<div class="mr-2 text-right">
-						if comment.CreatedAt != comment.UpdatedAt {
-							<div class="tooltip tooltip-left" data-tip={ fmt.Sprint("Last edited on ", comment.UpdatedAt.Format("02-01-2006 15:04")) }>
-								<time class="text-xs opacity-50">
-									* { comment.CreatedAt.Format("02-01-2006 15:04") }
-								</time>
-							</div>
-						} else {
-							<time class="text-xs opacity-50">{ comment.CreatedAt.Format("02-01-2006 15:04") }</time>
-						}
-					</div>
-				</div>
-			} else {
-				<div class="w-7/12 self-start mb-4">
-					<div class="ml-2 text-sm">
-						<span class="font-medium">{ comment.Author.Username }</span>
-					</div>
-					<div class="card-body bg-base-200 p-3 rounded-2xl whitespace-break-spaces  text-sm">
-						// <div class="">
-						// 	<span class="font-medium">{ post.Author.Username }</span>
-						// 	<time class="text-xs opacity-50">{ post.CreatedAt.Format("02-01-2006 15:04") }</time>
-						// </div>
-						{ comment.Body }
-					</div>
-					<div class="ml-2">
-						if comment.CreatedAt != comment.UpdatedAt {
-							<div class="tooltip tooltip-right" data-tip={ fmt.Sprint("Last edited on ", comment.UpdatedAt.Format("02-01-2006 15:04")) }>
-								<time class="text-xs opacity-50">
-									{ comment.CreatedAt.Format("02-01-2006 15:04") } *
-								</time>
-							</div>
-						} else {
-							<time class="text-xs opacity-50">{ comment.CreatedAt.Format("02-01-2006 15:04") }</time>
-						}
-					</div>
-				</div>
-			}
-		}
+templ UserStoryComments(us database.UserStory, inEditComment *database.UserStoryComment, currentUser database.User) {
+	<div class="flex flex-1 mb-2 overflow-y-auto flex-col-reverse" style="scrollbar-width: thin">
+		<div id="CommentListContainer" class="flex flex-1 flex-col-reverse">
+			@CommentList(us, inEditComment, currentUser)
+		</div>
 	</div>
 	<div>
 		<form hx-post={ fmt.Sprintf("/userstory/%v/comment", us.ID) } hx-target="#user_story_tabs #comments" style="all: unset">
 			<div class="inline-flex w-full">
-				<textarea rows="1" id="comment" name="comment" class="textarea p-2 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50" placeholder="Write a comment" style="max-height: 100px" required></textarea>
+				<textarea rows="1" id="comment" name="comment" class="textarea p-2 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50" placeholder="Write a comment" style="max-height: 150px" required></textarea>
 				<button class="btn btn-sm btn-circle btn-primary ml-2 flex self-end" style="padding-right: 2.5px">
 					@SendIcon()
 				</button>
 			</div>
 		</form>
 	</div>
-	// </div>
+}
+
+templ CommentList(us database.UserStory, inEditComment *database.UserStoryComment, currentUser database.User) {
+	if len(us.UserStoryComments) == 0 {
+		<span class="ml-1">There are no comments on this user story yet...</span>
+	}
+	for _, comment := range us.UserStoryComments {
+		if currentUser.ID == comment.Author.ID {
+			<div class="w-8/12 self-end mb-4 group">
+				if inEditComment == nil || (inEditComment != nil && inEditComment.ID != comment.ID) {
+					<div class="flex items-center">
+						<div class="invisible group-hover:visible mr-3 ml-1">
+							<a hx-get={ fmt.Sprintf("/userstory/%v/comment/%v", us.ID, comment.ID) } class="link link-hover link-info mr-2" hx-target="#user_story_tabs #comments #CommentListContainer"><small>Edit</small></a>
+							<a hx-delete={ fmt.Sprintf("/userstory/%v/comment/%v", us.ID, comment.ID) } hx-target="#user_story_tabs #comments #CommentListContainer" class="link link-hover link-error" hx-confirm="Are you sure you want to delete this comment?"><small class="">Delete</small></a>
+						</div>
+						<div class="mr-2 flex-1 text-right text-sm">
+							<span class="font-medium">{ comment.Author.Username }</span>
+						</div>
+					</div>
+					<div class="card-body bg-base-300 p-3 rounded-2xl whitespace-break-spaces text-sm">
+						{ comment.Body }
+					</div>
+					<div class="mr-2 text-right">
+						if comment.CreatedAt != comment.UpdatedAt {
+							<div class="tooltip tooltip-left" data-tip={ fmt.Sprint("Last edited on ", comment.UpdatedAt.Format("02-01-2006 15:04")) }>
+								<time class="opacity-50" style="font-size: 0.65rem">
+									* { comment.CreatedAt.Format("02-01-2006 15:04") }
+								</time>
+							</div>
+						} else {
+							<time class="opacity-50" style="font-size: 0.65rem">{ comment.CreatedAt.Format("02-01-2006 15:04") }</time>
+						}
+					</div>
+				} else if inEditComment != nil && inEditComment.ID == comment.ID {
+					@EditComment(*inEditComment)
+				}
+			</div>
+		} else {
+			<div class="w-8/12 self-start mb-4">
+				<div class="ml-2 text-sm">
+					<span class="font-medium">{ comment.Author.Username }</span>
+				</div>
+				<div class="card-body bg-base-200 p-3 rounded-2xl whitespace-break-spaces text-sm">
+					{ comment.Body }
+				</div>
+				<div class="ml-2">
+					if comment.CreatedAt != comment.UpdatedAt {
+						<div class="tooltip tooltip-right" data-tip={ fmt.Sprint("Last edited on ", comment.UpdatedAt.Format("02-01-2006 15:04")) }>
+							<time class="opacity-50" style="font-size: 0.65rem">
+								{ comment.CreatedAt.Format("02-01-2006 15:04") } *
+							</time>
+						</div>
+					} else {
+						<time class="opacity-50" style="font-size: 0.65rem">{ comment.CreatedAt.Format("02-01-2006 15:04") }</time>
+					}
+				</div>
+			</div>
+		}
+	}
+}
+
+templ EditComment(comment database.UserStoryComment) {
+	<form hx-put={ fmt.Sprintf("/userstory/%v/comment/%v", comment.UserStoryID, comment.ID) } hx-target="#user_story_tabs #comments #CommentListContainer" style="all: unset">
+		<div class="flex justify-end mx-3" style="line-height: 24px">
+			<a hx-get={ fmt.Sprintf("/userstory/%v/comment/%v/cancel-edit", comment.UserStoryID, comment.ID) } hx-target="#user_story_tabs #comments #CommentListContainer" class="link link-hover link-neutral"><small class="">Cancel</small></a>
+			<button class="link link-hover link-success ml-3" type="submit"><small>Save</small></button>
+		</div>
+		<div class="card-body bg-base-300 p-3 rounded-2xl whitespace-break-spaces text-sm">
+			<textarea id="comment" name="comment" class="textarea p-2 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50" placeholder="Write a comment" style="max-height: 150px" required autofocus>{ comment.Body }</textarea>
+		</div>
+	</form>
 }
 
 templ SendIcon() {

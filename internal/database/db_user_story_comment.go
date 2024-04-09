@@ -20,6 +20,24 @@ func (db *database) GetUserStoryComments(userStoryID uint) ([]UserStoryComment, 
 	return comments, nil
 }
 
+func (db *database) GetUserStoryCommentByID(commentID uint) (*UserStoryComment, error) {
+	var comment = &UserStoryComment{}
+	err := db.First(comment, commentID).Error
+	if err != nil {
+		return nil, err
+	}
+
+	return comment, nil
+}
+
 func (db *database) AddUserStoryComment(comment UserStoryComment) error {
 	return db.Create(&comment).Error
+}
+
+func (db *database) EditUserStoryComment(userStoryID uint, commentID uint, body string) error {
+	return db.Model(&UserStoryComment{}).Where("id = ? AND user_story_id = ?", commentID, userStoryID).Update("body", body).Error
+}
+
+func (db *database) DeleteUserStoryComment(userStoryID uint, commentID uint) error {
+	return db.Unscoped().Where("id = ? AND user_story_id = ?", commentID, userStoryID).Delete(&UserStoryComment{}).Error
 }
