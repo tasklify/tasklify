@@ -43,7 +43,18 @@ func GetUserStoryDetails(w http.ResponseWriter, r *http.Request, params handlers
 		return err
 	}
 
-	c := UserStoryDetailsDialog(*userStory, activeTab)
+	userStoryComments, err := database.GetDatabase().GetUserStoryComments(uint(userStoryID))
+	if err != nil {
+		return err
+	}
+	userStory.UserStoryComments = append(userStory.UserStoryComments, userStoryComments...)
+
+	currentUser, err := database.GetDatabase().GetUserByID(params.UserID)
+	if err != nil {
+		return err
+	}
+
+	c := UserStoryDetailsDialog(*userStory, activeTab, *currentUser)
 	return c.Render(r.Context(), w)
 
 }

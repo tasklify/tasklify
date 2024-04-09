@@ -4,21 +4,21 @@ import "tasklify/internal/database"
 import "strconv"
 import "fmt"
 
-templ UserStoryDetailsDialog(us database.UserStory, activeTab string) {
+templ UserStoryDetailsDialog(us database.UserStory, activeTab string, currentUser database.User) {
 	<div hx-ext="response-targets">
-		<div id="create-dialog" hx-ext="response-targets" class="fixed top-0 left-0 w-full h-full bg-gray-900 bg-opacity-50 flex justify-center items-start pt-11 z-50">
-			<div class="bg-white rounded-lg p-8 shadow-lg w-2/5 h-auto">
+		<div id="create-dialog" hx-ext="response-targets" class="fixed top-0 left-0 w-full h-full bg-gray-900 bg-opacity-50 flex justify-center items-start py-11 z-50">
+			<div class="bg-white rounded-lg shadow-lg w-2/5 h-auto max-h-full flex flex-col overflow-hidden">
 				<!-- Title -->
-				<div class="mb-4">
-					<h2 class="text-xl font-bold mb-2">{ us.Title }</h2>
+				<div class="p-4 px-5 bg-primary">
+					<h2 class="text-xl font-bold">{ us.Title }</h2>
 				</div>
-				<div id="user_story_tabs">
+				<div id="user_story_tabs" class="flex flex-col overflow-hidden flex-1" style="padding: 5px; margin: -5px">
 					<div role="tablist" class="tabs tabs-bordered">
 						<input
 							type="radio"
 							name="tabID"
 							role="tab"
-							class="tab"
+							class="tab text-base h-9"
 							aria-label="Details"
 							data-content="details"
 							if activeTab == "details" {
@@ -34,7 +34,7 @@ templ UserStoryDetailsDialog(us database.UserStory, activeTab string) {
 							type="radio"
 							name="tabID"
 							role="tab"
-							class="tab"
+							class="tab text-base h-9"
 							aria-label="Tasks"
 							data-content="tasks"
 							if activeTab == "tasks" {
@@ -50,7 +50,7 @@ templ UserStoryDetailsDialog(us database.UserStory, activeTab string) {
 							type="radio"
 							name="tabID"
 							role="tab"
-							class="tab"
+							class="tab text-base h-9"
 							aria-label="Comments"
 							data-content="comments"
 							if activeTab == "comments" {
@@ -63,41 +63,28 @@ templ UserStoryDetailsDialog(us database.UserStory, activeTab string) {
 							hx-trigger="click"
 						/>
 					</div>
-					<div
-						id="details"
-						role="tabpanel"
-						if activeTab == "details" {
-							class="tab-content block pt-8"
-						} else {
-							class="tab-content pt-8"
-						}
-					>
-						@UserStoryDetails(us)
-					</div>
-					<div
-						id="tasks"
-						role="tabpanel"
-						if activeTab == "tasks" {
-							class="tab-content block pt-8"
-						} else {
-							class="tab-content pt-8"
-						}
-					>
-						Tasks...
-					</div>
-					<div
-						id="comments"
-						role="tabpanel"
-						if activeTab == "comments" {
-							class="tab-content block pt-8"
-						} else {
-							class="tab-content pt-8"
-						}
-					>
-						Comments...
-					</div>
+					if activeTab == "details" {
+						<div id="details" role="tabpanel" class="tab-content block pt-7 px-8">
+							@UserStoryDetails(us)
+						</div>
+					} else if activeTab == "tasks" {
+						<div id="tasks" role="tabpanel" class="tab-content block pt-7 px-8">
+							Tasks...
+						</div>
+					} else if activeTab == "comments" {
+						<div class="pt-7 px-8 flex flex-col overflow-hidden" style="padding-bottom: 5px; margin-bottom: -5px">
+							<div
+								id="comments"
+								role="tabpanel"
+								style="padding-right: 5px; padding-bottom: 5px; padding-left: 5px; margin-right: -5px; margin-bottom: -5px; margin-left: -5px"
+								class="flex flex-col overflow-hidden tab-content"
+							>
+								@UserStoryComments(us, currentUser)
+							</div>
+						</div>
+					}
 				</div>
-				<div class="flex justify-end mt-4 items-center">
+				<div class="flex justify-end mt-5 items-center px-8 pb-8">
 					<button class="btn btn-primary btn-sm" type="button" hx-on:click="dialog_container.close()">Close</button>
 				</div>
 			</div>
@@ -194,4 +181,87 @@ templ UserStoryDetails(us database.UserStory) {
 			<div class="text-gray-800 whitespace-break-spaces p-4 bg-unassigned-300 rounded-lg">{ *us.RejectionComment }</div>
 		</div>
 	}
+}
+
+templ UserStoryComments(us database.UserStory, currentUser database.User) {
+	// <div class="flex flex-col flex-1 overflow-y-hidden">
+	<div id="" class="flex flex-1 mb-2 overflow-y-auto flex-col-reverse">
+		if len(us.UserStoryComments) == 0 {
+			<span class="ml-1">There are no comments on this user story yet...</span>
+		}
+		for _, comment := range us.UserStoryComments {
+			if currentUser.ID == comment.Author.ID {
+				<div class="w-7/12 self-end mb-4 group">
+					<div class="flex items-center">
+						// <div class="invisible group-hover:visible mr-3 ml-1">
+						// 	<a hx-get={ fmt.Sprintf("/project-wall/%v/post/%v", projectData.ID, post.ID) } class="link link-hover link-info mr-2" hx-target="#dialog"><small>Edit</small></a>
+						// 	<a hx-delete={ fmt.Sprintf("/project-wall/%v/post/%v", projectData.ID, post.ID) } class="link link-hover link-error" hx-confirm="Are you sure you want to delete this post?"><small class="">Delete</small></a>
+						// </div>
+						<div class="mr-2 flex-1 text-right text-sm">
+							<span class="font-medium">{ comment.Author.Username }</span>
+						</div>
+					</div>
+					<div class="card-body bg-base-300 p-3 rounded-2xl whitespace-break-spaces text-sm">
+						// <div class="">
+						// 	<time class="text-xs opacity-50">{ post.CreatedAt.Format("02-01-2006 15:04") }</time>
+						// 	<span class="font-medium">{ post.Author.Username }</span>
+						// </div>
+						{ comment.Body }
+					</div>
+					<div class="mr-2 text-right">
+						if comment.CreatedAt != comment.UpdatedAt {
+							<div class="tooltip tooltip-left" data-tip={ fmt.Sprint("Last edited on ", comment.UpdatedAt.Format("02-01-2006 15:04")) }>
+								<time class="text-xs opacity-50">
+									* { comment.CreatedAt.Format("02-01-2006 15:04") }
+								</time>
+							</div>
+						} else {
+							<time class="text-xs opacity-50">{ comment.CreatedAt.Format("02-01-2006 15:04") }</time>
+						}
+					</div>
+				</div>
+			} else {
+				<div class="w-7/12 self-start mb-4">
+					<div class="ml-2 text-sm">
+						<span class="font-medium">{ comment.Author.Username }</span>
+					</div>
+					<div class="card-body bg-base-200 p-3 rounded-2xl whitespace-break-spaces  text-sm">
+						// <div class="">
+						// 	<span class="font-medium">{ post.Author.Username }</span>
+						// 	<time class="text-xs opacity-50">{ post.CreatedAt.Format("02-01-2006 15:04") }</time>
+						// </div>
+						{ comment.Body }
+					</div>
+					<div class="ml-2">
+						if comment.CreatedAt != comment.UpdatedAt {
+							<div class="tooltip tooltip-right" data-tip={ fmt.Sprint("Last edited on ", comment.UpdatedAt.Format("02-01-2006 15:04")) }>
+								<time class="text-xs opacity-50">
+									{ comment.CreatedAt.Format("02-01-2006 15:04") } *
+								</time>
+							</div>
+						} else {
+							<time class="text-xs opacity-50">{ comment.CreatedAt.Format("02-01-2006 15:04") }</time>
+						}
+					</div>
+				</div>
+			}
+		}
+	</div>
+	<div>
+		<form hx-post={ fmt.Sprintf("/userstory/%v/comment", us.ID) } hx-target="#user_story_tabs #comments" style="all: unset">
+			<div class="inline-flex w-full">
+				<textarea rows="1" id="comment" name="comment" class="textarea p-2 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50" placeholder="Write a comment" style="max-height: 100px" required></textarea>
+				<button class="btn btn-sm btn-circle btn-primary ml-2 flex self-end" style="padding-right: 2.5px">
+					@SendIcon()
+				</button>
+			</div>
+		</form>
+	</div>
+	// </div>
+}
+
+templ SendIcon() {
+	<svg xmlns="http://www.w3.org/2000/svg" id="Layer_1" data-name="Layer 1" viewBox="0 0 122.56 122.88" style="width: 16px; height: auto; transform: rotate(45deg)">
+		<path d="M112.27,10.31l-99,38.07,30,14.37L89.21,33.18,60.44,80.53l14,29.06,37.81-99.28ZM2.42,44.49,117.16.37a3.73,3.73,0,0,1,3-.12,3.78,3.78,0,0,1,2.19,4.87L78.4,120.45a3.78,3.78,0,0,1-6.92.3l-22.67-47L2.14,51.39a3.76,3.76,0,0,1,.28-6.9Z"></path>
+	</svg>
 }
