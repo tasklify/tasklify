@@ -56,6 +56,11 @@ type Database interface {
 	GetWorkSessionsForTask(taskID uint) ([]WorkSession, error)
 	GetWorkSessionByID(sessionID uint) (*WorkSession, error)
 	UpdateWorkSession(session *WorkSession) error
+	GetUserStoryComments(userStoryID uint) ([]UserStoryComment, error)
+	GetUserStoryCommentByID(commentID uint) (*UserStoryComment, error)
+	AddUserStoryComment(comment UserStoryComment) error
+	EditUserStoryComment(userStoryID uint, commentID uint, body string) error
+	DeleteUserStoryComment(userStoryID uint, commentID uint) error
 	RawDB() *gorm.DB
 }
 
@@ -95,7 +100,7 @@ func connectDatabase(config config.Database) *database {
 
 func registerTables(db *database) {
 	// Migrate the schema
-	err := db.AutoMigrate(&User{}, &Project{}, &ProjectWallPost{}, &UserStory{}, &Task{}, &AcceptanceTest{}, &ProjectHasUser{}, &Sprint{}, &WorkflowStep{}, &WorkSession{})
+	err := db.AutoMigrate(&User{}, &Project{}, &ProjectWallPost{}, &UserStory{}, &UserStoryComment{}, &Task{}, &AcceptanceTest{}, &ProjectHasUser{}, &Sprint{}, &WorkflowStep{}, &WorkSession{})
 	if err != nil {
 		log.Fatal("Schema migration error: ", err)
 	}

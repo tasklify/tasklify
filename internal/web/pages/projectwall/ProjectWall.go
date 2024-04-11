@@ -8,6 +8,7 @@ import (
 	"tasklify/internal/handlers"
 	"tasklify/internal/web/pages"
 
+	"github.com/a-h/templ"
 	"github.com/go-chi/chi/v5"
 	"github.com/gorilla/schema"
 )
@@ -134,9 +135,12 @@ func PutPost(w http.ResponseWriter, r *http.Request, params handlers.RequestPara
 		return err
 	}
 
-	w.Header().Set("HX-Redirect", fmt.Sprint("/project-wall/", projectID))
+	c, err := GetPostList(projectID, params.UserID)
+	if err != nil {
+		return err
+	}
 
-	return nil
+	return c.Render(r.Context(), w)
 }
 
 func DeletePost(w http.ResponseWriter, r *http.Request, params handlers.RequestParams) error {
@@ -157,7 +161,35 @@ func DeletePost(w http.ResponseWriter, r *http.Request, params handlers.RequestP
 		return err
 	}
 
-	w.Header().Set("HX-Redirect", fmt.Sprint("/project-wall/", projectID))
+	c, err := GetPostList(projectID, params.UserID)
+	if err != nil {
+		return err
+	}
 
-	return nil
+	return c.Render(r.Context(), w)
+}
+
+func GetPostList(projectID uint, userID uint) (templ.Component, error) {
+	project, err := database.GetDatabase().GetProjectByID(projectID)
+	if err != nil {
+		return nil, err
+	}
+
+	user, err := database.GetDatabase().GetUserByID(userID)
+	if err != nil {
+		return nil, err
+	}
+
+	projectRoles, err := database.GetDatabase().GetProjectRoles(userID, projectID)
+	if err != nil {
+		return nil, err
+	}
+
+	posts, err := database.GetDatabase().GetProjectWallPosts(projectID)
+	if err != nil {
+		return nil, err
+	}
+	project.ProjectWallPosts = posts
+
+	return PostList(*project, projectRoles, *user), nil
 }

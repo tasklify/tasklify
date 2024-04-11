@@ -6,21 +6,22 @@ import (
 
 type UserStory struct {
 	gorm.Model
-	Title            string
-	Description      *string `gorm:"type:TEXT"`
-	Priority         Priority
-	BusinessValue    int
-	StoryPoints      uint
-	Realized         *bool
-	RejectionComment *string `gorm:"type:TEXT"`
-	WorkflowStepID   *uint   // 1:1 (WorkflowStep:UserStory)
-	WorkflowStep     WorkflowStep
-	SprintID         *uint            // 1:n (Sprint:UserStory)
-	ProjectID        uint             // 1:n (Project:UserStory)
-	Tasks            []Task           // 1:n (UserStory:Task)
-	AcceptanceTests  []AcceptanceTest // 1:n (UserStory:AcceptanceTest)
-	UserID           *uint            // 1:n (ProjectHasUser:UserStory)
-	ProjectHasUser   *ProjectHasUser  `gorm:"foreignKey:ProjectID,UserID"` // 1:n (ProjectHasUser:UserStory)
+	Title             string
+	Description       *string `gorm:"type:TEXT"`
+	Priority          Priority
+	BusinessValue     int
+	StoryPoints       uint
+	Realized          *bool
+	RejectionComment  *string `gorm:"type:TEXT"`
+	WorkflowStepID    *uint   // 1:1 (WorkflowStep:UserStory)
+	WorkflowStep      WorkflowStep
+	SprintID          *uint              // 1:n (Sprint:UserStory)
+	ProjectID         uint               // 1:n (Project:UserStory)
+	Tasks             []Task             // 1:n (UserStory:Task)
+	AcceptanceTests   []AcceptanceTest   // 1:n (UserStory:AcceptanceTest)
+	UserID            *uint              // 1:n (ProjectHasUser:UserStory)
+	ProjectHasUser    *ProjectHasUser    `gorm:"foreignKey:ProjectID,UserID"` // 1:n (ProjectHasUser:UserStory)
+	UserStoryComments []UserStoryComment // 1:n (UserStory:UserStoryComment)
 }
 
 func (db *database) CreateUserStory(userStory *UserStory) error {

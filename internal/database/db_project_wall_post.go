@@ -14,7 +14,7 @@ type ProjectWallPost struct {
 
 func (db *database) GetProjectWallPosts(projectID uint) ([]ProjectWallPost, error) {
 	var posts = []ProjectWallPost{}
-	err := db.Preload("Author").Where("project_id = ?", projectID).Order("created_at ASC").Find(&posts).Error
+	err := db.Preload("Author").Where("project_id = ?", projectID).Order("created_at DESC").Find(&posts).Error
 	if err != nil {
 		return []ProjectWallPost{}, err
 	}
