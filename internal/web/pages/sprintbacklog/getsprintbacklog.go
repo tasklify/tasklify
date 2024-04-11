@@ -54,7 +54,7 @@ func GetTaskStatus(task database.Task) string {
 		} else if *task.Status == database.StatusDone {
 			return "Done"
 		} else {
-			return "Unassigned"
+			return "Assigned"
 		}
 	}
 }
