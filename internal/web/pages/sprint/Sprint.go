@@ -198,6 +198,21 @@ func PutSprint(w http.ResponseWriter, r *http.Request, params handlers.RequestPa
 }
 
 func DeleteSprint(w http.ResponseWriter, r *http.Request, params handlers.RequestParams) error {
-	// TODO, soft delete
+
+	projectID, err := strconv.Atoi(chi.URLParam(r, "projectID"))
+	if err != nil {
+		return err
+	}
+	sprintID, err := strconv.Atoi(chi.URLParam(r, "sprintID"))
+	if err != nil {
+		return err
+	}
+
+	// delete sprint
+	err = database.GetDatabase().DeleteSprint(uint(projectID), uint(sprintID))
+
+	w.Header().Set("HX-Redirect", "/productbacklog?projectID="+strconv.Itoa(projectID))
+	w.WriteHeader(http.StatusSeeOther)
+
 	return nil
 }
