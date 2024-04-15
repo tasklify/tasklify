@@ -35,7 +35,7 @@ templ sprintBacklog(sprint *database.Sprint, projectRoles []database.ProjectRole
 							<div class="font-medium text-lg" style="padding-left: 15px;">{ story.Title }</div>
 						</div>
 						<div class="flex gap-2 mt-2">
-							<button hx-get={ fmt.Sprintf("/userstory/%v/details", story.ID) } hx-target="#dialog" class="btn btn-xs">
+							<button title="Details" hx-get={ fmt.Sprintf("/userstory/%v/details", story.ID) } hx-target="#dialog" class="btn btn-xs">
 								<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
 									<path stroke-linecap="round" stroke-linejoin="round" d="M6.75 12a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0ZM12.75 12a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0ZM18.75 12a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Z"></path>
 								</svg>
@@ -46,7 +46,11 @@ templ sprintBacklog(sprint *database.Sprint, projectRoles []database.ProjectRole
 									<form hx-get={ fmt.Sprintf("/userstory/%v/create-task", story.ID) } hx-target="#dialog" title="Can't add tasks to realized user story">
 										<input type="hidden" id="sprintID" name="sprintID" value={ strconv.Itoa(int(sprint.ID)) }/>
 										<input type="hidden" id="projectID" name="projectID" value={ strconv.Itoa(int(story.ProjectID)) }/>
-										<button class="btn btn-xs btn-primary" style="margin-right: 10px;" disabled>Create Task</button>
+										<button class="btn btn-xs btn-primary" style="margin-right: 10px;" disabled>
+                                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="white" class="w-5 h-5">
+                                              <path d="M10.75 4.75a.75.75 0 0 0-1.5 0v4.5h-4.5a.75.75 0 0 0 0 1.5h4.5v4.5a.75.75 0 0 0 1.5 0v-4.5h4.5a.75.75 0 0 0 0-1.5h-4.5v-4.5Z" />
+                                            </svg>
+										</button>
 									</form>
 								}
 							} else {
@@ -54,7 +58,11 @@ templ sprintBacklog(sprint *database.Sprint, projectRoles []database.ProjectRole
 									<form hx-get={ fmt.Sprintf("/userstory/%v/create-task", story.ID) } hx-target="#dialog">
 										<input type="hidden" id="sprintID" name="sprintID" value={ strconv.Itoa(int(sprint.ID)) }/>
 										<input type="hidden" id="projectID" name="projectID" value={ strconv.Itoa(int(story.ProjectID)) }/>
-										<button class="btn btn-xs btn-primary" style="margin-right: 10px;">Create Task</button>
+										<button title="Create task" class="btn btn-xs btn-primary" style="margin-right: 10px;">
+                                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="white" class="w-5 h-5">
+                                              <path d="M10.75 4.75a.75.75 0 0 0-1.5 0v4.5h-4.5a.75.75 0 0 0 0 1.5h4.5v4.5a.75.75 0 0 0 1.5 0v-4.5h4.5a.75.75 0 0 0 0-1.5h-4.5v-4.5Z" />
+                                            </svg>
+										</button>
 									</form>
 								}
 							}
@@ -197,15 +205,29 @@ templ TaskRowSmall(task database.Task, userId uint, sprintID uint) {
 				</form>
 			}
 		</div>
-		<div class="details-button ml-2">
-			<form hx-get={ fmt.Sprintf("/sprintbacklog/%v/task/%v/details", sprintID, task.ID) } hx-target="#dialog">
-				<button class="btn btn-xs">
-					<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
-						<path stroke-linecap="round" stroke-linejoin="round" d="M6.75 12a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0ZM12.75 12a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0ZM18.75 12a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Z"></path>
+		<!-- Details task Button -->
+		<span title="Details">
+			<div class="details-button ml-2">
+				<form hx-get={ fmt.Sprintf("/sprintbacklog/%v/task/%v/details", sprintID, task.ID) } hx-target="#dialog">
+					<button class="btn btn-xs">
+						<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+							<path stroke-linecap="round" stroke-linejoin="round" d="M6.75 12a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0ZM12.75 12a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0ZM18.75 12a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Z"></path>
+						</svg>
+					</button>
+				</form>
+			</div>
+		</span>
+		<!-- Edit task Button -->
+		<span title="Edit task">
+			<div class="ml-2">
+				<button hx-get={ fmt.Sprintf("/sprintbacklog/%v/task/%v", sprintID, task.ID) } hx-target="#dialog" class="btn btn-xs bg-primary" style="position: relative; z-index: 1;">
+					<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="white" class="w-5 h-5">
+						<path d="m5.433 13.917 1.262-3.155A4 4 0 0 1 7.58 9.42l6.92-6.918a2.121 2.121 0 0 1 3 3l-6.92 6.918c-.383.383-.84.685-1.343.886l-3.154 1.262a.5.5 0 0 1-.65-.65Z"></path>
+						<path d="M3.5 5.75c0-.69.56-1.25 1.25-1.25H10A.75.75 0 0 0 10 3H4.75A2.75 2.75 0 0 0 2 5.75v9.5A2.75 2.75 0 0 0 4.75 18h9.5A2.75 2.75 0 0 0 17 15.25V10a.75.75 0 0 0-1.5 0v5.25c0 .69-.56 1.25-1.25 1.25h-9.5c-.69 0-1.25-.56-1.25-1.25v-9.5Z"></path>
 					</svg>
 				</button>
-			</form>
-		</div>
+			</div>
+		</span>
 	</td>
 	<tr><td style="height: 10px;"></td></tr>
 }

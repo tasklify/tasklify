@@ -184,6 +184,11 @@ func Router() *chi.Mux {
 			r.Handle("/sprintbacklog/{sprintID}", ghandlers.MethodHandler{
 				"GET": handlers.UnifiedHandler(handlers.AuthenticatedHandlerFunc(sprintbacklog.GetSprintBacklog)),
 			})
+			r.Handle("/sprintbacklog/{sprintID}/task/{taskID}", ghandlers.MethodHandler{
+				"GET":    handlers.UnifiedHandler(handlers.AuthenticatedHandlerFunc(task.GetEditTask)),
+				"PUT":    handlers.UnifiedHandler(handlers.AuthenticatedHandlerFunc(task.PutTask)),
+				"DELETE": handlers.UnifiedHandler(handlers.AuthenticatedHandlerFunc(task.DeleteTask)),
+			})
 			r.Handle("/sprintbacklog/{sprintID}/task/{taskID}/details", ghandlers.MethodHandler{
 				"GET": handlers.UnifiedHandler(handlers.AuthenticatedHandlerFunc(task.GetTaskDetails)),
 			})
