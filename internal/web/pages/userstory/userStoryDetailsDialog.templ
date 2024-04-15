@@ -13,6 +13,9 @@ templ UserStoryDetailsDialog(us database.UserStory, activeTab string, currentUse
 					<h2 class="text-xl font-bold">{ us.Title }</h2>
 					<button class="btn btn-circle btn-sm bg-white" style="position: absolute; right: -14px; top: -14px;" hx-on:click="dialog_container.close()">✕</button>
 				</div>
+				if activeTab == "comments" {
+					<a href="/docs/user_stories#commenting-on-user-story" target="_blank" class="help-button" style="padding-right=10rem;">?</a>
+				}
 				<div id="user_story_tabs" class="flex flex-col overflow-hidden flex-1" style="padding: 5px; margin: -5px">
 					<div role="tablist" class="tabs tabs-bordered">
 						<input
