@@ -2,15 +2,13 @@ package task
 
 import (
 	"fmt"
+	"github.com/go-chi/chi/v5"
+	"github.com/gorilla/schema"
 	"net/http"
 	"strconv"
 	"tasklify/internal/database"
 	"tasklify/internal/handlers"
 	"time"
-
-	"github.com/go-chi/chi/v5"
-
-	"github.com/gorilla/schema"
 )
 
 var decoder = schema.NewDecoder()
@@ -104,5 +102,95 @@ func PostTask(w http.ResponseWriter, r *http.Request, params handlers.RequestPar
 	w.Header().Set("HX-Redirect", redirectURL)
 	w.WriteHeader(http.StatusSeeOther)
 
+	return nil
+}
+
+func GetEditTask(w http.ResponseWriter, r *http.Request, params handlers.RequestParams) error {
+
+	taskID, err := strconv.Atoi(chi.URLParam(r, "taskID"))
+	if err != nil {
+		return err
+	}
+	sprintID, err := strconv.Atoi(chi.URLParam(r, "sprintID"))
+	if err != nil {
+		return err
+	}
+
+	taskData, err := database.GetDatabase().GetTaskByID(uint(taskID))
+	if err != nil {
+		return err
+	}
+
+	// only developers
+	users, err := database.GetDatabase().GetUsersWithRoleOnProject(taskData.ProjectID, database.ProjectRoleDeveloper)
+	if err != nil {
+		return err
+	}
+
+	c := EditTaskDialog(*taskData, users, uint(sprintID))
+	return c.Render(r.Context(), w)
+}
+
+type TaskUpdateFormData struct {
+	Title        string   `schema:"title,required"`
+	Description  string   `schema:"description"`
+	TimeEstimate *float32 `schema:"time_estimate,required"`
+	UserID       uint     `schema:"user_id"`
+}
+
+func PutTask(w http.ResponseWriter, r *http.Request, params handlers.RequestParams) error {
+
+	var taskFormData TaskUpdateFormData
+
+	if err := decoder.Decode(&taskFormData, r.PostForm); err != nil {
+		return err
+	}
+
+	taskID, err := strconv.Atoi(chi.URLParam(r, "taskID"))
+	if err != nil {
+		return err
+	}
+	sprintID, err := strconv.Atoi(chi.URLParam(r, "sprintID"))
+	if err != nil {
+		return err
+	}
+
+	// get old sprint
+	task, _ := database.GetDatabase().GetTaskByID(uint(taskID))
+
+	// change data
+	task.Title = &taskFormData.Title
+	task.Description = &taskFormData.Description
+	task.TimeEstimate = time.Duration(*taskFormData.TimeEstimate * float32(time.Hour))
+
+	if taskFormData.UserID != 0 {
+		projectHasUser, err := database.GetDatabase().GetProjectHasUserByProjectAndUser(taskFormData.UserID, task.ProjectID)
+		if err != nil {
+			return err
+		}
+
+		task.ProjectHasUser = projectHasUser
+		task.UserID = &taskFormData.UserID
+
+		// if user created task and assigned to himself, the user should be automatically accepted
+		if params.UserID == *task.UserID {
+			userAccepted := true
+			task.UserAccepted = &userAccepted
+		}
+	}
+
+	err = database.GetDatabase().UpdateTask(task)
+	if err != nil {
+		return err
+	}
+
+	w.Header().Set("HX-Redirect", fmt.Sprintf("/sprintbacklog/%d", sprintID))
+	w.WriteHeader(http.StatusSeeOther)
+
+	return nil
+}
+
+func DeleteTask(w http.ResponseWriter, r *http.Request, params handlers.RequestParams) error {
+	// TODO
 	return nil
 }
