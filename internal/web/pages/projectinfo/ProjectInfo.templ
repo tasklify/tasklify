@@ -50,7 +50,7 @@ func GetProjectInfo(w http.ResponseWriter, r *http.Request, params handlers.Requ
 
 templ projectInfo(projectData database.Project, projectRoles []database.ProjectRole, systemRole database.SystemRole) {
 	@common.ProjectNavbar(projectData, projectRoles, systemRole, "project_info") {
-		<div class="flex-1 mt-1">
+		<div class="flex-1 mt-1 overflow-y-auto mb-4">
 			<div class="flex flex-col">
 				<small class="font-bold text-gray-700 mb-1">Title</small>
 				<span class="ml-2">
@@ -60,15 +60,15 @@ templ projectInfo(projectData database.Project, projectRoles []database.ProjectR
 			<div class="divider mt-1 mb-6 px-1"></div>
 			<div class="flex flex-col">
 				<small class="font-bold text-gray-700 mb-1">Description</small>
-				<span class="ml-2 whitespace-break-spaces max-h-48 overflow-y-scroll overflow-x-hidden">
+				<span class="ml-2 whitespace-break-spaces overflow-x-hidden text-sm">
 					{ projectData.Description }
 				</span>
 			</div>
 			<div class="divider mt-1 mb-6 px-1"></div>
 			<div class="flex flex-col">
 				<small class="font-bold text-gray-700 mb-1">Project members</small>
-				<div class="overflow-x-auto block max-h-80 ml-2">
-					<table class="table table-auto overflow-scroll w-full" id="project_developers_table">
+				<div class="overflow-x-auto block ml-2">
+					<table class="table table-auto w-full" id="project_developers_table">
 						<thead class="bg-gray-200 sticky top-0">
 							<tr>
 								<th>User</th>
