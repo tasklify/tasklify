@@ -5,7 +5,7 @@ import "fmt"
 import "tasklify/internal/web/components/common"
 
 templ LoggedTimeDialog(todayWS []database.WorkSession, otherWS []database.WorkSession, taskID uint, sprintID uint, task database.Task) {
-	<div hx-ext="response-targets">
+	<div hx-ext="response-targets" id="logs-dialog">
 		<div id="create-dialog" hx-ext="response-targets" class="fixed top-0 left-0 w-full h-full bg-gray-700 bg-opacity-60 flex justify-center items-center z-50">
 			<form
 				hx-target-400="#validation-error"
@@ -64,11 +64,11 @@ templ LoggedTimeDialog(todayWS []database.WorkSession, otherWS []database.WorkSe
 							<div class="text-center py-4">You have not started a session today. Click Start to begin one.</div>
 							if otherWS[len(otherWS)-1].Remaining != 0 {
 								<div class="text-center">
-									<button class="btn btn-primary btn-sm" hx-post={ fmt.Sprintf("/sprintbacklog/%v/task/%v/start", sprintID, taskID) } hx-target="#dialog_container">Start</button>
+									<button class="btn btn-primary btn-sm" hx-post={ fmt.Sprintf("/sprintbacklog/%v/task/%v/start", sprintID, taskID) } hx-target="#logs-dialog">Start</button>
 								</div>
 							} else {
 								<div class="text-center button-container" title="Remaining time for this task is 0 so another session cannot be started.">
-									<button class="btn btn-primary btn-sm" hx-post={ fmt.Sprintf("/sprintbacklog/%v/task/%v/start", sprintID, taskID) } hx-target="#dialog_container" disabled>Start</button>
+									<button class="btn btn-primary btn-sm" hx-post={ fmt.Sprintf("/sprintbacklog/%v/task/%v/start", sprintID, taskID) } hx-target="#logs-dialog" disabled>Start</button>
 								</div>
 							}
 						} else {
@@ -91,7 +91,7 @@ templ LoggedTimeDialog(todayWS []database.WorkSession, otherWS []database.WorkSe
 													<td class="p-2">
 														<div>ongoing</div>
 													</td>
-													<td><button class="btn btn-primary btn-xs" hx-post={ fmt.Sprintf("/sprintbacklog/%v/task/%v/logged/session/%v/stop", sprintID, taskID, ws.ID) } hx-target="#dialog_container">Stop</button></td>
+													<td><button class="btn btn-primary btn-xs" hx-post={ fmt.Sprintf("/sprintbacklog/%v/task/%v/logged/session/%v/stop", sprintID, taskID, ws.ID) } hx-target="#logs-dialog">Stop</button></td>
 												</tr>
 											} else {
 												<tr class="border-b">
@@ -106,7 +106,7 @@ templ LoggedTimeDialog(todayWS []database.WorkSession, otherWS []database.WorkSe
 															@RemainingDialog(ws, sprintID, taskID, task)
 														</div>
 													</td>
-													<td><button class="btn btn-primary btn-xs" hx-post={ fmt.Sprintf("/sprintbacklog/%v/task/%v/logged/session/%v/resume", sprintID, taskID, ws.ID) } hx-target="#dialog_container">Resume</button></td>
+													<td><button class="btn btn-primary btn-xs" hx-post={ fmt.Sprintf("/sprintbacklog/%v/task/%v/logged/session/%v/resume", sprintID, taskID, ws.ID) } hx-target="#logs-dialog">Resume</button></td>
 												</tr>
 											}
 										</tbody>
@@ -116,7 +116,6 @@ templ LoggedTimeDialog(todayWS []database.WorkSession, otherWS []database.WorkSe
 						}
 					</div>
 				</div>
-				<div id="validation-error"></div>
 				if (len(todayWS) != 0  && todayWS[0].Remaining == 0) || (len(todayWS) == 0  && len(otherWS) != 0  && otherWS[len(otherWS)-1].Remaining == 0) {
 					<div>
 						<button class="btn btn-warning btn-sm" type="button" hx-get={ fmt.Sprintf("/sprintbacklog/%v", sprintID) } hx-target="#whole">End Task</button>
@@ -126,6 +125,7 @@ templ LoggedTimeDialog(todayWS []database.WorkSession, otherWS []database.WorkSe
 						<button class="btn btn-warning btn-sm" type="button" hx-get={ fmt.Sprintf("/sprintbacklog/%v", sprintID) } hx-target="#whole" disabled>End Task</button>
 					</div>
 				}
+				<div id="validation-error-logtime"></div>
 				<div class="flex justify-end mt-3">
 					<button class="btn btn-ghost" type="button" hx-get={ fmt.Sprint("/sprintbacklog/", sprintID) } hx-target="#whole">Close</button>
 				</div>
@@ -135,9 +135,9 @@ templ LoggedTimeDialog(todayWS []database.WorkSession, otherWS []database.WorkSe
 }
 
 templ ChangeDurationDialog(ws database.WorkSession, taskID uint, sprintID uint, task database.Task) {
-	<form id="duration-info" style="margin-bottom: 0px;">
+	<form id="duration-info" style="margin-bottom: 0px;" hx-post={ fmt.Sprintf("/sprintbacklog/%v/task/%v/logged/session/%v/change", sprintID, taskID, ws.ID) } hx-target="#logs-dialog" hx-target-303="#validation-error-logtime">
 		<input type="text" name="duration" id="duration" value={ fmt.Sprintf("%v", common.FormatDuration(ws.Duration)) } class="input input-bordered w-20 input-xs mb-0" title="Enter duration in the format: XhXXm. Example: 1h30m for 1 hour and 30 minutes." style="margin-bottom: -20px;"/>
-		<button class="btn btn-primary btn-xs mb-0" hx-post={ fmt.Sprintf("/sprintbacklog/%v/task/%v/logged/session/%v/change", sprintID, taskID, ws.ID) } hx-target="#dialog_container" hx-include="#duration-info" style="margin-bottom: -20px;">Change</button>
+		<button class="btn btn-primary btn-xs mb-0" style="margin-bottom: -20px;" type="submit">Change</button>
 	</form>
 }
 
@@ -161,9 +161,9 @@ templ UnfinishedSessionDialog(sprintID uint, taskID uint) {
 }
 
 templ ChangeRemainingDialog(ws database.WorkSession, taskID uint, sprintID uint, task database.Task) {
-	<form id="remaining-info" style="margin-bottom: 0px;">
+	<form style="margin-bottom: 0px;" hx-post={ fmt.Sprintf("/sprintbacklog/%v/task/%v/logged/session/%v/changeremaining", sprintID, taskID, ws.ID) } hx-target="#logs-dialog" hx-target-303="#validation-error-logtime">
 		<input type="text" name="remaining" id="remaining" value={ fmt.Sprintf("%v", common.FormatDuration(ws.Remaining)) } class="input input-bordered w-20 input-xs mb-0" title="Enter remaining duration in the format: XhXXm. Example: 1h30m for 1 hour and 30 minutes." style="margin-bottom: -20px;"/>
-		<button class="btn btn-primary btn-xs mb-0" hx-post={ fmt.Sprintf("/sprintbacklog/%v/task/%v/logged/session/%v/changeremaining", sprintID, taskID, ws.ID) } hx-target="#dialog_container" hx-include="#remaining-info" style="margin-bottom: -20px;">Change</button>
+		<button class="btn btn-primary btn-xs mb-0" style="margin-bottom: -20px;" type="submit">Change</button>
 	</form>
 }
 

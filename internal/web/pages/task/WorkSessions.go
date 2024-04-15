@@ -281,19 +281,19 @@ func PostChangeDuration(w http.ResponseWriter, r *http.Request, params handlers.
 
 	duration, err := time.ParseDuration(req.Duration)
 	if err != nil {
-		w.WriteHeader(http.StatusBadRequest)
+		w.WriteHeader(http.StatusSeeOther)
 		c := common.ValidationError("Use XhXXm format for duration.")
 		return c.Render(r.Context(), w)
 	}
 
 	if duration.Hours() > 24 {
-		w.WriteHeader(http.StatusBadRequest)
+		w.WriteHeader(http.StatusSeeOther)
 		c := common.ValidationError("Duration cannot be more than 24 hours.")
 		return c.Render(r.Context(), w)
 	}
 
 	if duration < 0 {
-		w.WriteHeader(http.StatusBadRequest)
+		w.WriteHeader(http.StatusSeeOther)
 		c := common.ValidationError("Duration cannot be negative.")
 		return c.Render(r.Context(), w)
 	}
@@ -425,14 +425,14 @@ func PostChangeRemaining(w http.ResponseWriter, r *http.Request, params handlers
 
 	remaining, err := time.ParseDuration(req.Remaining)
 	if err != nil {
-		w.WriteHeader(http.StatusBadRequest)
+		w.WriteHeader(http.StatusSeeOther)
 		c := common.ValidationError("Use XhXXm format for duration.")
 		return c.Render(r.Context(), w)
 	}
 
 	if remaining < 0 {
-		w.WriteHeader(http.StatusBadRequest)
-		c := common.ValidationError("Duration cannot be negative.")
+		w.WriteHeader(http.StatusSeeOther)
+		c := common.ValidationError("Remaining time cannot be negative.")
 		return c.Render(r.Context(), w)
 	}
 
