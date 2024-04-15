@@ -55,7 +55,7 @@ func StartWorkSession(w http.ResponseWriter, r *http.Request, params handlers.Re
 		return err
 	}
 
-	c := LoggedTimeDialog(todaysWS, otherWS, uint(taskID), uint(sprintID))
+	c := LoggedTimeDialog(todaysWS, otherWS, uint(taskID), uint(sprintID), *task)
 	return c.Render(r.Context(), w)
 }
 
@@ -68,6 +68,12 @@ func ResumeWorkSession(w http.ResponseWriter, r *http.Request, params handlers.R
 	if err != nil {
 		return err
 	}
+
+	task, err := database.GetDatabase().GetTaskByID(uint(taskID))
+	if err != nil {
+		return err
+	}
+
 	sprintID, err := strconv.Atoi(chi.URLParam(r, "sprintID"))
 	if err != nil {
 		return err
@@ -90,7 +96,7 @@ func ResumeWorkSession(w http.ResponseWriter, r *http.Request, params handlers.R
 		return err
 	}
 
-	c := LoggedTimeDialog(todaysWS, otherWS, uint(taskID), uint(sprintID))
+	c := LoggedTimeDialog(todaysWS, otherWS, uint(taskID), uint(sprintID), *task)
 	return c.Render(r.Context(), w)
 }
 
@@ -103,6 +109,12 @@ func StopWorkSession(w http.ResponseWriter, r *http.Request, params handlers.Req
 	if err != nil {
 		return err
 	}
+	
+	task, err := database.GetDatabase().GetTaskByID(uint(taskID))
+	if err != nil {
+		return err
+	}
+
 	sprintID, err := strconv.Atoi(chi.URLParam(r, "sprintID"))
 	if err != nil {
 		return err
@@ -126,12 +138,17 @@ func StopWorkSession(w http.ResponseWriter, r *http.Request, params handlers.Req
 		return err
 	}
 
-	c := LoggedTimeDialog(todaysWS, otherWS, uint(taskID), uint(sprintID))
+	c := LoggedTimeDialog(todaysWS, otherWS, uint(taskID), uint(sprintID), *task)
 	return c.Render(r.Context(), w)
 }
 
 func GetLoggedTime(w http.ResponseWriter, r *http.Request, params handlers.RequestParams) error {
 	taskID, err := strconv.Atoi(chi.URLParam(r, "taskID"))
+	if err != nil {
+		return err
+	}
+
+	task, err := database.GetDatabase().GetTaskByID(uint(taskID))
 	if err != nil {
 		return err
 	}
@@ -179,7 +196,7 @@ func GetLoggedTime(w http.ResponseWriter, r *http.Request, params handlers.Reque
 
 	otherWS = sortWorkSessionsByDate(otherWS)
 
-	c := LoggedTimeDialog(todaysWS, otherWS, uint(taskID), uint(sprintID))
+	c := LoggedTimeDialog(todaysWS, otherWS, uint(taskID), uint(sprintID), *task)
 
 	return c.Render(r.Context(), w)
 
@@ -202,6 +219,10 @@ func GetChangeDuration(w http.ResponseWriter, r *http.Request, params handlers.R
 	if err != nil {
 		return err
 	}
+	task, err := database.GetDatabase().GetTaskByID(uint(taskID))
+	if err != nil {
+		return err
+	}
 	sprintID, err := strconv.Atoi(chi.URLParam(r, "sprintID"))
 	if err != nil {
 		return err
@@ -212,7 +233,7 @@ func GetChangeDuration(w http.ResponseWriter, r *http.Request, params handlers.R
 		return err
 	}
 
-	c := ChangeDurationDialog(*workSession, uint(sprintID), uint(taskID))
+	c := ChangeDurationDialog(*workSession, uint(sprintID), uint(taskID), *task)
 
 	return c.Render(r.Context(), w)
 
@@ -227,6 +248,11 @@ func PostChangeDuration(w http.ResponseWriter, r *http.Request, params handlers.
 	if err != nil {
 		return err
 	}
+	task, err := database.GetDatabase().GetTaskByID(uint(taskID))
+	if err != nil {
+		return err
+	}
+
 	sprintID, err := strconv.Atoi(chi.URLParam(r, "sprintID"))
 	if err != nil {
 		return err
@@ -277,7 +303,7 @@ func PostChangeDuration(w http.ResponseWriter, r *http.Request, params handlers.
 		return err
 	}
 
-	c := DurationDialog(*workSession, uint(sprintID), uint(taskID))
+	c := DurationAndRemainingDialog(*workSession, uint(sprintID), uint(taskID), *task)
 
 	return c.Render(r.Context(), w)
 
