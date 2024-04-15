@@ -206,6 +206,10 @@ func Router() *chi.Mux {
 				"POST": handlers.UnifiedHandler(handlers.AuthenticatedHandlerFunc(task.PostChangeDuration)),
 				"GET":  handlers.UnifiedHandler(handlers.AuthenticatedHandlerFunc(task.GetChangeDuration)),
 			})
+			r.Handle("/sprintbacklog/{sprintID}/task/{taskID}/logged/session/{workSessionID}/changeremaining", ghandlers.MethodHandler{
+				"POST": handlers.UnifiedHandler(handlers.AuthenticatedHandlerFunc(task.PostChangeRemaining)),
+				"GET":  handlers.UnifiedHandler(handlers.AuthenticatedHandlerFunc(task.GetChangeRemaining)),
+			})
 			r.Handle("/sprintbacklog/{sprintID}/task/{taskID}/logged/session/{workSessionID}/resume", ghandlers.MethodHandler{
 				"POST": handlers.UnifiedHandler(handlers.AuthenticatedHandlerFunc(task.ResumeWorkSession)),
 			})

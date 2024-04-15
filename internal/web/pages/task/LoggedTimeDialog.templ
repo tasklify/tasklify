@@ -4,7 +4,7 @@ import "tasklify/internal/database"
 import "fmt"
 import "tasklify/internal/web/components/common"
 
-templ LoggedTimeDialog(todayWS []database.WorkSession, otherWS []database.WorkSession, taskID uint, sprintID uint) {
+templ LoggedTimeDialog(todayWS []database.WorkSession, otherWS []database.WorkSession, taskID uint, sprintID uint, task database.Task) {
 	<div hx-ext="response-targets">
 		<div id="create-dialog" hx-ext="response-targets" class="fixed top-0 left-0 w-full h-full bg-gray-700 bg-opacity-60 flex justify-center items-center z-50">
 			<form
@@ -20,9 +20,9 @@ templ LoggedTimeDialog(todayWS []database.WorkSession, otherWS []database.WorkSe
 							<table class="w-full text-xs rounded-md">
 								<thead class="bg-gray-200">
 									<tr class="p-2">
-										<th class="text-left p-2 w-1/2">Date</th>
+										<th class="text-left p-2 w-1/4">Date</th>
 										<th class="text-left p-2 w-1/4">Duration</th>
-										<th class="text-left p-2 w-1/4">Remaining</th>
+										<th class="text-left p-2 w-1/2">Remaining</th>
 									</tr>
 								</thead>
 								<div class="space-y-2">
@@ -33,7 +33,7 @@ templ LoggedTimeDialog(todayWS []database.WorkSession, otherWS []database.WorkSe
 												<td class="p-2">
 													<div class="flex items-center">
 														<div id={ fmt.Sprintf("today-container-%v", ws.ID) }>
-															@DurationDialog(ws, sprintID, taskID)
+															@DurationDialog(ws, sprintID, taskID, task)
 														</div>
 														if ws.LeftUnfinished {
 															<div class="pl-2">
@@ -46,7 +46,11 @@ templ LoggedTimeDialog(todayWS []database.WorkSession, otherWS []database.WorkSe
 														}
 													</div>
 												</td>
-												<td class="p-2">XX hours</td>
+												<td class="p-2">
+													<div id={ fmt.Sprintf("remaining-container-%v", ws.ID) }>
+														@RemainingDialog(ws, sprintID, taskID, task)
+													</div>
+												</td>
 											</tr>
 										}
 									</tbody>
@@ -58,17 +62,23 @@ templ LoggedTimeDialog(todayWS []database.WorkSession, otherWS []database.WorkSe
 						<h3 class="text-xl font-medium text-gray-700 mb-2 text-left">Today's session</h3>
 						if len(todayWS) == 0 {
 							<div class="text-center py-4">You have not started a session today. Click Start to begin one.</div>
-							<div class="text-center">
-								<button class="btn btn-primary btn-sm" hx-post={ fmt.Sprintf("/sprintbacklog/%v/task/%v/start", sprintID, taskID) } hx-target="#dialog_container">Start</button>
-							</div>
+							if otherWS[len(otherWS)-1].Remaining != 0 {
+								<div class="text-center">
+									<button class="btn btn-primary btn-sm" hx-post={ fmt.Sprintf("/sprintbacklog/%v/task/%v/start", sprintID, taskID) } hx-target="#dialog_container">Start</button>
+								</div>
+							} else {
+								<div class="text-center button-container" title="Remaining time for this task is 0 so another session cannot be started.">
+									<button class="btn btn-primary btn-sm" hx-post={ fmt.Sprintf("/sprintbacklog/%v/task/%v/start", sprintID, taskID) } hx-target="#dialog_container" disabled>Start</button>
+								</div>
+							}
 						} else {
 							<table class="w-full text-xs rounded-md">
 								<thead class="bg-gray-200">
 									<tr class="p-2">
-										<th class="text-left p-2 w-1/2">Date</th>
+										<th class="text-left p-2 w-1/4">Date</th>
 										<th class="text-left p-2 w-1/4">Duration</th>
-										<th class="text-left p-2 w-1/8">Remaining</th>
-										<th class="text-left p-2 w-1/8"></th>
+										<th class="text-left p-2 w-1/4">Remaining</th>
+										<th class="text-left p-2 w-1/4"></th>
 									</tr>
 								</thead>
 								<div class="space-y-2">
@@ -88,10 +98,14 @@ templ LoggedTimeDialog(todayWS []database.WorkSession, otherWS []database.WorkSe
 													<td class="p-2">{ ws.StartTime.Format("2006-01-02") }</td>
 													<td class="p-2">
 														<div id={ fmt.Sprintf("today-container-%v", ws.ID) }>
-															@DurationDialog(ws, sprintID, taskID)
+															@DurationDialog(ws, sprintID, taskID, task)
 														</div>
 													</td>
-													<td class="p-2">XX hours</td>
+													<td class="p-2">
+														<div id={ fmt.Sprintf("remaining-container-%v", ws.ID) }>
+															@RemainingDialog(ws, sprintID, taskID, task)
+														</div>
+													</td>
 													<td><button class="btn btn-primary btn-xs" hx-post={ fmt.Sprintf("/sprintbacklog/%v/task/%v/logged/session/%v/resume", sprintID, taskID, ws.ID) } hx-target="#dialog_container">Resume</button></td>
 												</tr>
 											}
@@ -103,6 +117,15 @@ templ LoggedTimeDialog(todayWS []database.WorkSession, otherWS []database.WorkSe
 					</div>
 				</div>
 				<div id="validation-error"></div>
+				if (len(todayWS) != 0  && todayWS[0].Remaining == 0) || (len(todayWS) == 0  && len(otherWS) != 0  && otherWS[len(otherWS)-1].Remaining == 0) {
+					<div>
+						<button class="btn btn-warning btn-sm" type="button" hx-get={ fmt.Sprintf("/sprintbacklog/%v", sprintID) } hx-target="#whole">End Task</button>
+					</div>
+				} else {
+					<div class="btn-container" title="Remaining time for this task is not 0.">
+						<button class="btn btn-warning btn-sm" type="button" hx-get={ fmt.Sprintf("/sprintbacklog/%v", sprintID) } hx-target="#whole" disabled>End Task</button>
+					</div>
+				}
 				<div class="flex justify-end mt-3">
 					<button class="btn btn-ghost" type="button" hx-get={ fmt.Sprint("/sprintbacklog/", sprintID) } hx-target="#whole">Close</button>
 				</div>
@@ -111,14 +134,14 @@ templ LoggedTimeDialog(todayWS []database.WorkSession, otherWS []database.WorkSe
 	</div>
 }
 
-templ ChangeDurationDialog(ws database.WorkSession, taskID uint, sprintID uint) {
+templ ChangeDurationDialog(ws database.WorkSession, taskID uint, sprintID uint, task database.Task) {
 	<form id="duration-info" style="margin-bottom: 0px;">
 		<input type="text" name="duration" id="duration" value={ fmt.Sprintf("%v", common.FormatDuration(ws.Duration)) } class="input input-bordered w-20 input-xs mb-0" title="Enter duration in the format: XhXXm. Example: 1h30m for 1 hour and 30 minutes." style="margin-bottom: -20px;"/>
-		<button class="btn btn-primary btn-xs mb-0" hx-post={ fmt.Sprintf("/sprintbacklog/%v/task/%v/logged/session/%v/change", sprintID, taskID, ws.ID) } hx-target={ fmt.Sprintf("#today-container-%v", ws.ID) } hx-include="#duration-info" style="margin-bottom: -20px;">Change</button>
+		<button class="btn btn-primary btn-xs mb-0" hx-post={ fmt.Sprintf("/sprintbacklog/%v/task/%v/logged/session/%v/change", sprintID, taskID, ws.ID) } hx-target="#dialog_container" hx-include="#duration-info" style="margin-bottom: -20px;">Change</button>
 	</form>
 }
 
-templ DurationDialog(ws database.WorkSession, taskID uint, sprintID uint) {
+templ DurationDialog(ws database.WorkSession, taskID uint, sprintID uint, task database.Task) {
 	<div hx-get={ fmt.Sprintf("/sprintbacklog/%v/task/%v/logged/session/%v/change", sprintID, taskID, ws.ID) } hx-target={ fmt.Sprintf("#today-container-%v", ws.ID) } hx-swap="innerHTML" id="today-container">
 		{ templ.JoinStringErrs(common.FormatDuration(ws.Duration)) }
 	</div>
@@ -135,4 +158,17 @@ templ UnfinishedSessionDialog(sprintID uint, taskID uint) {
 			</form>
 		</div>
 	</dialog>
+}
+
+templ ChangeRemainingDialog(ws database.WorkSession, taskID uint, sprintID uint, task database.Task) {
+	<form id="remaining-info" style="margin-bottom: 0px;">
+		<input type="text" name="remaining" id="remaining" value={ fmt.Sprintf("%v", common.FormatDuration(ws.Remaining)) } class="input input-bordered w-20 input-xs mb-0" title="Enter remaining duration in the format: XhXXm. Example: 1h30m for 1 hour and 30 minutes." style="margin-bottom: -20px;"/>
+		<button class="btn btn-primary btn-xs mb-0" hx-post={ fmt.Sprintf("/sprintbacklog/%v/task/%v/logged/session/%v/changeremaining", sprintID, taskID, ws.ID) } hx-target="#dialog_container" hx-include="#remaining-info" style="margin-bottom: -20px;">Change</button>
+	</form>
+}
+
+templ RemainingDialog(ws database.WorkSession, taskID uint, sprintID uint, task database.Task) {
+	<div hx-get={ fmt.Sprintf("/sprintbacklog/%v/task/%v/logged/session/%v/changeremaining", sprintID, taskID, ws.ID) } hx-target={ fmt.Sprintf("#remaining-container-%v", ws.ID) } hx-swap="innerHTML" id="remaining-container">
+		{ templ.JoinStringErrs(common.FormatDuration(ws.Remaining)) }
+	</div>
 }

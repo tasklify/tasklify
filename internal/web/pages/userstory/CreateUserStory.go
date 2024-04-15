@@ -102,7 +102,7 @@ func GetUserStory(w http.ResponseWriter, r *http.Request, params handlers.Reques
 		return err
 	}
 
-	if len(projectRoles) == 0 || slices.Contains(projectRoles, database.ProjectRoleDeveloper) {
+	if (len(projectRoles) == 0 || slices.Contains(projectRoles, database.ProjectRoleDeveloper)) && !slices.Contains(projectRoles, database.ProjectRoleMaster) {
 		return pages.NotFound(w, r)
 	}
 

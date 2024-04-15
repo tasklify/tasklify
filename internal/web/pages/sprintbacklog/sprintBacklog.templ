@@ -6,6 +6,7 @@ import "strconv"
 import "slices"
 import "time"
 import "tasklify/internal/web/components/common"
+import "sort"
 
 // sprintBacklog.templ:
 templ sprintBacklog(sprint *database.Sprint, projectRoles []database.ProjectRole, userId uint) {
@@ -166,7 +167,7 @@ templ TaskRowSmall(task database.Task, userId uint, sprintID uint) {
 		<span>{ common.FormatDuration(GetTotalTimeSpentOnTask(task)) }</span>
 	</td>
 	<td class="text-right p-2">
-		<span>{ common.FormatDuration(GetRemainingTimeOnTask(task.TimeEstimate, GetTotalTimeSpentOnTask(task))) }</span>
+		<span>{ common.FormatDuration(GetRemainingTimeOnTask(task)) }</span>
 	</td>
 	<td class="text-center p-2">
 		if GetTaskStatus(task) == "Unassigned" {
@@ -230,7 +231,7 @@ func GetSumOfLogs(tasks []database.Task) (sum time.Duration) {
 func GetSumOfRemaining(tasks []database.Task) (sum time.Duration) {
 	sum = 0
 	for _, task := range tasks {
-		sum += GetRemainingTimeOnTask(task.TimeEstimate, GetTotalTimeSpentOnTask(task))
+		sum += GetRemainingTimeOnTask(task)
 	}
 	return sum
 }
@@ -243,10 +244,25 @@ func GetTotalTimeSpentOnTask(task database.Task) time.Duration {
 	return totalTimeSpent
 }
 
-func GetRemainingTimeOnTask(timeEstimate time.Duration, totalTimeSpent time.Duration) time.Duration {
-	var remainingTime time.Duration = timeEstimate - totalTimeSpent
-	if remainingTime < 0 {
-		return 0
+func GetRemainingTimeOnTask(task database.Task) time.Duration {
+	sessions, err := database.GetDatabase().GetWorkSessionsForTask(task.ID)
+	if err != nil {
+		return task.TimeEstimate
 	}
-	return remainingTime
+
+	sessions = sortWorkSessionsByDate(sessions)
+	if len(sessions) == 0 {
+		return task.TimeEstimate
+	}
+
+	lastSession := sessions[len(sessions)-1]
+	return lastSession.Remaining
+}
+
+func sortWorkSessionsByDate(workSessions []database.WorkSession) []database.WorkSession {
+	sort.Slice(workSessions, func(i, j int) bool {
+		return workSessions[i].StartTime.Before(workSessions[j].StartTime)
+	})
+
+	return workSessions
 }
