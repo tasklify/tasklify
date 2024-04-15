@@ -20,13 +20,13 @@ After filling out the necessary fields, submit the form by clicking on create bu
 - **Add Project Developers**: Select the desired user and click add, to add that user to the list of project developers.
 - **List of Project Developers**: A table that shows all the developers that were added, while there is also an option to remove any of them, by clicking on X button.
 
-When done, click on "I'll add more later" button, to finish the process and close the dialog.
+A project must have at least one developer before we can continue. When done, click on "I'll add more later" button, to finish the process and close the dialog.
 
 ## Editing Projects
 
 Projects can be edited by system admin and scrum master. First thing that can be edited is project info, where project title and description can be changed, following the same rules as on project creation.
 
-The second thing to edit are project members. You can change Product owner and SCRUM master and add or remove project developers. When done, press Save button and users will be saved to project. Note that one user cannot have multiple roles, so if that happens, a warning will be shown and save won't work until you resolve the problem.
+The second thing to edit are project members. You can change Product owner and SCRUM master and add or remove project developers. When done, press Save button and users will be saved to project. Note that SCRUM master can also be project developer, but in other cases one user cannot have multiple roles, so if that happens, a warning will be shown and save won't work until you resolve the problem.
 
 ## Project Wall
 
