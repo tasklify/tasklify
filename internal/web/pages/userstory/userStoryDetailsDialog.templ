@@ -34,22 +34,24 @@ templ UserStoryDetailsDialog(us database.UserStory, activeTab string, currentUse
 							value="details"
 							hx-trigger="click"
 						/>
-						<input
-							type="radio"
-							name="tabID"
-							role="tab"
-							class="tab text-base h-9"
-							aria-label="Tasks"
-							data-content="tasks"
-							if activeTab == "tasks" {
-								checked
-							}
-							hx-get={ fmt.Sprintf("/userstory/%v/details", us.ID) }
-							hx-target="#dialog"
-							hx-indicator="#dialog"
-							value="tasks"
-							hx-trigger="click"
-						/>
+						if len(us.Tasks) != 0 {
+							<input
+								type="radio"
+								name="tabID"
+								role="tab"
+								class="tab text-base h-9"
+								aria-label="Tasks"
+								data-content="tasks"
+								if activeTab == "tasks" {
+									checked
+								}
+								hx-get={ fmt.Sprintf("/userstory/%v/details", us.ID) }
+								hx-target="#dialog"
+								hx-indicator="#dialog"
+								value="tasks"
+								hx-trigger="click"
+							/>
+						}
 						<input
 							type="radio"
 							name="tabID"
@@ -73,7 +75,7 @@ templ UserStoryDetailsDialog(us database.UserStory, activeTab string, currentUse
 						</div>
 					} else if activeTab == "tasks" {
 						<div id="tasks" role="tabpanel" class="tab-content block py-7 px-8">
-							Tasks...
+							@UserStoryTasks(us)
 						</div>
 					} else if activeTab == "comments" {
 						<div class="py-7 px-8 flex flex-col overflow-hidden">
@@ -165,21 +167,28 @@ templ UserStoryDetails(us database.UserStory) {
 			}
 		</div>
 	}
+	<!--RejectionComment  -->
+	if us.RejectionComment != nil {
+		<div class="mb-4">
+			<div class="font-medium mb-2" style="color: #de6561;">Rejection comment</div>
+			<div class="text-gray-800 whitespace-break-spaces p-4 bg-unassigned-300 rounded-lg">{ *us.RejectionComment }</div>
+		</div>
+	}
+}
+
+templ UserStoryTasks(us database.UserStory) {
 	if len(us.Tasks) > 0 {
 		<div class="mb-4">
-			<div class="font-medium mb-2">Tasks</div>
+			// <div class="font-medium mb-2">Tasks</div>
 			for _, task := range us.Tasks {
 				<div class="flex justify-between items-center p-2 bg-gray-100 rounded-lg mb-2">
 					<div class="text-gray-800">{ *task.Title }</div>
 				</div>
 			}
 		</div>
-	}
-	<!--RejectionComment  -->
-	if us.RejectionComment != nil {
+	} else {
 		<div class="mb-4">
-			<div class="font-medium mb-2" style="color: #de6561;">Rejection comment</div>
-			<div class="text-gray-800 whitespace-break-spaces p-4 bg-unassigned-300 rounded-lg">{ *us.RejectionComment }</div>
+			<span>There are no tasks on this user story yet...</span>
 		</div>
 	}
 }
