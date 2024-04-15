@@ -58,3 +58,7 @@ func (db *database) GetSprintByID(id uint) (*Sprint, error) {
 func (db *database) UpdateSprint(sprint *Sprint) error {
 	return db.Save(sprint).Error
 }
+
+func (db *database) DeleteSprint(projectID uint, sprintID uint) error {
+	return db.Where("id = ? AND project_id = ?", sprintID, projectID).Delete(&Sprint{}).Error
+}

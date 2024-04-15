@@ -27,7 +27,7 @@ func GetCreateSprint(w http.ResponseWriter, r *http.Request, params handlers.Req
 		return err
 	}
 
-	c := createSprintDialog(uint(projectID))
+	c := CreateSprintDialog(uint(projectID))
 	return c.Render(r.Context(), w)
 }
 
@@ -57,7 +57,7 @@ func PostSprint(w http.ResponseWriter, r *http.Request, params handlers.RequestP
 		return err
 	}
 
-	err2, fieldsInvalid := fieldValidation(w, r, sprintFormData, sprints)
+	err2, fieldsInvalid := dateFieldsValidation(w, r, sprintFormData, sprints)
 
 	if fieldsInvalid {
 		return err2
@@ -86,7 +86,7 @@ func PostSprint(w http.ResponseWriter, r *http.Request, params handlers.RequestP
 	return nil
 }
 
-func fieldValidation(w http.ResponseWriter, r *http.Request, sprintFormData sprintFormData, sprints []database.Sprint) (error, bool) {
+func dateFieldsValidation(w http.ResponseWriter, r *http.Request, sprintFormData sprintFormData, sprints []database.Sprint) (error, bool) {
 
 	// validation: end date before start date
 	if sprintFormData.EndDate.Before(sprintFormData.StartDate) {
@@ -155,6 +155,9 @@ func PutSprint(w http.ResponseWriter, r *http.Request, params handlers.RequestPa
 	projectID, err := strconv.Atoi(chi.URLParam(r, "projectID"))
 	sprintID, err := strconv.Atoi(chi.URLParam(r, "sprintID"))
 
+	// get old sprint
+	sprint, _ := database.GetDatabase().GetSprintByID(uint(sprintID))
+
 	sprints, err := database.GetDatabase().GetSprintByProject(uint(projectID))
 	if err != nil {
 		return err
@@ -171,14 +174,22 @@ func PutSprint(w http.ResponseWriter, r *http.Request, params handlers.RequestPa
 
 	sprints = sprints[:n]
 
-	err2, fieldsInvalid := fieldValidation(w, r, sprintFormData, sprints)
-
-	if fieldsInvalid {
-		return err2
+	if sprint.DetermineStatus() != database.StatusInProgress {
+		err2, fieldsInvalid := dateFieldsValidation(w, r, sprintFormData, sprints)
+		if fieldsInvalid {
+			return err2
+		}
 	}
 
-	// get old sprint
-	sprint, _ := database.GetDatabase().GetSprintByID(uint(sprintID))
+	// Validation: velocity shouldn't be lower than current load
+	if len(sprint.UserStories) > 0 {
+		currentLoad := getCurrentLoad(sprint.UserStories)
+		if float32(currentLoad) > *sprintFormData.Velocity {
+			w.WriteHeader(http.StatusBadRequest)
+			c := common.ValidationError("Current load exceeds sprint velocity, select a higher value for velocity.")
+			return c.Render(r.Context(), w)
+		}
+	}
 
 	// change data
 	sprint.EndDate = sprintFormData.EndDate
@@ -197,7 +208,32 @@ func PutSprint(w http.ResponseWriter, r *http.Request, params handlers.RequestPa
 	return nil
 }
 
+func getCurrentLoad(userStories []database.UserStory) float32 {
+	var currentLoad int
+
+	for _, us := range userStories {
+		currentLoad += int(us.StoryPoints)
+	}
+
+	return float32(currentLoad)
+}
+
 func DeleteSprint(w http.ResponseWriter, r *http.Request, params handlers.RequestParams) error {
-	// TODO, soft delete
+
+	projectID, err := strconv.Atoi(chi.URLParam(r, "projectID"))
+	if err != nil {
+		return err
+	}
+	sprintID, err := strconv.Atoi(chi.URLParam(r, "sprintID"))
+	if err != nil {
+		return err
+	}
+
+	// delete sprint
+	err = database.GetDatabase().DeleteSprint(uint(projectID), uint(sprintID))
+
+	w.Header().Set("HX-Redirect", "/productbacklog?projectID="+strconv.Itoa(projectID))
+	w.WriteHeader(http.StatusSeeOther)
+
 	return nil
 }
