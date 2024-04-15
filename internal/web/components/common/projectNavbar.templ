@@ -43,7 +43,7 @@ templ TopNavProjectInfo(project database.Project, projectRoles []database.Projec
 		if auth.GetAuthorization().HasSystemPermission(user_SystemRole, "/project", auth.ActionUpdate) == nil || 
 			auth.GetAuthorization().CheckProjectPermissions(projectRoles, "/project", auth.ActionUpdate) {
 			<div class="flex relative">
-				<a href="https://github.com/tasklify/tasklify/tree/main?tab=readme-ov-file#editing-projects" target="_blank" class="help-button" style="top: -10px; right: -10px; z-index: 1">?</a>
+				<a href="/docs/projects#editing-projects" target="_blank" class="help-button" style="top: -10px; right: -10px; z-index: 1">?</a>
 				<details class="dropdown dropdown-bottom dropdown-end">
 					<summary class="m-1 btn">&#8942;</summary>
 					<ul tabindex="0" class="p-2 shadow menu dropdown-content z-[1] bg-base-100 rounded-box w-52">
@@ -61,6 +61,9 @@ templ TopNavProjectWall(project database.Project, projectRoles []database.Projec
 		<div class="flex-1">
 			<h4>Project Wall</h4>
 			<h1 class="font-bold text-3xl">{ project.Title }</h1>
+		</div>
+		<div class="flex relative">
+			<a href="/docs/projects#project-wall" target="_blank" class="help-button" style="top: -10px; right: -10px; z-index: 1">?</a>
 		</div>
 	</div>
 }
