@@ -15,7 +15,8 @@ type UserStory struct {
 	RejectionComment  *string `gorm:"type:TEXT"`
 	WorkflowStepID    *uint   // 1:1 (WorkflowStep:UserStory)
 	WorkflowStep      WorkflowStep
-	SprintID          *uint              // 1:n (Sprint:UserStory)
+	SprintID          *uint // 1:n (Sprint:UserStory)
+	Sprint            *Sprint
 	ProjectID         uint               // 1:n (Project:UserStory)
 	Tasks             []Task             // 1:n (UserStory:Task)
 	AcceptanceTests   []AcceptanceTest   // 1:n (UserStory:AcceptanceTest)
