@@ -1,0 +1,66 @@
+package docs
+
+import (
+	"net/http"
+	"fmt"
+	"tasklify/internal/web/pages"
+	"tasklify/internal/database"
+	internalDocs "tasklify/internal/docs"
+)
+
+func Docs(w http.ResponseWriter, r *http.Request) error {
+	project, err := database.GetDatabase().GetProjectByID(pages.GetProjectID(r))
+	if err != nil {
+		return err
+	}
+
+	_, buf, err := internalDocs.ParseMDtoHTML([]byte(project.Docs))
+	if err != nil {
+		return err
+	}
+
+	c := content(buf.String())
+	c = docs(c, r)
+	return pages.Layout(c, project.Title, r).Render(r.Context(), w)
+}
+
+templ docs(contents templ.Component, r *http.Request) {
+	<div class="flex flex-1">
+		<main class="flex-1 markdown-body p-10 m-10">
+			<!-- markdown-body is for github-markdown.css -->
+			@contents
+		</main>
+		if pages.IsOnProject(r) {
+			<div class="p-8" hx-boost="true">
+				<a class="btn btn-primary" href={ templ.SafeURL(fmt.Sprintf("/projects/%d/docs/edit", pages.GetProjectID(r))) }>Edit</a>
+			</div>
+		}
+	</div>
+	<style>
+		.markdown-body {
+			box-sizing: border-box;
+			min-width: 200px;
+			max-width: 980px;
+			margin: 0 auto;
+			padding: 45px;
+		}
+
+		@media (max-width: 767px) {
+			.markdown-body {
+				padding: 15px;
+			}
+		}
+
+		/* Override goldmark highlighting extension background to Githubs */
+		.markdown-body pre {
+			background-color: #f6f8fa !important;
+		}
+	</style>
+}
+
+func content(text string) templ.Component {
+	return templ.ComponentFunc(func(ctx context.Context, w io.Writer) error {
+		_, err := io.WriteString(w, text)
+		return err
+	})
+}

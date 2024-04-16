@@ -2,7 +2,6 @@ package docs
 
 import (
 	"bytes"
-	"fmt"
 	"log"
 	"os"
 	"strings"
@@ -24,9 +23,7 @@ const (
 )
 
 type metadata struct {
-	title   string
-	summary string
-	tags    []string
+	title string
 }
 
 type file struct {
@@ -62,6 +59,40 @@ func GetDocs() *docs {
 func loadDocs() (*docs, error) {
 	docsFS := orderedmap.NewOrderedMap[string, file]()
 
+	files, err := os.ReadDir(DocsBaseDir)
+	if err != nil {
+		return nil, err
+	}
+
+	for _, path := range files {
+		// Read Markdown and convert it to HTML
+		filePath := DocsBaseDir + "/" + path.Name()
+		source, err := os.ReadFile(filePath)
+		if err != nil {
+			return nil, err
+		}
+
+		title, buf, err := ParseMDtoHTML(source)
+		if err != nil {
+			return nil, err
+		}
+
+		// Write generated HTML into virtual filesystem
+		fsFilepath := strings.TrimSuffix(path.Name(), ".md")
+		docsFS.Set(fsFilepath, file{
+			metadata: metadata{
+				title: title,
+			},
+			data: buf,
+		})
+
+		log.Println("docs: loaded file", fsFilepath, "from", filePath)
+	}
+
+	return &docs{docsFS}, nil
+}
+
+func ParseMDtoHTML(source []byte) (title string, buf bytes.Buffer, err error) {
 	markdown := goldmark.New(
 		goldmark.WithParserOptions(
 			parser.WithBlockParsers(),
@@ -92,53 +123,13 @@ func loadDocs() (*docs, error) {
 		),
 	)
 
-	files, err := os.ReadDir(DocsBaseDir)
+	context := parser.NewContext()
+	err = markdown.Convert(source, &buf, parser.WithContext(context))
 	if err != nil {
-		return nil, err
+		return
 	}
 
-	for _, path := range files {
-		// Read Markdown and convert it to HTML
-		filePath := DocsBaseDir + "/" + path.Name()
-		source, err := os.ReadFile(filePath)
-		if err != nil {
-			return nil, err
-		}
-
-		var buf bytes.Buffer
-
-		context := parser.NewContext()
-		err = markdown.Convert(source, &buf, parser.WithContext(context))
-		if err != nil {
-			panic(err)
-		}
-		metaData := meta.Get(context)
-
-		// Write generated HTML into virtual filesystem
-		fsFilepath := strings.TrimSuffix(path.Name(), ".md")
-		docsFS.Set(fsFilepath, file{
-			metadata: metadata{
-				title:   metaData["Title"].(string),
-				summary: metaData["Summary"].(string),
-				tags:    ConvertInterfaceSliceToStringSlice(metaData["Tags"].([]interface{})),
-			},
-			data: buf,
-		})
-
-		log.Println("docs: loaded file", fsFilepath, "from", filePath)
-	}
-
-	return &docs{docsFS}, nil
-}
-
-func ConvertInterfaceSliceToStringSlice(slice []interface{}) []string {
-	var strSlice []string
-	for _, v := range slice {
-		str, ok := v.(string)
-		if !ok {
-			panic(fmt.Errorf("element is not a string: %v", v))
-		}
-		strSlice = append(strSlice, str)
-	}
-	return strSlice
+	// metaData := meta.Get(context)
+	// title = metaData["Title"].(string)
+	return
 }

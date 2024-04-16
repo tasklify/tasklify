@@ -1,9 +1,13 @@
 package pages
 
-import "net/http"
-import "tasklify/internal/auth"
-import "fmt"
-import "tasklify/internal/database"
+import (
+	"net/http"
+	"tasklify/internal/auth"
+	"fmt"
+	"tasklify/internal/database"
+	"strconv"
+	"github.com/go-chi/chi/v5"
+)
 
 templ Layout(contents templ.Component, title string, r *http.Request) {
 	<html>
@@ -46,7 +50,7 @@ templ nav(r *http.Request) {
 		<div class="navbar-start">
 			<a
 				class="btn btn-ghost text-xxl text-white"
-				if isLoggedIn(r) {
+				if IsLoggedIn(r) {
 					href="/dashboard"
 				} else {
 					href="/"
@@ -54,13 +58,13 @@ templ nav(r *http.Request) {
 			>
 				tasklify
 			</a>
-			if isLoggedIn(r) && IsAdmin(r) {
+			if IsLoggedIn(r) && IsAdmin(r) {
 				<a class="btn btn-sm m-0.5" href="/users">Users</a>
 			}
 		</div>
 		<div class="navbar-end">
 			<a class="btn btn-sm m-0.5" href="/docs">Docs</a>
-			if isLoggedIn(r) {
+			if IsLoggedIn(r) {
 				<div class="dropdown dropdown-hover dropdown-bottom dropdown-end ml-4 mr-2">
 					<div tabindex="0" class="avatar max-w-full">
 						<div class="w-12 h-12 rounded-full">
@@ -82,13 +86,41 @@ templ nav(r *http.Request) {
 templ footer() {
 }
 
-func isLoggedIn(r *http.Request) bool {
+func IsLoggedIn(r *http.Request) bool {
 	sessionManager := auth.GetSession()
 	_, err := sessionManager.GetUserID(r)
 
 	isLoggedIn := err == nil // If error is nil, the user is considered logged in
 
 	return isLoggedIn
+}
+
+func GetProjectID(r *http.Request) uint {
+	projectIDInt, err := strconv.Atoi(chi.URLParam(r, "projectID"))
+	if err != nil {
+		return 0
+	}
+	projectID := uint(projectIDInt)
+
+	return projectID
+}
+
+func IsOnProject(r *http.Request) bool {
+	if !IsLoggedIn(r) {
+		return false
+	}
+
+	projectID := GetProjectID(r)
+
+	sessionManager := auth.GetSession()
+	userID, err := sessionManager.GetUserID(r)
+
+	_, err = database.GetDatabase().GetProjectHasUserByProjectAndUser(userID, projectID)
+	if err != nil {
+		return false
+	}
+
+	return true
 }
 
 func IsAdmin(r *http.Request) bool {
