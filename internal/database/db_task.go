@@ -61,3 +61,7 @@ func (db *database) GetUserTasks(userID uint) ([]Task, error) {
 
 	return tasks, nil
 }
+
+func (db *database) DeleteTask(taskID uint) error {
+	return db.Where("id = ?", taskID).Delete(&Task{}).Error
+}

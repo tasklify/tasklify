@@ -52,7 +52,7 @@ func productBacklog(backlogUserStories []database.UserStory, doneUserStories []d
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("\" hx-target=\"#dialog\" style=\"display: inline;\"><button class=\"btn btn-primary btn-sm\">Create User Story</button></form><a href=\"https://github.com/tasklify/tasklify/tree/main?tab=readme-ov-file#product-backlog\" target=\"_blank\" class=\"help-button ml-4\" style=\"position: relative;top:0px;right:0px\">?</a></div>")
+				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("\" hx-target=\"#dialog\" style=\"display: inline;\"><button class=\"btn btn-primary btn-sm\">Create User Story</button></form><a href=\"/docs/product_backlog#product-backlog\" target=\"_blank\" class=\"help-button ml-4\" style=\"position: relative;top:0px;right:0px\">?</a></div>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -73,12 +73,12 @@ func productBacklog(backlogUserStories []database.UserStory, doneUserStories []d
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("\" hx-target=\"#dialog\" style=\"display: inline;\"><button class=\"btn btn-primary btn-sm ml-2\">Create Sprint</button></form><a href=\"https://github.com/tasklify/tasklify/tree/main?tab=readme-ov-file#product-backlog\" target=\"_blank\" class=\"help-button ml-4\" style=\"position: relative;top:0px;right:0px\">?</a></div>")
+				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("\" hx-target=\"#dialog\" style=\"display: inline;\"><button class=\"btn btn-primary btn-sm ml-2\">Create Sprint</button></form><a href=\"/docs/product_backlog#product-backlog\" target=\"_blank\" class=\"help-button ml-4\" style=\"position: relative;top:0px;right:0px\">?</a></div>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 			} else {
-				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<a href=\"https://github.com/tasklify/tasklify/tree/main?tab=readme-ov-file#product-backlog\" target=\"_blank\" class=\"help-button\" style=\"position: relative;top:0px;right:0px\">?</a>")
+				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<a href=\"/docs/product_backlog#product-backlog\" target=\"_blank\" class=\"help-button\" style=\"position: relative;top:0px;right:0px\">?</a>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -169,15 +169,25 @@ func productBacklog(backlogUserStories []database.UserStory, doneUserStories []d
 					return templ_7745c5c3_Err
 				}
 				if sprint.DetermineStatus() == database.StatusInProgress {
-					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<!-- Edit sprint Button --> <span><span class=\"inline-flex items-center py-0.5\" title=\"Edit sprint\"><button hx-get=\"")
+					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<!-- Edit sprint Button --> <span>")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(fmt.Sprintf("/%v/sprint/%v", projectID, sprint.ID)))
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
+					if slices.Contains(projectRoles, database.ProjectRoleMaster) {
+						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<span class=\"inline-flex items-center py-0.5\" title=\"Edit sprint\"><button hx-get=\"")
+						if templ_7745c5c3_Err != nil {
+							return templ_7745c5c3_Err
+						}
+						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(fmt.Sprintf("/%v/sprint/%v", projectID, sprint.ID)))
+						if templ_7745c5c3_Err != nil {
+							return templ_7745c5c3_Err
+						}
+						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("\" hx-target=\"#dialog\" class=\"btn btn-sm bg-primary\" style=\"position: relative; z-index: 1;\"><svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 20 20\" fill=\"white\" class=\"w-5 h-5\"><path d=\"m5.433 13.917 1.262-3.155A4 4 0 0 1 7.58 9.42l6.92-6.918a2.121 2.121 0 0 1 3 3l-6.92 6.918c-.383.383-.84.685-1.343.886l-3.154 1.262a.5.5 0 0 1-.65-.65Z\"></path> <path d=\"M3.5 5.75c0-.69.56-1.25 1.25-1.25H10A.75.75 0 0 0 10 3H4.75A2.75 2.75 0 0 0 2 5.75v9.5A2.75 2.75 0 0 0 4.75 18h9.5A2.75 2.75 0 0 0 17 15.25V10a.75.75 0 0 0-1.5 0v5.25c0 .69-.56 1.25-1.25 1.25h-9.5c-.69 0-1.25-.56-1.25-1.25v-9.5Z\"></path></svg></button></span> ")
+						if templ_7745c5c3_Err != nil {
+							return templ_7745c5c3_Err
+						}
 					}
-					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("\" hx-target=\"#dialog\" class=\"btn btn-sm bg-primary\" style=\"position: relative; z-index: 1;\"><svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 20 20\" fill=\"white\" class=\"w-5 h-5\"><path d=\"m5.433 13.917 1.262-3.155A4 4 0 0 1 7.58 9.42l6.92-6.918a2.121 2.121 0 0 1 3 3l-6.92 6.918c-.383.383-.84.685-1.343.886l-3.154 1.262a.5.5 0 0 1-.65-.65Z\"></path> <path d=\"M3.5 5.75c0-.69.56-1.25 1.25-1.25H10A.75.75 0 0 0 10 3H4.75A2.75 2.75 0 0 0 2 5.75v9.5A2.75 2.75 0 0 0 4.75 18h9.5A2.75 2.75 0 0 0 17 15.25V10a.75.75 0 0 0-1.5 0v5.25c0 .69-.56 1.25-1.25 1.25h-9.5c-.69 0-1.25-.56-1.25-1.25v-9.5Z\"></path></svg></button></span> <span class=\"ml-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-300\">Active</span></span>")
+					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<span class=\"ml-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-300\">Active</span></span>")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -187,23 +197,33 @@ func productBacklog(backlogUserStories []database.UserStory, doneUserStories []d
 						return templ_7745c5c3_Err
 					}
 				} else {
-					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<span><!-- Edit sprint Button --><span class=\"inline-flex items-center px-2 py-0.5\" title=\"Edit sprint\"><button hx-get=\"")
+					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<span>")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(fmt.Sprintf("/%v/sprint/%v", projectID, sprint.ID)))
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
+					if slices.Contains(projectRoles, database.ProjectRoleMaster) {
+						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<!-- Edit sprint Button --> <span class=\"inline-flex items-center px-2 py-0.5\" title=\"Edit sprint\"><button hx-get=\"")
+						if templ_7745c5c3_Err != nil {
+							return templ_7745c5c3_Err
+						}
+						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(fmt.Sprintf("/%v/sprint/%v", projectID, sprint.ID)))
+						if templ_7745c5c3_Err != nil {
+							return templ_7745c5c3_Err
+						}
+						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("\" hx-target=\"#dialog\" class=\"btn btn-sm bg-primary\" style=\"position: relative; z-index: 1;\"><svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 20 20\" fill=\"white\" class=\"w-5 h-5\"><path d=\"m5.433 13.917 1.262-3.155A4 4 0 0 1 7.58 9.42l6.92-6.918a2.121 2.121 0 0 1 3 3l-6.92 6.918c-.383.383-.84.685-1.343.886l-3.154 1.262a.5.5 0 0 1-.65-.65Z\"></path> <path d=\"M3.5 5.75c0-.69.56-1.25 1.25-1.25H10A.75.75 0 0 0 10 3H4.75A2.75 2.75 0 0 0 2 5.75v9.5A2.75 2.75 0 0 0 4.75 18h9.5A2.75 2.75 0 0 0 17 15.25V10a.75.75 0 0 0-1.5 0v5.25c0 .69-.56 1.25-1.25 1.25h-9.5c-.69 0-1.25-.56-1.25-1.25v-9.5Z\"></path></svg></button></span><!-- Delete sprint Button --> <span class=\"inline-flex items-center py-0.5\" title=\"Delete sprint\"><button hx-delete=\"")
+						if templ_7745c5c3_Err != nil {
+							return templ_7745c5c3_Err
+						}
+						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(fmt.Sprintf("/%v/sprint/%v", projectID, sprint.ID)))
+						if templ_7745c5c3_Err != nil {
+							return templ_7745c5c3_Err
+						}
+						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("\" hx-target=\"#dialog\" class=\"btn btn-sm bg-primary\" style=\"position: relative; z-index: 1;\"><svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 20 20\" fill=\"white\" class=\"w-5 h-5\"><path fill-rule=\"evenodd\" d=\"M8.75 1A2.75 2.75 0 0 0 6 3.75v.443c-.795.077-1.584.176-2.365.298a.75.75 0 1 0 .23 1.482l.149-.022.841 10.518A2.75 2.75 0 0 0 7.596 19h4.807a2.75 2.75 0 0 0 2.742-2.53l.841-10.52.149.023a.75.75 0 0 0 .23-1.482A41.03 41.03 0 0 0 14 4.193V3.75A2.75 2.75 0 0 0 11.25 1h-2.5ZM10 4c.84 0 1.673.025 2.5.075V3.75c0-.69-.56-1.25-1.25-1.25h-2.5c-.69 0-1.25.56-1.25 1.25v.325C8.327 4.025 9.16 4 10 4ZM8.58 7.72a.75.75 0 0 0-1.5.06l.3 7.5a.75.75 0 1 0 1.5-.06l-.3-7.5Zm4.34.06a.75.75 0 1 0-1.5-.06l-.3 7.5a.75.75 0 1 0 1.5.06l.3-7.5Z\" clip-rule=\"evenodd\"></path></svg></button></span> ")
+						if templ_7745c5c3_Err != nil {
+							return templ_7745c5c3_Err
+						}
 					}
-					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("\" hx-target=\"#dialog\" class=\"btn btn-sm bg-primary\" style=\"position: relative; z-index: 1;\"><svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 20 20\" fill=\"white\" class=\"w-5 h-5\"><path d=\"m5.433 13.917 1.262-3.155A4 4 0 0 1 7.58 9.42l6.92-6.918a2.121 2.121 0 0 1 3 3l-6.92 6.918c-.383.383-.84.685-1.343.886l-3.154 1.262a.5.5 0 0 1-.65-.65Z\"></path> <path d=\"M3.5 5.75c0-.69.56-1.25 1.25-1.25H10A.75.75 0 0 0 10 3H4.75A2.75 2.75 0 0 0 2 5.75v9.5A2.75 2.75 0 0 0 4.75 18h9.5A2.75 2.75 0 0 0 17 15.25V10a.75.75 0 0 0-1.5 0v5.25c0 .69-.56 1.25-1.25 1.25h-9.5c-.69 0-1.25-.56-1.25-1.25v-9.5Z\"></path></svg></button></span><!-- Delete sprint Button --><span class=\"inline-flex items-center py-0.5\" title=\"Delete sprint\"><button hx-delete=\"")
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(fmt.Sprintf("/%v/sprint/%v", projectID, sprint.ID)))
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("\" hx-target=\"#dialog\" class=\"btn btn-sm bg-primary\" style=\"position: relative; z-index: 1;\"><svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 20 20\" fill=\"white\" class=\"w-5 h-5\"><path fill-rule=\"evenodd\" d=\"M8.75 1A2.75 2.75 0 0 0 6 3.75v.443c-.795.077-1.584.176-2.365.298a.75.75 0 1 0 .23 1.482l.149-.022.841 10.518A2.75 2.75 0 0 0 7.596 19h4.807a2.75 2.75 0 0 0 2.742-2.53l.841-10.52.149.023a.75.75 0 0 0 .23-1.482A41.03 41.03 0 0 0 14 4.193V3.75A2.75 2.75 0 0 0 11.25 1h-2.5ZM10 4c.84 0 1.673.025 2.5.075V3.75c0-.69-.56-1.25-1.25-1.25h-2.5c-.69 0-1.25.56-1.25 1.25v.325C8.327 4.025 9.16 4 10 4ZM8.58 7.72a.75.75 0 0 0-1.5.06l.3 7.5a.75.75 0 1 0 1.5-.06l-.3-7.5Zm4.34.06a.75.75 0 1 0-1.5-.06l-.3 7.5a.75.75 0 1 0 1.5.06l.3-7.5Z\" clip-rule=\"evenodd\"></path></svg></button></span> <span class=\"ml-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-300\">Upcoming</span></span>")
+					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<span class=\"ml-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-300\">Upcoming</span></span>")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -215,7 +235,7 @@ func productBacklog(backlogUserStories []database.UserStory, doneUserStories []d
 				var templ_7745c5c3_Var7 string
 				templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.JoinStringErrs(strconv.FormatFloat(float64(getCurrentLoad(sprint.UserStories)), 'f', 2, 64))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/web/pages/productbacklog/productBacklog.templ`, Line: 140, Col: 106}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/web/pages/productbacklog/productBacklog.templ`, Line: 144, Col: 106}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var7))
 				if templ_7745c5c3_Err != nil {
@@ -319,7 +339,7 @@ func userStoryCard(name string, description string) templ.Component {
 		var templ_7745c5c3_Var9 string
 		templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.JoinStringErrs(name)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/web/pages/productbacklog/productBacklog.templ`, Line: 196, Col: 32}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/web/pages/productbacklog/productBacklog.templ`, Line: 200, Col: 32}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var9))
 		if templ_7745c5c3_Err != nil {
@@ -332,7 +352,7 @@ func userStoryCard(name string, description string) templ.Component {
 		var templ_7745c5c3_Var10 string
 		templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.JoinStringErrs(description)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/web/pages/productbacklog/productBacklog.templ`, Line: 197, Col: 19}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/web/pages/productbacklog/productBacklog.templ`, Line: 201, Col: 19}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var10))
 		if templ_7745c5c3_Err != nil {
@@ -362,7 +382,7 @@ func backlog(backlogUserStories []database.UserStory, sprint database.Sprint, ca
 			templ_7745c5c3_Var11 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div class=\"card card-compact bg-base-200 transition-shadow mt-2\"><div class=\"card-title collapse-title text-xl font-medium bg-base-300 border-base-300 rounded-t-2xl\">Backlog</div><a href=\"https://github.com/tasklify/tasklify/tree/main?tab=readme-ov-file#adding-user-stories-to-sprint\" target=\"_blank\" class=\"help-button\" style=\"padding-right=10rem;\">?</a><div class=\"card-body\" hx-ext=\"response-targets\"><form id=\"backlogForm\" hx-post=\"/productbacklog\" hx-target-400=\"#add-to-sprint-validation-error\"><div class=\"overflow-x-auto\"><table class=\"table w-full\"><thead><tr><th>Title</th><th>Description</th><th>Details</th>")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div class=\"card card-compact bg-base-200 transition-shadow mt-2\"><div class=\"card-title collapse-title text-xl font-medium bg-base-300 border-base-300 rounded-t-2xl\">Backlog</div><a href=\"/docs/sprints#adding-user-stories-to-sprint\" target=\"_blank\" class=\"help-button\" style=\"padding-right=10rem;\">?</a><div class=\"card-body\" hx-ext=\"response-targets\"><form id=\"backlogForm\" hx-post=\"/productbacklog\" hx-target-400=\"#add-to-sprint-validation-error\"><div class=\"overflow-x-auto\"><table class=\"table w-full\"><thead><tr><th>Title</th><th>Description</th><th>Details</th>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -384,7 +404,7 @@ func backlog(backlogUserStories []database.UserStory, sprint database.Sprint, ca
 			var templ_7745c5c3_Var12 string
 			templ_7745c5c3_Var12, templ_7745c5c3_Err = templ.JoinStringErrs(us.Title)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/web/pages/productbacklog/productBacklog.templ`, Line: 223, Col: 23}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/web/pages/productbacklog/productBacklog.templ`, Line: 227, Col: 23}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var12))
 			if templ_7745c5c3_Err != nil {
@@ -397,7 +417,7 @@ func backlog(backlogUserStories []database.UserStory, sprint database.Sprint, ca
 			var templ_7745c5c3_Var13 string
 			templ_7745c5c3_Var13, templ_7745c5c3_Err = templ.JoinStringErrs(*us.Description)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/web/pages/productbacklog/productBacklog.templ`, Line: 225, Col: 27}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/web/pages/productbacklog/productBacklog.templ`, Line: 229, Col: 27}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var13))
 			if templ_7745c5c3_Err != nil {
@@ -540,7 +560,7 @@ func future(backlogUserStories []database.UserStory) templ.Component {
 			templ_7745c5c3_Var14 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div class=\"card card-compact bg-base-200 transition-shadow mt-2\"><div class=\"card-title collapse-title text-xl font-medium bg-base-300 border-base-300 rounded-t-2xl\">Future Releases</div><a href=\"https://github.com/tasklify/tasklify/tree/main?tab=readme-ov-file#adding-user-stories-to-sprint\" target=\"_blank\" class=\"help-button\" style=\"padding-right=10rem;\">?</a><div class=\"card-body\"><form id=\"backlogForm\" hx-post=\"/productbacklog\"><div class=\"overflow-x-auto\"><table class=\"table w-full\"><thead><tr><th>Title</th><th>Description</th><th>Details</th></tr></thead> <tbody>")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div class=\"card card-compact bg-base-200 transition-shadow mt-2\"><div class=\"card-title collapse-title text-xl font-medium bg-base-300 border-base-300 rounded-t-2xl\">Future Releases</div><a href=\"/docs/sprints#adding-user-stories-to-sprint\" target=\"_blank\" class=\"help-button\" style=\"padding-right=10rem;\">?</a><div class=\"card-body\"><form id=\"backlogForm\" hx-post=\"/productbacklog\"><div class=\"overflow-x-auto\"><table class=\"table w-full\"><thead><tr><th>Title</th><th>Description</th><th>Details</th></tr></thead> <tbody>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -552,7 +572,7 @@ func future(backlogUserStories []database.UserStory) templ.Component {
 			var templ_7745c5c3_Var15 string
 			templ_7745c5c3_Var15, templ_7745c5c3_Err = templ.JoinStringErrs(us.Title)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/web/pages/productbacklog/productBacklog.templ`, Line: 288, Col: 23}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/web/pages/productbacklog/productBacklog.templ`, Line: 292, Col: 23}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var15))
 			if templ_7745c5c3_Err != nil {
@@ -565,7 +585,7 @@ func future(backlogUserStories []database.UserStory) templ.Component {
 			var templ_7745c5c3_Var16 string
 			templ_7745c5c3_Var16, templ_7745c5c3_Err = templ.JoinStringErrs(*us.Description)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/web/pages/productbacklog/productBacklog.templ`, Line: 290, Col: 27}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/web/pages/productbacklog/productBacklog.templ`, Line: 294, Col: 27}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var16))
 			if templ_7745c5c3_Err != nil {
@@ -608,7 +628,7 @@ func done(backlogUserStories []database.UserStory) templ.Component {
 			templ_7745c5c3_Var17 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div class=\"card card-compact bg-base-200 transition-shadow mt-2\"><div class=\"card-title collapse-title text-xl font-medium bg-base-300 border-base-300 rounded-t-2xl\">Done User Stories</div><a href=\"https://github.com/tasklify/tasklify/tree/main?tab=readme-ov-file#adding-user-stories-to-sprint\" target=\"_blank\" class=\"help-button\" style=\"padding-right=10rem;\">?</a><div class=\"card-body\"><form id=\"backlogForm\" hx-post=\"/productbacklog\"><div class=\"overflow-x-auto\"><table class=\"table w-full\"><thead><tr><th>Title</th><th>Description</th><th>Details</th></tr></thead> <tbody>")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div class=\"card card-compact bg-base-200 transition-shadow mt-2\"><div class=\"card-title collapse-title text-xl font-medium bg-base-300 border-base-300 rounded-t-2xl\">Done User Stories</div><a href=\"/docs/sprints#adding-user-stories-to-sprint\" target=\"_blank\" class=\"help-button\" style=\"padding-right=10rem;\">?</a><div class=\"card-body\"><form id=\"backlogForm\" hx-post=\"/productbacklog\"><div class=\"overflow-x-auto\"><table class=\"table w-full\"><thead><tr><th>Title</th><th>Description</th><th>Details</th></tr></thead> <tbody>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -620,7 +640,7 @@ func done(backlogUserStories []database.UserStory) templ.Component {
 			var templ_7745c5c3_Var18 string
 			templ_7745c5c3_Var18, templ_7745c5c3_Err = templ.JoinStringErrs(us.Title)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/web/pages/productbacklog/productBacklog.templ`, Line: 328, Col: 23}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/web/pages/productbacklog/productBacklog.templ`, Line: 332, Col: 23}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var18))
 			if templ_7745c5c3_Err != nil {
@@ -633,7 +653,7 @@ func done(backlogUserStories []database.UserStory) templ.Component {
 			var templ_7745c5c3_Var19 string
 			templ_7745c5c3_Var19, templ_7745c5c3_Err = templ.JoinStringErrs(*us.Description)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/web/pages/productbacklog/productBacklog.templ`, Line: 330, Col: 27}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/web/pages/productbacklog/productBacklog.templ`, Line: 334, Col: 27}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var19))
 			if templ_7745c5c3_Err != nil {
@@ -694,7 +714,7 @@ func userStoryTableRow(us database.UserStory, status database.Status, projectRol
 		var templ_7745c5c3_Var21 string
 		templ_7745c5c3_Var21, templ_7745c5c3_Err = templ.JoinStringErrs(us.Title)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/web/pages/productbacklog/productBacklog.templ`, Line: 365, Col: 36}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/web/pages/productbacklog/productBacklog.templ`, Line: 369, Col: 36}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var21))
 		if templ_7745c5c3_Err != nil {
@@ -707,7 +727,7 @@ func userStoryTableRow(us database.UserStory, status database.Status, projectRol
 		var templ_7745c5c3_Var22 string
 		templ_7745c5c3_Var22, templ_7745c5c3_Err = templ.JoinStringErrs(*us.Description)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/web/pages/productbacklog/productBacklog.templ`, Line: 369, Col: 20}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/web/pages/productbacklog/productBacklog.templ`, Line: 373, Col: 20}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var22))
 		if templ_7745c5c3_Err != nil {
