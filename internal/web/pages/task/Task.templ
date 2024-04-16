@@ -2,11 +2,113 @@ package task
 
 import "tasklify/internal/database"
 import "tasklify/internal/web/components/common"
+import "tasklify/internal/web/pages/sprintbacklog"
 
 import "fmt"
 import "net/http"
 import "time"
 import "strconv"
+
+templ TaskDetailsDialog(task database.Task) {
+	<div hx-ext="response-targets">
+		<div id="create-dialog" hx-ext="response-targets" class="fixed top-0 left-0 w-full h-full bg-gray-900 bg-opacity-50 flex justify-center items-center z-50">
+			<div class="bg-white rounded-lg p-8 shadow-lg w-2/5 h-auto flex flex-col">
+				<!-- Header Section -->
+				<div class="flex items-center">
+					<!-- Title -->
+					<h2 class="text-xl font-bold flex-grow">{ *task.Title }</h2>
+					<!-- Status Badge and Time Estimate -->
+					<div class="flex items-center gap-4">
+						<!-- Dynamic Status Badge -->
+						<div>
+							switch *task.Status {
+								case database.StatusTodo:
+									<div class="badge badge-error">To do</div>
+								case database.StatusInProgress:
+									<div class="badge badge-warning">In progress</div>
+								case database.StatusDone:
+									<div class="badge badge-success">Done</div>
+								default:
+									<span></span>
+							}
+						</div>
+						<!-- Time Estimate -->
+						<div class="text-gray-800">
+							{ common.FormatDuration(task.TimeEstimate) }
+						</div>
+					</div>
+				</div>
+				<!-- User Story Title -->
+				<h3 class="text-md text-gray-600 mb-4">{ GetUserStoryFromTask(task).Title }</h3>
+				<!-- Description -->
+				<div class="mb-4 flex-grow">
+					<div class="font-medium mb-2">Description</div>
+					<div class="text-gray-800 whitespace-break-spaces p-4 bg-gray-100 rounded-lg">{ *task.Description }</div>
+				</div>
+				<!-- Assigned To (Moved to bottom left, smaller and visually distinct) -->
+				if !*task.UserAccepted && (task.UserID != nil) {
+					<div class="mt-auto pt-4">
+						<div class="text-sm font-semibold text-gray-600">Assigned to:</div>
+						<div><span class="text-xs text-gray-600">{ sprintbacklog.GetUserFirstAndLastNameFromID(*task.UserID) }</span> <span class="text-xs text-gray-600 italic">(pending)</span></div>
+					</div>
+				} else if task.UserID != nil {
+					<div class="mt-auto pt-4">
+						<div class="text-sm font-semibold text-gray-600">Assigned to:</div>
+						<div class="text-xs text-gray-600">{ sprintbacklog.GetUserFirstAndLastNameFromID(*task.UserID) }</div>
+					</div>
+				}
+				<!-- Close Button -->
+				<div class="flex justify-end mt-4 items-center">
+					<button class="btn btn-primary btn-sm" type="button" hx-on:click="dialog_container.close()">Close</button>
+				</div>
+			</div>
+		</div>
+	</div>
+}
+
+templ createTaskDialog(projectID uint, sprintID uint, userStoryID uint, users []database.User) {
+	@common.CreateDialog("Create task", http.MethodPost, fmt.Sprintf("/userstory/%v/create-task", userStoryID), "Create") {
+		<a href="https://github.com/tasklify/tasklify/tree/main?tab=readme-ov-file#creating-tasks" target="_blank" class="help-button" style="padding-right=10rem;">?</a>
+		<!-- Title Field -->
+		<div class="mb-4">
+			<label for="title" class="block text-sm font-medium text-gray-700">Title</label>
+			<input type="text" id="title" name="title" class="input input-bordered input-primary w-full max-w-s mt-1" required/>
+		</div>
+		<!-- Description Field -->
+		<div class="mb-4">
+			<label for="description" class="block text-sm font-medium text-gray-700">Description</label>
+			<textarea id="description" name="description" class="textarea textarea-bordered textarea-primary w-full max-w-s mt-1"></textarea>
+		</div>
+		<!-- TimeEstimate Field hours, days? -->
+		<div class="mb-4">
+			<label for="time_estimate" class="block text-sm font-medium text-gray-700">Time estimate (hours)</label>
+			<input type="number" step="0.01" id="time_estimate" name="time_estimate" class="input input-bordered input-primary w-full max-w-s mt-1" min="0.01" required/>
+		</div>
+		<!-- UserID (optional) -->
+		<div class="mb-4">
+			<label for="user_id" class="block text-sm font-medium text-gray-700">User (optional)</label>
+			<select
+				id="user_id"
+				class="select select-bordered select-primary w-full max-w-s mt-1"
+				name="user_id"
+				if len(users) == 0 {
+					disabled="disabled"
+				}
+			>
+				<option hidden disabled selected value>
+					Select user
+				</option>
+				for _, user := range users {
+					<option value={ fmt.Sprint(user.ID) }>{ user.FirstName } { user.LastName }</option>
+				}
+			</select>
+		</div>
+		<!-- SprintID (hidden) -->
+		<input type="hidden" id="sprint_id" name="sprint_id" value={ strconv.Itoa(int(sprintID)) }/>
+		<!-- ProjectID (hidden) -->
+		<input type="hidden" id="project_id" name="project_id" value={ strconv.Itoa(int(projectID)) }/>
+	}
+}
 
 templ EditTaskDialog(task database.Task, users []database.User, sprintID uint) {
 	@common.CreateDialog("Edit task", http.MethodPut, fmt.Sprintf("/sprintbacklog/%v/task/%v", sprintID, task.ID), "Save") {
