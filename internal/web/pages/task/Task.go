@@ -13,6 +13,26 @@ import (
 
 var decoder = schema.NewDecoder()
 
+func GetTaskDetails(w http.ResponseWriter, r *http.Request, params handlers.RequestParams) error {
+	taskID, err := strconv.Atoi(chi.URLParam(r, "taskID"))
+	if err != nil {
+		return err
+	}
+
+	task, err := database.GetDatabase().GetTaskByID(uint(taskID))
+	if err != nil {
+		return err
+	}
+
+	c := TaskDetailsDialog(*task)
+	return c.Render(r.Context(), w)
+}
+
+func GetUserStoryFromTask(task database.Task) *database.UserStory {
+	userStory, _ := database.GetDatabase().GetUserStoryByID(task.UserStoryID)
+	return userStory
+}
+
 func GetCreateTask(w http.ResponseWriter, r *http.Request, params handlers.RequestParams) error {
 
 	type RequestData struct {
@@ -191,6 +211,21 @@ func PutTask(w http.ResponseWriter, r *http.Request, params handlers.RequestPara
 }
 
 func DeleteTask(w http.ResponseWriter, r *http.Request, params handlers.RequestParams) error {
-	// TODO
+
+	taskID, err := strconv.Atoi(chi.URLParam(r, "taskID"))
+	if err != nil {
+		return err
+	}
+	sprintID, err := strconv.Atoi(chi.URLParam(r, "sprintID"))
+	if err != nil {
+		return err
+	}
+
+	// delete task
+	err = database.GetDatabase().DeleteTask(uint(taskID))
+
+	w.Header().Set("HX-Redirect", fmt.Sprintf("/sprintbacklog/%d", sprintID))
+	w.WriteHeader(http.StatusSeeOther)
+
 	return nil
 }
