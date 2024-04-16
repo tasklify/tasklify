@@ -46,7 +46,11 @@ func sprintBacklog(sprint *database.Sprint, projectRoles []database.ProjectRole,
 		var templ_7745c5c3_Var2 string
 		templ_7745c5c3_Var2, templ_7745c5c3_Err = templ.JoinStringErrs(sprint.Title)
 		if templ_7745c5c3_Err != nil {
+<<<<<<< HEAD
 			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/web/pages/sprintbacklog/sprintBacklog.templ`, Line: 25, Col: 77}
+=======
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/web/pages/sprintbacklog/sprintBacklog.templ`, Line: 24, Col: 77}
+>>>>>>> 684288f (Init)
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var2))
 		if templ_7745c5c3_Err != nil {
@@ -59,7 +63,11 @@ func sprintBacklog(sprint *database.Sprint, projectRoles []database.ProjectRole,
 		var templ_7745c5c3_Var3 string
 		templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinStringErrs(sprint.StartDate.Format("Mon Jan _2 2006"))
 		if templ_7745c5c3_Err != nil {
+<<<<<<< HEAD
 			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/web/pages/sprintbacklog/sprintBacklog.templ`, Line: 26, Col: 98}
+=======
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/web/pages/sprintbacklog/sprintBacklog.templ`, Line: 25, Col: 98}
+>>>>>>> 684288f (Init)
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var3))
 		if templ_7745c5c3_Err != nil {
@@ -72,7 +80,11 @@ func sprintBacklog(sprint *database.Sprint, projectRoles []database.ProjectRole,
 		var templ_7745c5c3_Var4 string
 		templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs(sprint.EndDate.Format("Mon Jan _2 2006"))
 		if templ_7745c5c3_Err != nil {
+<<<<<<< HEAD
 			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/web/pages/sprintbacklog/sprintBacklog.templ`, Line: 26, Col: 145}
+=======
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/web/pages/sprintbacklog/sprintBacklog.templ`, Line: 25, Col: 145}
+>>>>>>> 684288f (Init)
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var4))
 		if templ_7745c5c3_Err != nil {
@@ -90,7 +102,11 @@ func sprintBacklog(sprint *database.Sprint, projectRoles []database.ProjectRole,
 			var templ_7745c5c3_Var5 string
 			templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinStringErrs(story.Title)
 			if templ_7745c5c3_Err != nil {
+<<<<<<< HEAD
 				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/web/pages/sprintbacklog/sprintBacklog.templ`, Line: 34, Col: 81}
+=======
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/web/pages/sprintbacklog/sprintBacklog.templ`, Line: 33, Col: 81}
+>>>>>>> 684288f (Init)
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var5))
 			if templ_7745c5c3_Err != nil {
@@ -211,7 +227,11 @@ func sprintBacklog(sprint *database.Sprint, projectRoles []database.ProjectRole,
 			var templ_7745c5c3_Var6 string
 			templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.JoinStringErrs(common.FormatDuration(GetSumOfTimeEstimates(story.Tasks)))
 			if templ_7745c5c3_Err != nil {
+<<<<<<< HEAD
 				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/web/pages/sprintbacklog/sprintBacklog.templ`, Line: 98, Col: 94}
+=======
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/web/pages/sprintbacklog/sprintBacklog.templ`, Line: 89, Col: 94}
+>>>>>>> 684288f (Init)
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var6))
 			if templ_7745c5c3_Err != nil {
@@ -224,7 +244,11 @@ func sprintBacklog(sprint *database.Sprint, projectRoles []database.ProjectRole,
 			var templ_7745c5c3_Var7 string
 			templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.JoinStringErrs(common.FormatDuration(GetSumOfLogs(story.Tasks)))
 			if templ_7745c5c3_Err != nil {
+<<<<<<< HEAD
 				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/web/pages/sprintbacklog/sprintBacklog.templ`, Line: 99, Col: 85}
+=======
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/web/pages/sprintbacklog/sprintBacklog.templ`, Line: 90, Col: 85}
+>>>>>>> 684288f (Init)
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var7))
 			if templ_7745c5c3_Err != nil {
@@ -237,7 +261,11 @@ func sprintBacklog(sprint *database.Sprint, projectRoles []database.ProjectRole,
 			var templ_7745c5c3_Var8 string
 			templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.JoinStringErrs(common.FormatDuration(GetSumOfRemaining(story.Tasks)))
 			if templ_7745c5c3_Err != nil {
+<<<<<<< HEAD
 				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/web/pages/sprintbacklog/sprintBacklog.templ`, Line: 100, Col: 90}
+=======
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/web/pages/sprintbacklog/sprintBacklog.templ`, Line: 91, Col: 90}
+>>>>>>> 684288f (Init)
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var8))
 			if templ_7745c5c3_Err != nil {
@@ -285,7 +313,11 @@ func TaskRowSmall(task database.Task, userId uint, sprintID uint) templ.Componen
 		var templ_7745c5c3_Var10 string
 		templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.JoinStringErrs(*task.Title)
 		if templ_7745c5c3_Err != nil {
+<<<<<<< HEAD
 			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/web/pages/sprintbacklog/sprintBacklog.templ`, Line: 122, Col: 16}
+=======
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/web/pages/sprintbacklog/sprintBacklog.templ`, Line: 113, Col: 16}
+>>>>>>> 684288f (Init)
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var10))
 		if templ_7745c5c3_Err != nil {
@@ -321,7 +353,11 @@ func TaskRowSmall(task database.Task, userId uint, sprintID uint) templ.Componen
 				var templ_7745c5c3_Var11 string
 				templ_7745c5c3_Var11, templ_7745c5c3_Err = templ.JoinStringErrs(GetUserFirstAndLastNameFromID(*task.UserID))
 				if templ_7745c5c3_Err != nil {
+<<<<<<< HEAD
 					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/web/pages/sprintbacklog/sprintBacklog.templ`, Line: 141, Col: 86}
+=======
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/web/pages/sprintbacklog/sprintBacklog.templ`, Line: 132, Col: 86}
+>>>>>>> 684288f (Init)
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var11))
 				if templ_7745c5c3_Err != nil {
@@ -355,7 +391,11 @@ func TaskRowSmall(task database.Task, userId uint, sprintID uint) templ.Componen
 				var templ_7745c5c3_Var12 string
 				templ_7745c5c3_Var12, templ_7745c5c3_Err = templ.JoinStringErrs(GetUserFirstAndLastNameFromID(*task.UserID))
 				if templ_7745c5c3_Err != nil {
+<<<<<<< HEAD
 					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/web/pages/sprintbacklog/sprintBacklog.templ`, Line: 154, Col: 80}
+=======
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/web/pages/sprintbacklog/sprintBacklog.templ`, Line: 145, Col: 80}
+>>>>>>> 684288f (Init)
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var12))
 				if templ_7745c5c3_Err != nil {
@@ -374,7 +414,11 @@ func TaskRowSmall(task database.Task, userId uint, sprintID uint) templ.Componen
 			var templ_7745c5c3_Var13 string
 			templ_7745c5c3_Var13, templ_7745c5c3_Err = templ.JoinStringErrs(GetUserFirstAndLastNameFromID(*task.UserID))
 			if templ_7745c5c3_Err != nil {
+<<<<<<< HEAD
 				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/web/pages/sprintbacklog/sprintBacklog.templ`, Line: 159, Col: 85}
+=======
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/web/pages/sprintbacklog/sprintBacklog.templ`, Line: 150, Col: 85}
+>>>>>>> 684288f (Init)
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var13))
 			if templ_7745c5c3_Err != nil {
@@ -410,7 +454,11 @@ func TaskRowSmall(task database.Task, userId uint, sprintID uint) templ.Componen
 		var templ_7745c5c3_Var14 string
 		templ_7745c5c3_Var14, templ_7745c5c3_Err = templ.JoinStringErrs(common.FormatDuration(task.TimeEstimate))
 		if templ_7745c5c3_Err != nil {
+<<<<<<< HEAD
 			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/web/pages/sprintbacklog/sprintBacklog.templ`, Line: 171, Col: 50}
+=======
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/web/pages/sprintbacklog/sprintBacklog.templ`, Line: 162, Col: 50}
+>>>>>>> 684288f (Init)
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var14))
 		if templ_7745c5c3_Err != nil {
@@ -423,7 +471,11 @@ func TaskRowSmall(task database.Task, userId uint, sprintID uint) templ.Componen
 		var templ_7745c5c3_Var15 string
 		templ_7745c5c3_Var15, templ_7745c5c3_Err = templ.JoinStringErrs(common.FormatDuration(GetTotalTimeSpentOnTask(task)))
 		if templ_7745c5c3_Err != nil {
+<<<<<<< HEAD
 			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/web/pages/sprintbacklog/sprintBacklog.templ`, Line: 174, Col: 62}
+=======
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/web/pages/sprintbacklog/sprintBacklog.templ`, Line: 165, Col: 62}
+>>>>>>> 684288f (Init)
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var15))
 		if templ_7745c5c3_Err != nil {
@@ -436,7 +488,11 @@ func TaskRowSmall(task database.Task, userId uint, sprintID uint) templ.Componen
 		var templ_7745c5c3_Var16 string
 		templ_7745c5c3_Var16, templ_7745c5c3_Err = templ.JoinStringErrs(common.FormatDuration(GetRemainingTimeOnTask(task)))
 		if templ_7745c5c3_Err != nil {
+<<<<<<< HEAD
 			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/web/pages/sprintbacklog/sprintBacklog.templ`, Line: 177, Col: 61}
+=======
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/web/pages/sprintbacklog/sprintBacklog.templ`, Line: 168, Col: 105}
+>>>>>>> 684288f (Init)
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var16))
 		if templ_7745c5c3_Err != nil {
@@ -454,7 +510,11 @@ func TaskRowSmall(task database.Task, userId uint, sprintID uint) templ.Componen
 			var templ_7745c5c3_Var17 string
 			templ_7745c5c3_Var17, templ_7745c5c3_Err = templ.JoinStringErrs(GetTaskStatus(task))
 			if templ_7745c5c3_Err != nil {
+<<<<<<< HEAD
 				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/web/pages/sprintbacklog/sprintBacklog.templ`, Line: 181, Col: 70}
+=======
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/web/pages/sprintbacklog/sprintBacklog.templ`, Line: 172, Col: 70}
+>>>>>>> 684288f (Init)
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var17))
 			if templ_7745c5c3_Err != nil {
@@ -472,7 +532,11 @@ func TaskRowSmall(task database.Task, userId uint, sprintID uint) templ.Componen
 			var templ_7745c5c3_Var18 string
 			templ_7745c5c3_Var18, templ_7745c5c3_Err = templ.JoinStringErrs(GetTaskStatus(task))
 			if templ_7745c5c3_Err != nil {
+<<<<<<< HEAD
 				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/web/pages/sprintbacklog/sprintBacklog.templ`, Line: 183, Col: 67}
+=======
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/web/pages/sprintbacklog/sprintBacklog.templ`, Line: 174, Col: 67}
+>>>>>>> 684288f (Init)
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var18))
 			if templ_7745c5c3_Err != nil {
@@ -490,7 +554,11 @@ func TaskRowSmall(task database.Task, userId uint, sprintID uint) templ.Componen
 			var templ_7745c5c3_Var19 string
 			templ_7745c5c3_Var19, templ_7745c5c3_Err = templ.JoinStringErrs(GetTaskStatus(task))
 			if templ_7745c5c3_Err != nil {
+<<<<<<< HEAD
 				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/web/pages/sprintbacklog/sprintBacklog.templ`, Line: 185, Col: 68}
+=======
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/web/pages/sprintbacklog/sprintBacklog.templ`, Line: 176, Col: 68}
+>>>>>>> 684288f (Init)
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var19))
 			if templ_7745c5c3_Err != nil {
@@ -508,7 +576,11 @@ func TaskRowSmall(task database.Task, userId uint, sprintID uint) templ.Componen
 			var templ_7745c5c3_Var20 string
 			templ_7745c5c3_Var20, templ_7745c5c3_Err = templ.JoinStringErrs(GetTaskStatus(task))
 			if templ_7745c5c3_Err != nil {
+<<<<<<< HEAD
 				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/web/pages/sprintbacklog/sprintBacklog.templ`, Line: 187, Col: 66}
+=======
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/web/pages/sprintbacklog/sprintBacklog.templ`, Line: 178, Col: 66}
+>>>>>>> 684288f (Init)
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var20))
 			if templ_7745c5c3_Err != nil {
@@ -526,7 +598,11 @@ func TaskRowSmall(task database.Task, userId uint, sprintID uint) templ.Componen
 			var templ_7745c5c3_Var21 string
 			templ_7745c5c3_Var21, templ_7745c5c3_Err = templ.JoinStringErrs(GetTaskStatus(task))
 			if templ_7745c5c3_Err != nil {
+<<<<<<< HEAD
 				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/web/pages/sprintbacklog/sprintBacklog.templ`, Line: 189, Col: 64}
+=======
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/web/pages/sprintbacklog/sprintBacklog.templ`, Line: 180, Col: 64}
+>>>>>>> 684288f (Init)
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var21))
 			if templ_7745c5c3_Err != nil {

@@ -20,10 +20,11 @@ import (
 	userSlug "tasklify/internal/web/pages/users/slug"
 	"tasklify/internal/web/pages/userstory"
 
-	ghandlers "github.com/gorilla/handlers"
+	"tasklify/internal/web/pages/stats"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
+	ghandlers "github.com/gorilla/handlers"
 )
 
 func Router() *chi.Mux {
@@ -231,6 +232,10 @@ func Router() *chi.Mux {
 				"GET": handlers.UnifiedHandler(handlers.AuthenticatedHandlerFunc(task.GetUnfinishedSessionDialog)),
 			})
 
+			// ===== View Project endpoints =====
+			r.Handle("/{projectID}/stats", ghandlers.MethodHandler{
+				"GET": handlers.UnifiedHandler(handlers.AuthenticatedHandlerFunc(stats.Stats)),
+			})
 		})
 	})
 
