@@ -28,7 +28,11 @@ func (db *database) GetWorkSessionByID(sessionID uint) (*WorkSession, error) {
 	return &session, nil
 }
 
-func (db *database) CreateWorkSession(userID, taskID uint) error {
+func (db *database) CreateWorkSession(session *WorkSession) error {
+	return db.Create(session).Error
+}
+
+func (db *database) CreateWorkSessionToday(userID, taskID uint) error {
 	Remaining, err := db.GetRemainingTimeForTask(taskID)
 	if err != nil {
 		return err
@@ -79,4 +83,8 @@ func (db *database) GetWorkSessionsForTask(taskID uint) ([]WorkSession, error) {
 	}
 
 	return sessions, nil
+}
+
+func (db *database) DeleteWorkSession(sessionID uint) error {
+	return db.Unscoped().Where("id = ?", sessionID).Delete(&WorkSession{}).Error
 }

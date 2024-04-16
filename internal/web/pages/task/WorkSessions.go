@@ -3,6 +3,7 @@ package task
 import (
 	"fmt"
 	"net/http"
+	"reflect"
 	"sort"
 	"strconv"
 	"tasklify/internal/database"
@@ -43,7 +44,7 @@ func StartWorkSession(w http.ResponseWriter, r *http.Request, params handlers.Re
 		if err != nil {
 			return err
 		}
-		err = database.GetDatabase().CreateWorkSession(params.UserID, uint(taskID))
+		err = database.GetDatabase().CreateWorkSessionToday(params.UserID, uint(taskID))
 		if err != nil {
 			return err
 		}
@@ -53,7 +54,7 @@ func StartWorkSession(w http.ResponseWriter, r *http.Request, params handlers.Re
 		return nil
 	}
 
-	err = database.GetDatabase().CreateWorkSession(params.UserID, uint(taskID))
+	err = database.GetDatabase().CreateWorkSessionToday(params.UserID, uint(taskID))
 	if err != nil {
 		return err
 	}
@@ -153,6 +154,42 @@ func StopWorkSession(w http.ResponseWriter, r *http.Request, params handlers.Req
 	c := LoggedTimeDialog(todaysWS, otherWS, uint(taskID), uint(sprintID), *task)
 	return c.Render(r.Context(), w)
 }
+
+
+func DeleteWorkSession(w http.ResponseWriter, r *http.Request, params handlers.RequestParams) error {
+	workSessionID, err := strconv.Atoi(chi.URLParam(r, "workSessionID"))
+	if err != nil {
+		return err
+	}
+	taskID, err := strconv.Atoi(chi.URLParam(r, "taskID"))
+	if err != nil {
+		return err
+	}
+	
+	task, err := database.GetDatabase().GetTaskByID(uint(taskID))
+	if err != nil {
+		return err
+	}
+
+	sprintID, err := strconv.Atoi(chi.URLParam(r, "sprintID"))
+	if err != nil {
+		return err
+	}
+
+	err = database.GetDatabase().DeleteWorkSession(uint(workSessionID))
+	if err != nil {
+		return err
+	}
+
+	todaysWS, otherWS, err := FetchSessionsForTask(uint(taskID))
+	if err != nil {
+		return err
+	}
+
+	c := LoggedTimeDialog(todaysWS, otherWS, uint(taskID), uint(sprintID), *task)
+	return c.Render(r.Context(), w)
+}
+
 
 func GetLoggedTime(w http.ResponseWriter, r *http.Request, params handlers.RequestParams) error {
 	taskID, err := strconv.Atoi(chi.URLParam(r, "taskID"))
@@ -521,4 +558,141 @@ func FetchSessionsForTask(taskID uint) ([]database.WorkSession, []database.WorkS
 	otherWS = sortWorkSessionsByDate(otherWS)
 
 	return todaysWS, otherWS, nil
+}
+
+func GetStartPastWorkSession(w http.ResponseWriter, r *http.Request, params handlers.RequestParams) error {
+	taskID, err := strconv.Atoi(chi.URLParam(r, "taskID"))
+	if err != nil {
+		return err
+	}
+	
+	sprintID, err := strconv.Atoi(chi.URLParam(r, "sprintID"))
+	if err != nil {
+		return err
+	}
+
+	c := createWorkSessionDialog(uint(sprintID), uint(taskID))
+	return c.Render(r.Context(), w)
+}
+
+var timeConverter = func(value string) reflect.Value {
+	layout := "2006-01-02"
+
+	if v, err := time.Parse(layout, value); err == nil {
+		return reflect.ValueOf(v)
+	}
+	return reflect.Value{}
+}
+
+
+type WorkSessionFormData struct {
+	StartDate time.Time `schema:"start_date,required"`
+	Duration *float32 `schema:"duration,required"`
+	Remaining *float32 `schema:"remaining,required"`
+}
+
+func PostStartPastWorkSession(w http.ResponseWriter, r *http.Request, params handlers.RequestParams) error {
+
+	var workSessionFormData WorkSessionFormData
+	decoder.RegisterConverter(time.Time{}, timeConverter)
+	if err := decoder.Decode(&workSessionFormData, r.PostForm); err != nil {
+		return err
+	}
+
+	taskID, err := strconv.Atoi(chi.URLParam(r, "taskID"))
+	if err != nil {
+		return err
+	}
+
+	sprintID, err := strconv.Atoi(chi.URLParam(r, "sprintID"))
+	if err != nil {
+		return err
+	}
+
+	task, err := database.GetDatabase().GetTaskByID(uint(taskID))
+	if err != nil {
+		return err
+	}
+
+	//check if session for this date already exists
+	workSessions, err := database.GetDatabase().GetWorkSessionsForTask(uint(taskID))
+	if err != nil {
+		return err
+	}
+
+	for _, session := range workSessions {
+		if session.StartTime.Day() == workSessionFormData.StartDate.Day() && session.StartTime.Month() == workSessionFormData.StartDate.Month() && session.StartTime.Year() == workSessionFormData.StartDate.Year() {
+			w.WriteHeader(http.StatusSeeOther)
+			c := common.ValidationError("Log for this date already exists. Go back and click to edit it.")
+			return c.Render(r.Context(), w)
+		}
+	}
+
+	//check if start date is before today7s dayso before the minight of today
+	if workSessionFormData.StartDate.After(time.Now().Truncate(24 * time.Hour)){
+		w.WriteHeader(http.StatusSeeOther)
+		c := common.ValidationError("Start date of a past log cannot be in the future.")
+		return c.Render(r.Context(), w)
+	}
+
+	if workSessionFormData.StartDate.Equal(time.Now().Truncate(24 * time.Hour)){
+		w.WriteHeader(http.StatusSeeOther)
+		c := common.ValidationError("Start date of a past log cannot be today. If you wish to start a log today, go back and click start.")
+		return c.Render(r.Context(), w)
+	}
+
+	//check if start date is within the sprint
+	sprint, err := database.GetDatabase().GetSprintByID(uint(sprintID))
+	if err != nil {
+		return err
+	}
+
+	if workSessionFormData.StartDate.Before(sprint.StartDate) || workSessionFormData.StartDate.After(sprint.EndDate) {
+		w.WriteHeader(http.StatusSeeOther)
+		c := common.ValidationError("Start date should be within the sprint.")
+		return c.Render(r.Context(), w)
+	}
+
+	end := workSessionFormData.StartDate.Add(time.Duration(*workSessionFormData.Duration * float32(time.Hour)))
+
+	// create new session
+	session := database.WorkSession{
+		StartTime: workSessionFormData.StartDate,
+		EndTime: &end,
+		Duration: time.Duration(*workSessionFormData.Duration * float32(time.Hour)),
+		Remaining: time.Duration(*workSessionFormData.Remaining * float32(time.Hour)),
+		TaskID: uint(taskID),
+		UserID: params.UserID,
+		OngoingToday: false,
+		LeftUnfinished: false,
+	}
+
+	//add session to database
+	err = database.GetDatabase().CreateWorkSession(&session)
+	if err != nil {
+		return err
+	}
+
+	workSessions, err = database.GetDatabase().GetWorkSessionsForTask(uint(taskID))
+	if err != nil {
+		return err
+	}
+
+	workSessions = sortWorkSessionsByDate(workSessions)
+
+	todaysWS := []database.WorkSession{}
+	otherWS := []database.WorkSession{}
+	for _, session := range workSessions {
+		if session.OngoingToday {
+			todaysWS = append(todaysWS, session)
+		} else {
+			otherWS = append(otherWS, session)
+		}
+	}
+
+	otherWS = sortWorkSessionsByDate(otherWS)
+
+	c := LoggedTimeDialog(todaysWS, otherWS, uint(taskID), uint(sprintID), *task)
+
+	return c.Render(r.Context(), w)
 }

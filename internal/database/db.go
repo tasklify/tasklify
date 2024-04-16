@@ -54,10 +54,12 @@ type Database interface {
 	DeleteProjectWallPost(projectID uint, postID uint) error
 	GetProjectWallPostByID(postID uint) (*ProjectWallPost, error)
 	CreateAcceptanceTest(acceptanceTest *AcceptanceTest) error
-	CreateWorkSession(userID, taskID uint) error
+	CreateWorkSession(session *WorkSession) error
+	CreateWorkSessionToday(userID, taskID uint) error
 	GetWorkSessionsForTask(taskID uint) ([]WorkSession, error)
 	GetWorkSessionByID(sessionID uint) (*WorkSession, error)
 	UpdateWorkSession(session *WorkSession) error
+	DeleteWorkSession(sessionID uint) error
 	GetUserStoryComments(userStoryID uint) ([]UserStoryComment, error)
 	GetUserStoryCommentByID(commentID uint) (*UserStoryComment, error)
 	AddUserStoryComment(comment UserStoryComment) error

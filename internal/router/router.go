@@ -201,24 +201,29 @@ func Router() *chi.Mux {
 			r.Handle("/sprintbacklog/{sprintID}/task/{taskID}/start", ghandlers.MethodHandler{
 				"POST": handlers.UnifiedHandler(handlers.AuthenticatedHandlerFunc(task.StartWorkSession)),
 			})
-			r.Handle("/sprintbacklog/{sprintID}/task/{taskID}/logged", ghandlers.MethodHandler{
+			r.Handle("/sprintbacklog/{sprintID}/task/{taskID}/add", ghandlers.MethodHandler{
+				"GET": handlers.UnifiedHandler(handlers.AuthenticatedHandlerFunc(task.GetStartPastWorkSession)),
+				"POST": handlers.UnifiedHandler(handlers.AuthenticatedHandlerFunc(task.PostStartPastWorkSession)),
+			})
+			r.Handle("/sprintbacklog/{sprintID}/task/{taskID}/sessions", ghandlers.MethodHandler{
 				"GET": handlers.UnifiedHandler(handlers.AuthenticatedHandlerFunc(task.GetLoggedTime)),
 			})
-			r.Handle("/sprintbacklog/{sprintID}/task/{taskID}/logged/session/{workSessionID}/stop", ghandlers.MethodHandler{
+			r.Handle("/sprintbacklog/{sprintID}/task/{taskID}/sessions/{workSessionID}/stop", ghandlers.MethodHandler{
 				"POST": handlers.UnifiedHandler(handlers.AuthenticatedHandlerFunc(task.StopWorkSession)),
+				"DELETE": handlers.UnifiedHandler(handlers.AuthenticatedHandlerFunc(task.DeleteWorkSession)),
 			})
-			r.Handle("/sprintbacklog/{sprintID}/task/{taskID}/logged/session/{workSessionID}/change", ghandlers.MethodHandler{
+			r.Handle("/sprintbacklog/{sprintID}/task/{taskID}/sessions/{workSessionID}/change", ghandlers.MethodHandler{
 				"POST": handlers.UnifiedHandler(handlers.AuthenticatedHandlerFunc(task.PostChangeDuration)),
 				"GET":  handlers.UnifiedHandler(handlers.AuthenticatedHandlerFunc(task.GetChangeDuration)),
 			})
-			r.Handle("/sprintbacklog/{sprintID}/task/{taskID}/logged/session/{workSessionID}/changeremaining", ghandlers.MethodHandler{
+			r.Handle("/sprintbacklog/{sprintID}/task/{taskID}/sessions/{workSessionID}/changeremaining", ghandlers.MethodHandler{
 				"POST": handlers.UnifiedHandler(handlers.AuthenticatedHandlerFunc(task.PostChangeRemaining)),
 				"GET":  handlers.UnifiedHandler(handlers.AuthenticatedHandlerFunc(task.GetChangeRemaining)),
 			})
-			r.Handle("/sprintbacklog/{sprintID}/task/{taskID}/logged/session/{workSessionID}/resume", ghandlers.MethodHandler{
+			r.Handle("/sprintbacklog/{sprintID}/task/{taskID}/sessions/{workSessionID}/resume", ghandlers.MethodHandler{
 				"POST": handlers.UnifiedHandler(handlers.AuthenticatedHandlerFunc(task.ResumeWorkSession)),
 			})
-			r.Handle("/sprintbacklog/{sprintID}/task/{taskID}/logged/session/{workSessionID}/unfinished", ghandlers.MethodHandler{
+			r.Handle("/sprintbacklog/{sprintID}/task/{taskID}/sessions/{workSessionID}/unfinished", ghandlers.MethodHandler{
 				"GET": handlers.UnifiedHandler(handlers.AuthenticatedHandlerFunc(task.GetUnfinishedSessionDialog)),
 			})
 
