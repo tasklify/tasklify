@@ -10,7 +10,7 @@ templ ProjectNavbar(project database.Project, projectRoles []database.ProjectRol
 			<div>
 				@SideNav(project.ID, projectRoles)
 			</div>
-			<div class="flex-1 bg-base-100 flex flex-col px-4" style="max-height: calc(100vh - 64px); min-height: calc(100vh - 64px)">
+			<div class="flex-1 bg-base-100 flex flex-col px-4 overflow-hidden" style="max-height: calc(100vh - 64px); min-height: calc(100vh - 64px)">
 				switch topNavVariant {
 					case "project_board":
 						@TopNavProjectBoard(project)

@@ -46,9 +46,6 @@ func Router() *chi.Mux {
 
 		// Public
 
-		r.Handle("/", ghandlers.MethodHandler{
-			"GET": handlers.UnifiedHandler(handlers.PlainHandlerFunc(pages.Index)),
-		})
 		r.Handle("/login", ghandlers.MethodHandler{
 			"GET":  handlers.UnifiedHandler(handlers.PlainHandlerFunc(login.GetLogin)),
 			"POST": handlers.UnifiedHandler(handlers.PlainHandlerFunc(login.PostLogin)),
@@ -82,10 +79,17 @@ func Router() *chi.Mux {
 				"GET": handlers.UnifiedHandler(handlers.AuthenticatedHandlerFunc(userSlug.GetDeleteUser)),
 			})
 
-			// ===== Create Project endpoints =====
+			r.Handle("/", ghandlers.MethodHandler{
+				"GET": handlers.UnifiedHandler(handlers.AuthenticatedHandlerFunc(dashboard.Dashboard)),
+			})
 			r.Handle("/dashboard", ghandlers.MethodHandler{
 				"GET": handlers.UnifiedHandler(handlers.AuthenticatedHandlerFunc(dashboard.Dashboard)),
 			})
+			r.Handle("/dashboard/project-description/{projectID}", ghandlers.MethodHandler{
+				"GET": handlers.UnifiedHandler(handlers.AuthenticatedHandlerFunc(dashboard.GetProjectDescriptionDialog)),
+			})
+
+			// ===== Create Project endpoints =====
 			r.Handle("/create-project", ghandlers.MethodHandler{
 				"GET":  handlers.UnifiedHandler(handlers.AuthenticatedHandlerFunc(project.GetCreateProject)),
 				"POST": handlers.UnifiedHandler(handlers.AuthenticatedHandlerFunc(project.PostCreateProject)),
