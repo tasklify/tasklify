@@ -199,7 +199,7 @@ templ TaskRowSmall(task database.Task, userId uint, sprintID uint) {
 			}
 		</div>
 		<div class="logged-button">
-			if (GetTaskStatus(task) == "Active") && (userId == *task.UserID) {
+			if (GetTaskStatus(task) == "Active" || GetTaskStatus(task) == "Done") && (userId == *task.UserID) {
 				<form hx-get={ fmt.Sprintf("/sprintbacklog/%v/task/%v/sessions", sprintID, task.ID) } hx-target="#dialog">
 					<button class="btn btn-xs">
 						<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-5 h-5">

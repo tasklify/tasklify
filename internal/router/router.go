@@ -206,14 +206,14 @@ func Router() *chi.Mux {
 				"POST": handlers.UnifiedHandler(handlers.AuthenticatedHandlerFunc(task.StartWorkSession)),
 			})
 			r.Handle("/sprintbacklog/{sprintID}/task/{taskID}/add", ghandlers.MethodHandler{
-				"GET": handlers.UnifiedHandler(handlers.AuthenticatedHandlerFunc(task.GetStartPastWorkSession)),
+				"GET":  handlers.UnifiedHandler(handlers.AuthenticatedHandlerFunc(task.GetStartPastWorkSession)),
 				"POST": handlers.UnifiedHandler(handlers.AuthenticatedHandlerFunc(task.PostStartPastWorkSession)),
 			})
 			r.Handle("/sprintbacklog/{sprintID}/task/{taskID}/sessions", ghandlers.MethodHandler{
 				"GET": handlers.UnifiedHandler(handlers.AuthenticatedHandlerFunc(task.GetLoggedTime)),
 			})
 			r.Handle("/sprintbacklog/{sprintID}/task/{taskID}/sessions/{workSessionID}/stop", ghandlers.MethodHandler{
-				"POST": handlers.UnifiedHandler(handlers.AuthenticatedHandlerFunc(task.StopWorkSession)),
+				"POST":   handlers.UnifiedHandler(handlers.AuthenticatedHandlerFunc(task.StopWorkSession)),
 				"DELETE": handlers.UnifiedHandler(handlers.AuthenticatedHandlerFunc(task.DeleteWorkSession)),
 			})
 			r.Handle("/sprintbacklog/{sprintID}/task/{taskID}/sessions/{workSessionID}/change", ghandlers.MethodHandler{

@@ -559,7 +559,7 @@ func TaskRowSmall(task database.Task, userId uint, sprintID uint) templ.Componen
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		if (GetTaskStatus(task) == "Active") && (userId == *task.UserID) {
+		if (GetTaskStatus(task) == "Active" || GetTaskStatus(task) == "Done") && (userId == *task.UserID) {
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<form hx-get=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
