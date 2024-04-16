@@ -1,0 +1,82 @@
+package stats
+
+import (
+	"tasklify/internal/handlers"
+	"tasklify/internal/database"
+	"tasklify/internal/web/pages"
+	"net/http"
+	"strconv"
+	"github.com/go-chi/chi/v5"
+	"time"
+)
+
+type StatsData struct {
+	StoryPoints uint
+	Realized    bool
+	StartDate   time.Time
+}
+
+func Stats(w http.ResponseWriter, r *http.Request, params handlers.RequestParams) error {
+	projectIDInt, err := strconv.Atoi(chi.URLParam(r, "projectID"))
+	if err != nil {
+		return err
+	}
+	projectID := uint(projectIDInt)
+
+	project, err := database.GetDatabase().GetProjectByID(projectID)
+	if err != nil {
+		return err
+	}
+
+	var statsData []StatsData
+	for _, sprint := range project.Sprints {
+		if database.StatusTodo != sprint.DetermineStatus() {
+			for _, userStory := range sprint.UserStories {
+				var realized bool
+
+				realizedTemp := userStory.Realized
+				if realizedTemp != nil {
+					realized = *realizedTemp
+				}
+
+				statsData = append(statsData, StatsData{
+					StoryPoints: userStory.StoryPoints,
+					Realized:    realized,
+					StartDate:   sprint.StartDate,
+				})
+			}
+		}
+	}
+
+	c := stats(statsData)
+	return pages.Layout(c, "Stats", r).Render(r.Context(), w)
+}
+
+templ stats(statsData []StatsData) {
+	<div class="bg-base-200 min-h-screen">
+		<div id="chart" class="w-[500px] h-[300px] bg-slate-500"></div>
+	</div>
+	@graph(statsData)
+}
+
+script graph(statsData []StatsData) {
+	var options = {
+		chart: {
+			type: 'bar'
+		},
+		series: [
+			{
+			name: 'sales',
+			data: [30, 40, 35, 50, 49, 60, 70, 91, 125]
+			}
+		],
+		xaxis: {
+			categories: [1991, 1992, 1993, 1994, 1995, 1996, 1997, 1998, 1999]
+		}
+	}
+
+	var chart = new ApexCharts(document.querySelector('#chart'), options)
+	chart.render()
+
+	console.log({ statsData })
+}

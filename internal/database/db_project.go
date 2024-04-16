@@ -8,6 +8,7 @@ type Project struct {
 	gorm.Model
 	Title            string            `gorm:"unique"`
 	Description      string            `gorm:"type:TEXT"`
+	Docs             string            `gorm:"type:TEXT"`
 	Developers       []User            `gorm:"many2many:project_has_users;"` // m:n (Project:User)
 	ProductOwnerID   uint              // 1:n (User:Project)
 	ProductOwner     User              `gorm:"-"`

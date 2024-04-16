@@ -1,19 +1,27 @@
 package handlers
 
 import (
-	"errors"
+	"context"
 	"net/http"
-	"tasklify/internal/middlewares"
+	"tasklify/internal/auth"
+)
+
+type contextKeyUserID string
+
+const (
+	ContextKeyUserID contextKeyUserID = "user_id"
 )
 
 type AuthenticatedHandlerFunc func(w http.ResponseWriter, r *http.Request, params RequestParams) error
 
 func (ahf AuthenticatedHandlerFunc) Serve(w http.ResponseWriter, r *http.Request) error {
-	userID, ok := r.Context().Value(middlewares.ContextKeyUserID).(uint)
-	if !ok {
-		http.Error(w, "Error retriving userID from context", http.StatusInternalServerError)
-		return errors.New("error retriving userID from context")
+	userID, err := auth.GetSession().GetUserID(r)
+	if err != nil {
+		http.Redirect(w, r, "/login", http.StatusTemporaryRedirect)
+		return nil
 	}
 
-	return ahf(w, r, RequestParams{UserID: userID})
+	ctx := context.WithValue(r.Context(), ContextKeyUserID, userID)
+
+	return ahf(w, r.WithContext(ctx), RequestParams{UserID: userID})
 }
