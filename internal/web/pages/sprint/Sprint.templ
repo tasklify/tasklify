@@ -8,7 +8,7 @@ import "strconv"
 
 templ CreateSprintDialog(projectID uint) {
 	@common.CreateDialog("Create sprint", http.MethodPost, fmt.Sprintf("/%v/createsprint", projectID), "Create") {
-		<a href="https://github.com/tasklify/tasklify/tree/main?tab=readme-ov-file#creating-sprints" target="_blank" class="help-button" style="padding-right=10rem;">?</a>
+		<a href="/docs/sprints#creating-sprints" target="_blank" class="help-button" style="padding-right=10rem;">?</a>
 		<!-- Start Date Field -->
 		<div class="mb-4">
 			<label for="start_date" class="block text-sm font-medium text-gray-700">Start Date</label>
