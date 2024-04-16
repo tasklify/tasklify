@@ -40,7 +40,7 @@ document.addEventListener("DOMContentLoaded", function() {
 							<form hx-get={ fmt.Sprintf("/%v/createuserstory", projectID) } hx-target="#dialog" style="display: inline;">
 								<button class="btn btn-primary btn-sm">Create User Story</button>
 							</form>
-							<a href="https://github.com/tasklify/tasklify/tree/main?tab=readme-ov-file#product-backlog" target="_blank" class="help-button ml-4" style="position: relative;top:0px;right:0px">?</a>
+							<a href="/docs/product_backlog#product-backlog" target="_blank" class="help-button ml-4" style="position: relative;top:0px;right:0px">?</a>
 						</div>
 					} else if slices.Contains(projectRoles, database.ProjectRoleMaster) {
 						<div class="flex">
@@ -50,10 +50,10 @@ document.addEventListener("DOMContentLoaded", function() {
 							<form hx-get={ fmt.Sprintf("/%v/createsprint", projectID) } hx-target="#dialog" style="display: inline;">
 								<button class="btn btn-primary btn-sm ml-2">Create Sprint</button>
 							</form>
-							<a href="https://github.com/tasklify/tasklify/tree/main?tab=readme-ov-file#product-backlog" target="_blank" class="help-button ml-4" style="position: relative;top:0px;right:0px">?</a>
+							<a href="/docs/product_backlog#product-backlog" target="_blank" class="help-button ml-4" style="position: relative;top:0px;right:0px">?</a>
 						</div>
 					} else {
-						<a href="https://github.com/tasklify/tasklify/tree/main?tab=readme-ov-file#product-backlog" target="_blank" class="help-button" style="position: relative;top:0px;right:0px">?</a>
+						<a href="/docs/product_backlog#product-backlog" target="_blank" class="help-button" style="position: relative;top:0px;right:0px">?</a>
 					}
 				</div>
 			</div>
@@ -203,7 +203,7 @@ templ userStoryCard(name string, description string) {
 templ backlog(backlogUserStories []database.UserStory, sprint database.Sprint, callback string, projectRoles []database.ProjectRole) {
 	<div class="card card-compact bg-base-200 transition-shadow mt-2">
 		<div class="card-title collapse-title text-xl font-medium bg-base-300 border-base-300">Backlog</div>
-		<a href="https://github.com/tasklify/tasklify/tree/main?tab=readme-ov-file#adding-user-stories-to-sprint" target="_blank" class="help-button" style="padding-right=10rem;">?</a>
+		<a href="/docs/sprints#adding-user-stories-to-sprint" target="_blank" class="help-button" style="padding-right=10rem;">?</a>
 		<div class="card-body" hx-ext="response-targets">
 			<form id="backlogForm" hx-post="/productbacklog" hx-target-400="#add-to-sprint-validation-error">
 				<table class="table w-full">
@@ -269,7 +269,7 @@ templ backlog(backlogUserStories []database.UserStory, sprint database.Sprint, c
 templ future(backlogUserStories []database.UserStory) {
 	<div class="card card-compact bg-base-200 transition-shadow mt-2">
 		<div class="card-title collapse-title text-xl font-medium bg-base-300 border-base-300">Future Releases</div>
-		<a href="https://github.com/tasklify/tasklify/tree/main?tab=readme-ov-file#adding-user-stories-to-sprint" target="_blank" class="help-button" style="padding-right=10rem;">?</a>
+		<a href="/docs/sprints#adding-user-stories-to-sprint" target="_blank" class="help-button" style="padding-right=10rem;">?</a>
 		<div class="card-body">
 			<form id="backlogForm" hx-post="/productbacklog">
 				<table class="table w-full">
@@ -307,7 +307,7 @@ templ future(backlogUserStories []database.UserStory) {
 templ done(backlogUserStories []database.UserStory) {
 	<div class="card card-compact bg-base-200 transition-shadow mt-2">
 		<div class="card-title collapse-title text-xl font-medium bg-base-300 border-base-300">Done User Stories</div>
-		<a href="https://github.com/tasklify/tasklify/tree/main?tab=readme-ov-file#adding-user-stories-to-sprint" target="_blank" class="help-button" style="padding-right=10rem;">?</a>
+		<a href="/docs/sprints#adding-user-stories-to-sprint" target="_blank" class="help-button" style="padding-right=10rem;">?</a>
 		<div class="card-body">
 			<form id="backlogForm" hx-post="/productbacklog">
 				<table class="table w-full">
