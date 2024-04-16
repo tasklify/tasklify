@@ -112,7 +112,7 @@ templ createTaskDialog(projectID uint, sprintID uint, userStoryID uint, users []
 
 templ EditTaskDialog(task database.Task, users []database.User, sprintID uint) {
 	@common.CreateDialog("Edit task", http.MethodPut, fmt.Sprintf("/sprintbacklog/%v/task/%v", sprintID, task.ID), "Save") {
-		<a href="https://github.com/tasklify/tasklify/tree/main?tab=readme-ov-file#creating-tasks" target="_blank" class="help-button" style="padding-right=10rem;">?</a>
+		<a href="/docs/tasks#edit-tasks" target="_blank" class="help-button" style="padding-right=10rem;">?</a>
 		<!-- Title Field -->
 		<div class="mb-4">
 			<label for="title" class="block text-sm font-medium text-gray-700">Title</label>

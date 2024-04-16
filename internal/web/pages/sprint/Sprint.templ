@@ -29,7 +29,7 @@ templ CreateSprintDialog(projectID uint) {
 
 templ EditSprintDialog(sprint database.Sprint) {
 	@common.CreateDialog("Edit sprint", http.MethodPut, fmt.Sprintf("/%v/sprint/%v", sprint.ProjectID, sprint.ID), "Save") {
-		<a href="https://github.com/tasklify/tasklify/tree/main?tab=readme-ov-file#creating-sprints" target="_blank" class="help-button" style="padding-right=10rem;">?</a>
+		<a href="/docs/sprints#edit-sprints" target="_blank" class="help-button" style="padding-right=10rem;">?</a>
 		if sprint.DetermineStatus() == database.StatusInProgress {
 			<!-- Start Date Field -->
 			<div hidden class="mb-4">

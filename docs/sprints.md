@@ -17,6 +17,20 @@ Sprints can be created in the current project by SCRUM master on the product bac
 
 After filling out the necessary information, submit the form by clicking on the create button to add the sprint to the current project.
 
+## Edit Sprints
+
+Upcoming sprints can be edited by SCRUM master on the product backlog page. The fields that can be edited as follows:
+
+- **Start Date**: Date when the Sprint begins. Must be a future or current date.
+- **End Date**: Date when the Sprint ends. Must be in the future and after the start date.
+- **Velocity**: The expected amount of work (in story points) the team believes can be completed during the Sprint.
+
+For sprints that are already active, only the **Velocity field** can be adjusted.
+
+## Delete Sprints
+
+Sprints that have not yet started can be deleted by clicking the **Delete button** next to the sprint's details on the product backlog page.
+
 ## Adding user stories to sprint
 
 Stories can be added to a sprint by SCRUM master through the product backlog page.

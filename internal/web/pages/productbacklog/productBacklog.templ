@@ -91,6 +91,8 @@ document.addEventListener("DOMContentLoaded", function() {
 								if sprint.DetermineStatus() == database.StatusInProgress {
 									<!-- Edit sprint Button -->
 									<span>
+
+									if slices.Contains(projectRoles, database.ProjectRoleMaster) {
 										<span class="inline-flex items-center py-0.5" title="Edit sprint">
 											<button hx-get={ fmt.Sprintf("/%v/sprint/%v", projectID, sprint.ID) } hx-target="#dialog" class="btn btn-sm bg-primary" style="position: relative; z-index: 1;">
 												<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="white" class="w-5 h-5">
@@ -99,6 +101,7 @@ document.addEventListener("DOMContentLoaded", function() {
 												</svg>
 											</button>
 										</span>
+										}
 										<span class="ml-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-300">
 											Active
 										</span>
@@ -111,6 +114,7 @@ document.addEventListener("DOMContentLoaded", function() {
 									</span>
 								} else {
 									<span>
+									if slices.Contains(projectRoles, database.ProjectRoleMaster) {
 										<!-- Edit sprint Button -->
 										<span class="inline-flex items-center px-2 py-0.5" title="Edit sprint">
 											<button hx-get={ fmt.Sprintf("/%v/sprint/%v", projectID, sprint.ID) } hx-target="#dialog" class="btn btn-sm bg-primary" style="position: relative; z-index: 1;">
@@ -128,6 +132,7 @@ document.addEventListener("DOMContentLoaded", function() {
 												</svg>
 											</button>
 										</span>
+										}
 										<span class="ml-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-300">
 											Upcoming
 										</span>
