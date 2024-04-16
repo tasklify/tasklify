@@ -200,8 +200,12 @@ templ TaskRowSmall(task database.Task, userId uint, sprintID uint) {
 		</div>
 		<div class="logged-button">
 			if (GetTaskStatus(task) == "Active") && (userId == *task.UserID) {
-				<form hx-get={ fmt.Sprintf("/sprintbacklog/%v/task/%v/logged", sprintID, task.ID) } hx-target="#dialog">
-					<button class="btn btn-xs">Logs</button>
+				<form hx-get={ fmt.Sprintf("/sprintbacklog/%v/task/%v/sessions", sprintID, task.ID) } hx-target="#dialog">
+					<button class="btn btn-xs">
+						<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-5 h-5">
+							<path fill-rule="evenodd" d="M4.5 2A1.5 1.5 0 0 0 3 3.5v13A1.5 1.5 0 0 0 4.5 18h11a1.5 1.5 0 0 0 1.5-1.5v-13A1.5 1.5 0 0 0 15.5 2h-11zm1 3a.5.5 0 0 1 .5-.5h8a.5.5 0 0 1 0 1h-8a.5.5 0 0 1-.5-.5zm0 3a.5.5 0 0 1 .5-.5h8a.5.5 0 0 1 0 1h-8a.5.5 0 0 1-.5-.5zm0 3a.5.5 0 0 1 .5-.5h8a.5.5 0 0 1 0 1h-8a.5.5 0 0 1-.5-.5zm0 3a.5.5 0 0 1 .5-.5h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1-.5-.5z" clip-rule="evenodd"></path>
+						</svg>
+					</button>
 				</form>
 			}
 		</div>
