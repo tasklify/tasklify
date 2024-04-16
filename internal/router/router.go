@@ -85,6 +85,9 @@ func Router() *chi.Mux {
 			r.Handle("/dashboard", ghandlers.MethodHandler{
 				"GET": handlers.UnifiedHandler(handlers.AuthenticatedHandlerFunc(dashboard.Dashboard)),
 			})
+			r.Handle("/dashboard/project-description/{projectID}", ghandlers.MethodHandler{
+				"GET": handlers.UnifiedHandler(handlers.AuthenticatedHandlerFunc(dashboard.GetProjectDescriptionDialog)),
+			})
 
 			// ===== Create Project endpoints =====
 			r.Handle("/create-project", ghandlers.MethodHandler{
