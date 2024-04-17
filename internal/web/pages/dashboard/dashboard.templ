@@ -10,9 +10,16 @@ import (
 	"strconv"
 	"github.com/go-chi/chi/v5"
 	"slices"
+	"github.com/gorilla/schema"
 )
 
 func Dashboard(w http.ResponseWriter, r *http.Request, params handlers.RequestParams) error {
+	var decoder = schema.NewDecoder()
+
+	type RequestData struct {
+		TabID *string `schema:"tab"`
+	}
+
 	myProjects, err := database.GetDatabase().GetUserProjects(params.UserID)
 	if err != nil {
 		return err
@@ -28,7 +35,20 @@ func Dashboard(w http.ResponseWriter, r *http.Request, params handlers.RequestPa
 		return err
 	}
 
-	c := dashboard(myProjects, myTasks, user.SystemRole, params.UserID)
+	var requestData RequestData
+	err = decoder.Decode(&requestData, r.URL.Query())
+	if err != nil {
+		return err
+	}
+
+	var activeTab string
+	if requestData.TabID == nil {
+		activeTab = "projects"
+	} else {
+		activeTab = *requestData.TabID
+	}
+
+	c := dashboard(myProjects, myTasks, user.SystemRole, params.UserID, activeTab)
 	return pages.Layout(c, "Tasklify", r).Render(r.Context(), w)
 }
 
@@ -64,7 +84,7 @@ func GetTaskStatus(task database.Task) string {
 	}
 }
 
-templ dashboard(myProjects []database.Project, myTasks []database.Task, user_SystemRole database.SystemRole, currentUserID uint) {
+templ dashboard(myProjects []database.Project, myTasks []database.Task, user_SystemRole database.SystemRole, currentUserID uint, activeTab string) {
 	<style>
 		span.role-span:after {
 			content: ', ';
@@ -73,7 +93,20 @@ templ dashboard(myProjects []database.Project, myTasks []database.Task, user_Sys
 	<div class="bg-base-200 min-h-screen">
 		<div class="p-10">
 			<div role="tablist" class="tabs tabs-bordered">
-				<input type="radio" name="project_tasks_tabs" role="tab" class="tab text-lg whitespace-nowrap font-light" aria-label="My Projects" checked/>
+				<input
+					type="radio"
+					name="tab"
+					role="tab"
+					class="tab text-lg whitespace-nowrap font-light"
+					aria-label="My Projects"
+					if activeTab == "projects" {
+						checked
+					}
+					hx-get="/dashboard"
+					hx-replace-url="true"
+					hx-target="#whole"
+					value="projects"
+				/>
 				<div role="tabpanel" class="tab-content pt-8 px-3">
 					<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
 						<!-- Add New Project -->
@@ -133,7 +166,20 @@ templ dashboard(myProjects []database.Project, myTasks []database.Task, user_Sys
 						}
 					</div>
 				</div>
-				<input type="radio" name="project_tasks_tabs" role="tab" class="tab text-lg whitespace-nowrap font-light" aria-label="My Tasks"/>
+				<input
+					type="radio"
+					name="tab"
+					role="tab"
+					class="tab text-lg whitespace-nowrap font-light"
+					aria-label="My Tasks"
+					if activeTab == "tasks" {
+						checked
+					}
+					hx-get="/dashboard"
+					hx-replace-url="true"
+					hx-target="#whole"
+					value="tasks"
+				/>
 				<div role="tabpanel" class="tab-content pt-8 px-3">
 					if len(myTasks) == 0 {
 						<span>You are not assigned to any tasks</span>
@@ -191,19 +237,20 @@ templ dashboard(myProjects []database.Project, myTasks []database.Task, user_Sys
 												}
 											</td>
 											<td class="text-gray-950 flex justify-end">
-												if (GetTaskStatus(task) == "Active") {
-													<div class="logged-button mr-2">
-														<span title="Logs">
-															<form hx-get={ fmt.Sprintf("/sprintbacklog/%v/task/%v/sessions", *task.UserStory.SprintID, task.ID) } hx-target="#dialog">
-																<button class="btn btn-xs">
-																	<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-5 h-5">
-																		<path fill-rule="evenodd" d="M4.5 2A1.5 1.5 0 0 0 3 3.5v13A1.5 1.5 0 0 0 4.5 18h11a1.5 1.5 0 0 0 1.5-1.5v-13A1.5 1.5 0 0 0 15.5 2h-11zm1 3a.5.5 0 0 1 .5-.5h8a.5.5 0 0 1 0 1h-8a.5.5 0 0 1-.5-.5zm0 3a.5.5 0 0 1 .5-.5h8a.5.5 0 0 1 0 1h-8a.5.5 0 0 1-.5-.5zm0 3a.5.5 0 0 1 .5-.5h8a.5.5 0 0 1 0 1h-8a.5.5 0 0 1-.5-.5zm0 3a.5.5 0 0 1 .5-.5h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1-.5-.5z" clip-rule="evenodd"></path>
-																	</svg>
-																</button>
-															</form>
-														</span>
-													</div>
-												}
+												// TODO: zaenkrat tole skrijemo, če bo treba dodamo kasneje
+												// if (GetTaskStatus(task) == "Active" || GetTaskStatus(task) == "Done") {
+												// 	<div class="logged-button mr-2">
+												// 		<span title="Logs">
+												// 			<form hx-get={ fmt.Sprintf("/sprintbacklog/%v/task/%v/sessions", *task.UserStory.SprintID, task.ID) } hx-target="#dialog">
+												// 				<button class="btn btn-xs">
+												// 					<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-5 h-5">
+												// 						<path fill-rule="evenodd" d="M4.5 2A1.5 1.5 0 0 0 3 3.5v13A1.5 1.5 0 0 0 4.5 18h11a1.5 1.5 0 0 0 1.5-1.5v-13A1.5 1.5 0 0 0 15.5 2h-11zm1 3a.5.5 0 0 1 .5-.5h8a.5.5 0 0 1 0 1h-8a.5.5 0 0 1-.5-.5zm0 3a.5.5 0 0 1 .5-.5h8a.5.5 0 0 1 0 1h-8a.5.5 0 0 1-.5-.5zm0 3a.5.5 0 0 1 .5-.5h8a.5.5 0 0 1 0 1h-8a.5.5 0 0 1-.5-.5zm0 3a.5.5 0 0 1 .5-.5h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1-.5-.5z" clip-rule="evenodd"></path>
+												// 					</svg>
+												// 				</button>
+												// 			</form>
+												// 		</span>
+												// 	</div>
+												// }
 												<span title="Details">
 													<div class="details-button">
 														<form hx-get={ fmt.Sprintf("/sprintbacklog/%v/task/%v/details", task.UserStory.SprintID, task.ID) } hx-target="#dialog" style="all: unset">
