@@ -1,9 +1,5 @@
 ---
 Title: Projects
-Summary: Everything related to projects
-Tags:
-  - markdown
-  - goldmark
 ---
 
 ## Creating Projects

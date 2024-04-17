@@ -33,6 +33,10 @@ func Router() *chi.Mux {
 
 	r.Handle("/static/*", http.StripPrefix("/static/", http.FileServer(http.Dir("./static"))))
 
+	r.Handle("/projects/{projectID}/docs/pdf", ghandlers.MethodHandler{
+		"GET": handlers.UnifiedHandler(handlers.PlainHandlerFunc(projectDocs.DocsPDF)),
+	})
+
 	r.Group(func(r chi.Router) {
 		r.Use(
 			middleware.Logger,
