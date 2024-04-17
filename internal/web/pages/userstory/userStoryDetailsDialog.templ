@@ -1,0 +1,289 @@
+package userstory
+
+import "tasklify/internal/database"
+import "strconv"
+import "fmt"
+
+templ UserStoryDetailsDialog(us database.UserStory, activeTab string, currentUser database.User) {
+	<div hx-ext="response-targets">
+		<div id="create-dialog" hx-ext="response-targets" class="fixed top-0 left-0 w-full h-full bg-gray-900 bg-opacity-50 flex justify-center items-start py-11 z-50">
+			<div class="bg-white rounded-lg shadow-lg w-2/5 h-auto max-h-full flex flex-col">
+				<!-- Title + Close button -->
+				<div class="p-4 px-5 bg-primary relative rounded-t-lg">
+					<h2 class="text-xl font-bold">{ us.Title }</h2>
+					<button class="btn btn-circle btn-sm bg-white" style="position: absolute; right: -14px; top: -14px;" hx-on:click="dialog_container.close()">✕</button>
+				</div>
+				if activeTab == "comments" {
+					<a href="/docs/product_backlog#commenting-on-user-story" target="_blank" class="help-button" style="padding-right=10rem;">?</a>
+				}
+				<div id="user_story_tabs" class="flex flex-col overflow-hidden flex-1" style="padding: 5px; margin: -5px">
+					<div role="tablist" class="tabs tabs-bordered">
+						<input
+							type="radio"
+							name="tabID"
+							role="tab"
+							class="tab text-base h-9"
+							aria-label="Details"
+							data-content="details"
+							if activeTab == "details" {
+								checked
+							}
+							hx-get={ fmt.Sprintf("/userstory/%v/details", us.ID) }
+							hx-target="#dialog"
+							hx-indicator="#dialog"
+							value="details"
+							hx-trigger="click"
+						/>
+						if len(us.Tasks) != 0 {
+							<input
+								type="radio"
+								name="tabID"
+								role="tab"
+								class="tab text-base h-9"
+								aria-label="Tasks"
+								data-content="tasks"
+								if activeTab == "tasks" {
+									checked
+								}
+								hx-get={ fmt.Sprintf("/userstory/%v/details", us.ID) }
+								hx-target="#dialog"
+								hx-indicator="#dialog"
+								value="tasks"
+								hx-trigger="click"
+							/>
+						}
+						<input
+							type="radio"
+							name="tabID"
+							role="tab"
+							class="tab text-base h-9"
+							aria-label="Comments"
+							data-content="comments"
+							if activeTab == "comments" {
+								checked
+							}
+							hx-get={ fmt.Sprintf("/userstory/%v/details", us.ID) }
+							hx-target="#dialog"
+							hx-indicator="#dialog"
+							value="comments"
+							hx-trigger="click"
+						/>
+					</div>
+					if activeTab == "details" {
+						<div id="details" role="tabpanel" class="tab-content block py-7 px-8">
+							@UserStoryDetails(us)
+						</div>
+					} else if activeTab == "tasks" {
+						<div id="tasks" role="tabpanel" class="tab-content block py-7 px-8">
+							@UserStoryTasks(us)
+						</div>
+					} else if activeTab == "comments" {
+						<div class="py-7 px-8 flex flex-col overflow-hidden">
+							<div
+								id="comments"
+								role="tabpanel"
+								style="padding-right: 5px; padding-bottom: 5px; padding-left: 5px; margin-right: -5px; margin-bottom: -5px; margin-left: -5px"
+								class="flex flex-col overflow-hidden tab-content"
+							>
+								@UserStoryComments(us, nil, currentUser)
+							</div>
+						</div>
+					}
+				</div>
+			</div>
+		</div>
+	</div>
+}
+
+templ UserStoryDetails(us database.UserStory) {
+	<div class="grid grid-cols-2 gap-4 mb-4">
+		<div>
+			<!-- Realized Status -->
+			<div class="flex items-center gap-4 mb-4">
+				<div class="font-medium">Realized:</div>
+				<div>
+					if *us.Realized {
+						<span class="text-green-500 text-lg">
+							<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+								<path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5"></path>
+							</svg>
+						</span> <!-- Display a check mark if realized is true -->
+					} else {
+						<span class="text-red-500 text-lg">
+							<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+								<path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12"></path>
+							</svg>
+						</span> <!-- Display a cross mark if realized is false -->
+					}
+				</div>
+			</div>
+			<!--Priority -->
+			<div class="flex items-center gap-4 mb-4">
+				<div class="font-medium">Priority:</div>
+				<div>
+					switch us.Priority {
+						case database.PriorityMustHave:
+							<div class="badge badge-error">Must have</div>
+						case database.PriorityCouldHave:
+							<div class="badge badge-warning">Could have</div>
+						case database.PriorityShouldHave:
+							<div class="badge badge-success">Should have</div>
+						case database.PriorityWontHaveThisTime:
+							<div class="badge badge-info">Won't have this time</div>
+						default:
+							<span></span>
+					}
+				</div>
+			</div>
+		</div>
+		<div>
+			<!--BusinessValue-->
+			<div class="flex items-center gap-4 mb-4">
+				<div class="font-medium">Business Value:</div>
+				<div>
+					<div class="badge badge-primary">{ strconv.FormatUint(uint64(us.BusinessValue), 10) }</div>
+				</div>
+			</div>
+			<!--Story points-->
+			<div class="flex items-center gap-4 mb-4">
+				<div class="font-medium">Story Points:</div>
+				<div>
+					<div class="badge badge-primary">{ strconv.FormatFloat(us.StoryPoints, 'f', 2, 64) }</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="mb-4">
+		<div class="font-medium mb-2">Description</div>
+		<div class="text-gray-800 whitespace-break-spaces p-4 bg-gray-100 rounded-lg">{ *us.Description }</div>
+	</div>
+	if len(us.AcceptanceTests) > 0 {
+		<div class="mb-4">
+			<div class="font-medium mb-2" style="color: #cc8e35;">Acceptance Tests</div>
+			for _, test := range us.AcceptanceTests {
+				<div style="background-color: #f4deb3; color: #654321; padding: 4px 8px; margin-bottom: 4px; border-radius: 4px;">
+					# { *test.Description }
+				</div>
+			}
+		</div>
+	}
+	<!--RejectionComment  -->
+	if us.RejectionComment != nil {
+		<div class="mb-4">
+			<div class="font-medium mb-2" style="color: #de6561;">Rejection comment</div>
+			<div class="text-gray-800 whitespace-break-spaces p-4 bg-unassigned-300 rounded-lg">{ *us.RejectionComment }</div>
+		</div>
+	}
+}
+
+templ UserStoryTasks(us database.UserStory) {
+	if len(us.Tasks) > 0 {
+		<div class="mb-4">
+			// <div class="font-medium mb-2">Tasks</div>
+			for _, task := range us.Tasks {
+				<div class="flex justify-between items-center p-2 bg-gray-100 rounded-lg mb-2">
+					<div class="text-gray-800">{ *task.Title }</div>
+				</div>
+			}
+		</div>
+	} else {
+		<div class="mb-4">
+			<span>There are no tasks on this user story yet...</span>
+		</div>
+	}
+}
+
+templ UserStoryComments(us database.UserStory, inEditComment *database.UserStoryComment, currentUser database.User) {
+	<div class="flex flex-1 mb-2 overflow-y-auto flex-col-reverse" style="scrollbar-width: thin">
+		<div id="CommentListContainer" class="flex flex-1 flex-col-reverse">
+			@CommentList(us, inEditComment, currentUser)
+		</div>
+	</div>
+	<div>
+		<form hx-post={ fmt.Sprintf("/userstory/%v/comment", us.ID) } hx-target="#user_story_tabs #comments" style="all: unset">
+			<div class="inline-flex w-full">
+				<textarea rows="1" id="comment" name="comment" class="textarea p-2 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50" placeholder="Write a comment" style="max-height: 150px" required></textarea>
+				<button class="btn btn-sm btn-circle btn-primary ml-2 flex self-end" style="padding-right: 2.5px">
+					@SendIcon()
+				</button>
+			</div>
+		</form>
+	</div>
+}
+
+templ CommentList(us database.UserStory, inEditComment *database.UserStoryComment, currentUser database.User) {
+	if len(us.UserStoryComments) == 0 {
+		<span class="ml-1 mb-2">There are no comments on this user story yet...</span>
+	}
+	for _, comment := range us.UserStoryComments {
+		if currentUser.ID == comment.Author.ID {
+			<div class="w-8/12 self-end mb-4 group">
+				if inEditComment == nil || (inEditComment != nil && inEditComment.ID != comment.ID) {
+					<div class="flex items-center">
+						<div class="invisible group-hover:visible mr-3 ml-1">
+							<a hx-get={ fmt.Sprintf("/userstory/%v/comment/%v", us.ID, comment.ID) } class="link link-hover link-info mr-2" hx-target="#user_story_tabs #comments #CommentListContainer"><small>Edit</small></a>
+							<a hx-delete={ fmt.Sprintf("/userstory/%v/comment/%v", us.ID, comment.ID) } hx-target="#user_story_tabs #comments #CommentListContainer" class="link link-hover link-error" hx-confirm="Are you sure you want to delete this comment?"><small class="">Delete</small></a>
+						</div>
+						<div class="mr-2 flex-1 text-right text-sm">
+							<span class="font-medium">{ comment.Author.Username }</span>
+						</div>
+					</div>
+					<div class="card-body bg-base-300 p-3 rounded-2xl whitespace-break-spaces text-sm">
+						{ comment.Body }
+					</div>
+					<div class="mr-2 text-right">
+						if comment.CreatedAt != comment.UpdatedAt {
+							<div class="tooltip tooltip-left" data-tip={ fmt.Sprint("Last edited on ", comment.UpdatedAt.Format("02-01-2006 15:04")) }>
+								<time class="opacity-50" style="font-size: 0.65rem">
+									* { comment.CreatedAt.Format("02-01-2006 15:04") }
+								</time>
+							</div>
+						} else {
+							<time class="opacity-50" style="font-size: 0.65rem">{ comment.CreatedAt.Format("02-01-2006 15:04") }</time>
+						}
+					</div>
+				} else if inEditComment != nil && inEditComment.ID == comment.ID {
+					@EditComment(*inEditComment)
+				}
+			</div>
+		} else {
+			<div class="w-8/12 self-start mb-4">
+				<div class="ml-2 text-sm">
+					<span class="font-medium">{ comment.Author.Username }</span>
+				</div>
+				<div class="card-body bg-base-200 p-3 rounded-2xl whitespace-break-spaces text-sm">
+					{ comment.Body }
+				</div>
+				<div class="ml-2">
+					if comment.CreatedAt != comment.UpdatedAt {
+						<div class="tooltip tooltip-right" data-tip={ fmt.Sprint("Last edited on ", comment.UpdatedAt.Format("02-01-2006 15:04")) }>
+							<time class="opacity-50" style="font-size: 0.65rem">
+								{ comment.CreatedAt.Format("02-01-2006 15:04") } *
+							</time>
+						</div>
+					} else {
+						<time class="opacity-50" style="font-size: 0.65rem">{ comment.CreatedAt.Format("02-01-2006 15:04") }</time>
+					}
+				</div>
+			</div>
+		}
+	}
+}
+
+templ EditComment(comment database.UserStoryComment) {
+	<form hx-put={ fmt.Sprintf("/userstory/%v/comment/%v", comment.UserStoryID, comment.ID) } hx-target="#user_story_tabs #comments #CommentListContainer" style="all: unset">
+		<div class="flex justify-end mx-3" style="line-height: 24px">
+			<a hx-get={ fmt.Sprintf("/userstory/%v/comment/%v/cancel-edit", comment.UserStoryID, comment.ID) } hx-target="#user_story_tabs #comments #CommentListContainer" class="link link-hover link-neutral"><small class="">Cancel</small></a>
+			<button class="link link-hover link-success ml-3" type="submit"><small>Save</small></button>
+		</div>
+		<div class="card-body bg-base-300 p-3 rounded-2xl whitespace-break-spaces text-sm">
+			<textarea id="comment" name="comment" class="textarea p-2 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50" placeholder="Write a comment" style="max-height: 150px" required autofocus>{ comment.Body }</textarea>
+		</div>
+	</form>
+}
+
+templ SendIcon() {
+	<svg xmlns="http://www.w3.org/2000/svg" id="Layer_1" data-name="Layer 1" viewBox="0 0 122.56 122.88" style="width: 16px; height: auto; transform: rotate(45deg)">
+		<path d="M112.27,10.31l-99,38.07,30,14.37L89.21,33.18,60.44,80.53l14,29.06,37.81-99.28ZM2.42,44.49,117.16.37a3.73,3.73,0,0,1,3-.12,3.78,3.78,0,0,1,2.19,4.87L78.4,120.45a3.78,3.78,0,0,1-6.92.3l-22.67-47L2.14,51.39a3.76,3.76,0,0,1,.28-6.9Z"></path>
+	</svg>
+}
