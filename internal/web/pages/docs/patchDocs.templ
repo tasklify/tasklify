@@ -1,0 +1,127 @@
+package docs
+
+import (
+	"net/http"
+	"fmt"
+	"tasklify/internal/web/pages"
+	"tasklify/internal/database"
+	"github.com/gorilla/schema"
+	"tasklify/internal/web/components/common"
+	"tasklify/internal/handlers"
+)
+
+var decoder = schema.NewDecoder()
+
+type docsFormData struct {
+	Docs string `schema:"docs,required"`
+}
+
+func DocsEdit(w http.ResponseWriter, r *http.Request, params handlers.RequestParams) error {
+	if !pages.IsOnProject(r) {
+		w.WriteHeader(http.StatusUnauthorized)
+		return nil
+	}
+
+	project, err := database.GetDatabase().GetProjectByID(pages.GetProjectID(r))
+	if err != nil {
+		return err
+	}
+
+	c := content(project.Docs)
+	c = docsEdit(c, r)
+	return pages.Layout(c, "Tasklify", r).Render(r.Context(), w)
+}
+
+func PatchDocs(w http.ResponseWriter, r *http.Request, params handlers.RequestParams) error {
+	if !pages.IsOnProject(r) {
+		w.WriteHeader(http.StatusUnauthorized)
+		return nil
+	}
+
+	var docsFormData docsFormData
+	err := decoder.Decode(&docsFormData, r.PostForm)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		c := common.ValidationError(err.Error())
+		return c.Render(r.Context(), w)
+	}
+
+	project, err := database.GetDatabase().GetProjectByID(pages.GetProjectID(r))
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		c := common.ValidationError(err.Error())
+		return c.Render(r.Context(), w)
+	}
+
+	project.Docs = docsFormData.Docs
+
+	err = database.GetDatabase().UpdateProject(project.ID, *project)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		c := common.ValidationError(err.Error())
+		return c.Render(r.Context(), w)
+	}
+
+	w.Header().Set("HX-Redirect", fmt.Sprintf("/projects/%d/docs", pages.GetProjectID(r)))
+	w.WriteHeader(http.StatusOK)
+	return nil
+}
+
+templ docsEdit(contents templ.Component, r *http.Request) {
+	<div class="min-h-screen flex items-start justify-center" hx-ext="response-targets">
+		<form
+			hx-patch={ fmt.Sprintf("/projects/%d/docs", pages.GetProjectID(r)) }
+			hx-target-400="#validation-error"
+			hx-target-401="#validation-error"
+			class="w-full max-w-4xl p-8"
+		>
+			<h2 class="text-3xl font-medium mb-4">Docs</h2>
+			<textarea
+				rows="30"
+				id="docs"
+				name="docs"
+				class="markdown-body input input-bordered input-primary w-full h-auto p-2 px-4 mb-4"
+				oninput="adjustTextareaHeight(this)"
+			>
+				@contents
+			</textarea>
+			<div id="validation-error" class="mb-4"></div>
+			<div class="flex justify-end space-x-2" hx-boost="true">
+				<a
+					class="btn btn-ghost btn-sm"
+					type="button"
+					href={ templ.SafeURL(fmt.Sprintf("/projects/%d/docs", pages.GetProjectID(r))) }
+				>
+					Cancel
+				</a>
+				<button class="btn btn-primary btn-sm" type="submit">Save</button>
+			</div>
+		</form>
+	</div>
+	<style>
+		.markdown-body {
+			box-sizing: border-box;
+			min-width: 200px;
+			max-width: 980px;
+			margin: 0 auto;
+			padding: 45px;
+		}
+
+		@media (max-width: 767px) {
+			.markdown-body {
+				padding: 15px;
+			}
+		}
+
+		/* Override goldmark highlighting extension background to Githubs */
+		.markdown-body pre {
+			background-color: #f6f8fa !important;
+		}
+	</style>
+	<script>
+		function adjustTextareaHeight(textarea) {
+			textarea.style.height = 'auto';  // Reset the height
+			textarea.style.height = textarea.scrollHeight + 'px';  // Set height to fit the content
+		}
+	</script>
+}

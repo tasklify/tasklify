@@ -10,6 +10,7 @@ sudo corepack enable # This will install and enable yarn
 go install github.com/go-task/task/v3/cmd/task@latest
 go install github.com/cosmtrek/air@latest
 go install github.com/a-h/templ/cmd/templ@latest
+go install github.com/onsi/ginkgo/v2/ginkgo@latest
 
 docker network create reverse-proxy
 ```
