@@ -539,7 +539,7 @@ func GetUnfinishedSessionDialog(w http.ResponseWriter, r *http.Request, params h
 		return err
 	}
 
-	c := UnfinishedSessionDialog(uint(taskID), uint(sprintID))
+	c := UnfinishedSessionDialog(uint(sprintID), uint(taskID))
 	return c.Render(r.Context(), w)
 }
 

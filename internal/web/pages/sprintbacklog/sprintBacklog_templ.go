@@ -39,7 +39,7 @@ func sprintBacklog(sprint *database.Sprint, projectRoles []database.ProjectRole,
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("\"> <button class=\"btn btn-primary btn-xs\">Back To Product Backlog</button></form><a href=\"https://github.com/tasklify/tasklify/tree/main?tab=readme-ov-file#sprint-backlog\" target=\"_blank\" class=\"help-button ml-4\" style=\"position: relative;top:0px;right:0px\">?</a></div><!-- Sprint Details --><div class=\"sprint-details flex justify-between items-center mb-4 p-2 shadow-lg bg-white rounded-lg\"><h2 class=\"font-bold text-lg\" style=\"padding-left: 15px;\">")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("\"> <button class=\"btn btn-primary btn-xs\">Back To Product Backlog</button></form><a href=\"/docs/sprint_backlog#sprint-backlog\" target=\"_blank\" class=\"help-button ml-4\" style=\"position: relative;top:0px;right:0px\">?</a></div><!-- Sprint Details --><div class=\"sprint-details flex justify-between items-center mb-4 p-2 shadow-lg bg-white rounded-lg\"><h2 class=\"font-bold text-lg\" style=\"padding-left: 15px;\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -564,7 +564,7 @@ func TaskRowSmall(task database.Task, userId uint, sprintID uint) templ.Componen
 				return templ_7745c5c3_Err
 			}
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</div><div class=\"logged-button\">")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</div><!-- Logs Button --><div class=\"logged-button\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

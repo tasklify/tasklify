@@ -184,7 +184,7 @@ templ LoggedTimeDialog(todayWS []database.WorkSession, otherWS []database.WorkSe
 	</div>
 }
 
-templ ChangeDurationDialog(ws database.WorkSession, taskID uint, sprintID uint, task database.Task) {
+templ ChangeDurationDialog(ws database.WorkSession, sprintID uint, taskID uint, task database.Task) {
 	<form id="duration-info" style="margin-bottom: -4px; margin-top: -4px;" hx-post={ fmt.Sprintf("/sprintbacklog/%v/task/%v/sessions/%v/change", sprintID, taskID, ws.ID) } hx-target="#logs-dialog" hx-target-303="#validation-error-logtime" class="flex">
 		<input type="text" name="duration" id="duration" value={ fmt.Sprintf("%v", common.FormatDuration(ws.Duration)) } class="input input-bordered input-xs" title="Enter duration in the format: XhXXm. Example: 1h30m for 1 hour and 30 minutes." style="width: 4.5rem; text-align: center;"/>
 		<button class="btn btn-primary btn-xs ml-1" type="submit">
@@ -195,7 +195,7 @@ templ ChangeDurationDialog(ws database.WorkSession, taskID uint, sprintID uint, 
 	</form>
 }
 
-templ DurationDialog(ws database.WorkSession, taskID uint, sprintID uint, task database.Task, isCreator bool) {
+templ DurationDialog(ws database.WorkSession, sprintID uint, taskID uint, task database.Task, isCreator bool) {
 	if isCreator {
 		<div class="input input-bordered input-ghost input-xs" hx-get={ fmt.Sprintf("/sprintbacklog/%v/task/%v/sessions/%v/change", sprintID, taskID, ws.ID) } hx-target={ fmt.Sprintf("#today-container-%v", ws.ID) } hx-swap="innerHTML" id="today-container" style="width: 4.5rem; text-align: center; padding-top: 2px; margin-bottom: -4px; margin-top: -4px;">
 			{ templ.JoinStringErrs(common.FormatDuration(ws.Duration)) }
@@ -220,7 +220,7 @@ templ UnfinishedSessionDialog(sprintID uint, taskID uint) {
 	</dialog>
 }
 
-templ ChangeRemainingDialog(ws database.WorkSession, taskID uint, sprintID uint, task database.Task) {
+templ ChangeRemainingDialog(ws database.WorkSession, sprintID uint, taskID uint, task database.Task) {
 	<form style="margin-bottom: -4px; margin-top: -4px;" hx-post={ fmt.Sprintf("/sprintbacklog/%v/task/%v/sessions/%v/changeremaining", sprintID, taskID, ws.ID) } hx-target="#logs-dialog" hx-target-303="#validation-error-logtime" class="flex">
 		<input type="text" name="remaining" id="remaining" value={ fmt.Sprintf("%v", common.FormatDuration(ws.Remaining)) } class="input input-bordered input-xs" title="Enter remaining duration in the format: XhXXm. Example: 1h30m for 1 hour and 30 minutes." style="width: 4.5rem; text-align: center;"/>
 		<button class="btn btn-primary btn-xs ml-1" type="submit">
@@ -231,7 +231,7 @@ templ ChangeRemainingDialog(ws database.WorkSession, taskID uint, sprintID uint,
 	</form>
 }
 
-templ RemainingDialog(ws database.WorkSession, taskID uint, sprintID uint, task database.Task, isCreator bool) {
+templ RemainingDialog(ws database.WorkSession, sprintID uint, taskID uint, task database.Task, isCreator bool) {
 	if isCreator {
 		<div class="input input-bordered input-ghost input-xs" hx-get={ fmt.Sprintf("/sprintbacklog/%v/task/%v/sessions/%v/changeremaining", sprintID, taskID, ws.ID) } hx-target={ fmt.Sprintf("#remaining-container-%v", ws.ID) } hx-swap="innerHTML" id="remaining-container" style="width: 4.5rem; text-align: center; padding-top: 2px; margin-bottom: -4px; margin-top: -4px;">
 			{ templ.JoinStringErrs(common.FormatDuration(ws.Remaining)) }
