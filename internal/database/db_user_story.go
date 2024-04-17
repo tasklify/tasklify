@@ -71,6 +71,12 @@ func (db *database) UserStoryInThisProjectAlreadyExists(title string, projectID 
 	return count > 0
 }
 
+func (db *database) UserStoryInThisProjectAlreadyExistsEdit(title string, projectID uint, userStoryID uint) bool {
+	var count int64
+	db.Model(&UserStory{}).Where("LOWER(title) = LOWER(?) AND project_id = ? AND id != ?", title, projectID, userStoryID).Count(&count)
+	return count > 0
+}
+
 func (db *database) AddUserStoryToSprint(sprintID uint, userStoryIDs []uint) (*Sprint, error) {
 	// Update user stories with the sprint ID
 	if err := db.Model(&UserStory{}).Where("id IN (?)", userStoryIDs).Update("sprint_id", sprintID).Error; err != nil {
@@ -113,4 +119,8 @@ func (userStory *UserStory) AllTasksRealized() bool {
 		}
 	}
 	return true
+}
+
+func (db *database) DeleteUserStory(userStoryID uint) error {
+	return db.Delete(&UserStory{}, userStoryID).Error
 }
