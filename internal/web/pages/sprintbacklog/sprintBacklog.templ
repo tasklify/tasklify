@@ -82,7 +82,7 @@ templ sprintBacklog(sprint *database.Sprint, projectRoles []database.ProjectRole
 								</tr>
 							</thead>
 							<tbody>
-								for _, task := range story.Tasks {
+								for _, task := range sortTasksByCreateDate(story.Tasks) {
 									if !*task.UserAccepted && task.UserID != nil && *task.UserID == userId {
 										<tr class="bg-warning shadow-lg">
 											@TaskRowSmall(task, userId, sprint.ID)
@@ -107,6 +107,16 @@ templ sprintBacklog(sprint *database.Sprint, projectRoles []database.ProjectRole
 			}
 		</div>
 	</div>
+}
+
+
+func sortTasksByCreateDate(tasks []database.Task) []database.Task {
+
+    sort.Slice(tasks, func(i, j int) bool {
+    		return tasks[i].CreatedAt.Before(tasks[j].CreatedAt)
+    })
+
+    return tasks
 }
 
 templ TaskRowSmall(task database.Task, userId uint, sprintID uint) {
