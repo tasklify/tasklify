@@ -4,7 +4,7 @@ import "tasklify/internal/database"
 import "fmt"
 import "tasklify/internal/web/components/common"
 
-templ LoggedTimeDialog(todayWS []database.WorkSession, otherWS []database.WorkSession, taskID uint, sprintID uint, task database.Task) {
+templ LoggedTimeDialog(todayWS []database.WorkSession, otherWS []database.WorkSession, taskID uint, sprintID uint, task database.Task, currentUserID uint) {
 	<div hx-ext="response-targets" id="logs-dialog">
 		<div id="create-dialog" hx-ext="response-targets" class="fixed top-0 left-0 w-full h-full bg-gray-700 bg-opacity-60 flex justify-center items-center z-50">
 			<form
@@ -12,15 +12,17 @@ templ LoggedTimeDialog(todayWS []database.WorkSession, otherWS []database.WorkSe
 				hx-target-401="#validation-error"
 				class="bg-white rounded-lg p-8 shadow-xl w-1/2 h-auto space-y-4"
 			>
+				<a href="/docs/logs#logs" target="_blank" class="help-button" style="padding-right=10rem;">?</a>
 				<div class="text-center">
-					<h2 class="text-2xl font-semibold text-gray-800 mb-6">Log Details</h2>
+					<h2 class="text-2xl font-semibold text-gray-800 mb-6">Task Logs</h2>
 					<div class="mb-4">
 						if len(otherWS) != 0 {
 							<h3 class="text-xl font-medium text-gray-700 mb-2 text-left">Past Logs</h3>
 							<table class="w-full text-xs rounded-md" style="table-layout: fixed;">
 								<thead class="bg-gray-200">
 									<tr class="p-2">
-										<th class="text-left p-2" style="width: 46%;">Date</th>
+										<th class="text-left p-2" style="width: 26%;">Date</th>
+										<th class="text-left p-2" style="width: 20%;">Logged by</th>
 										<th class="text-left p-2" style="width: 20%;">Duration</th>
 										<th class="text-left p-2" style="width: 20px;">Remaining</th>
 										<th class="text-left p-2" style="width: 14%;"></th>
@@ -30,10 +32,11 @@ templ LoggedTimeDialog(todayWS []database.WorkSession, otherWS []database.WorkSe
 									for _, ws := range otherWS {
 										<tr class="border-b">
 											<td class="p-2">{ ws.StartTime.Format("2006-01-02") }</td>
+											<td class="p-2">{ GetUserFirstAndLastNameFromID(ws.UserID) }</td>
 											<td class="p-2">
 												<div class="flex items-center">
 													<div id={ fmt.Sprintf("today-container-%v", ws.ID) }>
-														@DurationDialog(ws, sprintID, taskID, task)
+														@DurationDialog(ws, sprintID, taskID, task, ws.UserID == currentUserID)
 													</div>
 													if ws.LeftUnfinished {
 														<div class="pl-2">
@@ -48,17 +51,27 @@ templ LoggedTimeDialog(todayWS []database.WorkSession, otherWS []database.WorkSe
 											</td>
 											<td class="p-2">
 												<div id={ fmt.Sprintf("remaining-container-%v", ws.ID) }>
-													@RemainingDialog(ws, sprintID, taskID, task)
+													@RemainingDialog(ws, sprintID, taskID, task, ws.UserID == currentUserID)
 												</div>
 											</td>
 											<td style="display: flex; justify-content: flex-end; margin-right: 3px; margin-top: 3px;">
-												<div class="ml-2">
-													<button hx-delete={ fmt.Sprintf("/sprintbacklog/%v/task/%v/sessions/%v/stop", sprintID, taskID, ws.ID) } hx-confirm="Are you sure you want to delete this log?" hx-target="#dialog" class="btn btn-xs bg-primary" style="position: relative; z-index: 1;">
-														<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="white" class="w-5 h-5">
-															<path fill-rule="evenodd" d="M8.75 1A2.75 2.75 0 0 0 6 3.75v.443c-.795.077-1.584.176-2.365.298a.75.75 0 1 0 .23 1.482l.149-.022.841 10.518A2.75 2.75 0 0 0 7.596 19h4.807a2.75 2.75 0 0 0 2.742-2.53l.841-10.52.149.023a.75.75 0 0 0 .23-1.482A41.03 41.03 0 0 0 14 4.193V3.75A2.75 2.75 0 0 0 11.25 1h-2.5ZM10 4c.84 0 1.673.025 2.5.075V3.75c0-.69-.56-1.25-1.25-1.25h-2.5c-.69 0-1.25.56-1.25 1.25v.325C8.327 4.025 9.16 4 10 4ZM8.58 7.72a.75.75 0 0 0-1.5.06l.3 7.5a.75.75 0 1 0 1.5-.06l-.3-7.5Zm4.34.06a.75.75 0 1 0-1.5-.06l-.3 7.5a.75.75 0 1 0 1.5.06l.3-7.5Z" clip-rule="evenodd"></path>
-														</svg>
-													</button>
-												</div>
+												if ws.UserID == currentUserID {
+													<div class="ml-2">
+														<button hx-delete={ fmt.Sprintf("/sprintbacklog/%v/task/%v/sessions/%v/stop", sprintID, taskID, ws.ID) } hx-confirm="Are you sure you want to delete this log?" hx-target="#dialog" class="btn btn-xs bg-primary" style="position: relative; z-index: 1;">
+															<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="white" class="w-5 h-5">
+																<path fill-rule="evenodd" d="M8.75 1A2.75 2.75 0 0 0 6 3.75v.443c-.795.077-1.584.176-2.365.298a.75.75 0 1 0 .23 1.482l.149-.022.841 10.518A2.75 2.75 0 0 0 7.596 19h4.807a2.75 2.75 0 0 0 2.742-2.53l.841-10.52.149.023a.75.75 0 0 0 .23-1.482A41.03 41.03 0 0 0 14 4.193V3.75A2.75 2.75 0 0 0 11.25 1h-2.5ZM10 4c.84 0 1.673.025 2.5.075V3.75c0-.69-.56-1.25-1.25-1.25h-2.5c-.69 0-1.25.56-1.25 1.25v.325C8.327 4.025 9.16 4 10 4ZM8.58 7.72a.75.75 0 0 0-1.5.06l.3 7.5a.75.75 0 1 0 1.5-.06l-.3-7.5Zm4.34.06a.75.75 0 1 0-1.5-.06l-.3 7.5a.75.75 0 1 0 1.5.06l.3-7.5Z" clip-rule="evenodd"></path>
+															</svg>
+														</button>
+													</div>
+												} else {
+													<div class="ml-2" title="This log was not made by you, so you cannot delete it.">
+														<button hx-delete={ fmt.Sprintf("/sprintbacklog/%v/task/%v/sessions/%v/stop", sprintID, taskID, ws.ID) } hx-confirm="Are you sure you want to delete this log?" hx-target="#dialog" class="btn btn-xs bg-primary" style="position: relative; z-index: 1;" disabled>
+															<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="white" class="w-5 h-5">
+																<path fill-rule="evenodd" d="M8.75 1A2.75 2.75 0 0 0 6 3.75v.443c-.795.077-1.584.176-2.365.298a.75.75 0 1 0 .23 1.482l.149-.022.841 10.518A2.75 2.75 0 0 0 7.596 19h4.807a2.75 2.75 0 0 0 2.742-2.53l.841-10.52.149.023a.75.75 0 0 0 .23-1.482A41.03 41.03 0 0 0 14 4.193V3.75A2.75 2.75 0 0 0 11.25 1h-2.5ZM10 4c.84 0 1.673.025 2.5.075V3.75c0-.69-.56-1.25-1.25-1.25h-2.5c-.69 0-1.25.56-1.25 1.25v.325C8.327 4.025 9.16 4 10 4ZM8.58 7.72a.75.75 0 0 0-1.5.06l.3 7.5a.75.75 0 1 0 1.5-.06l-.3-7.5Zm4.34.06a.75.75 0 1 0-1.5-.06l-.3 7.5a.75.75 0 1 0 1.5.06l.3-7.5Z" clip-rule="evenodd"></path>
+															</svg>
+														</button>
+													</div>
+												}
 											</td>
 										</tr>
 									}
@@ -86,7 +99,8 @@ templ LoggedTimeDialog(todayWS []database.WorkSession, otherWS []database.WorkSe
 							<table class="w-full text-xs rounded-md" style="table-layout: fixed;">
 								<thead class="bg-gray-200">
 									<tr>
-										<th class="text-left p-2" style="width: 46%;">Date</th>
+										<th class="text-left p-2" style="width: 26%;">Date</th>
+										<th class="text-left p-2" style="width: 20%;">Logged by</th>
 										<th class="text-left p-2" style="width: 20%;">Duration</th>
 										<th class="text-left p-2" style="width: 20%;">Remaining</th>
 										<th class="text-left p-2" style="width: 14%;"></th>
@@ -97,23 +111,34 @@ templ LoggedTimeDialog(todayWS []database.WorkSession, otherWS []database.WorkSe
 										if ws.EndTime == nil {
 											<tr class="border-b">
 												<td class="p-2">{ ws.StartTime.Format("2006-01-02") }</td>
+												<td class="p-2">{ GetUserFirstAndLastNameFromID(ws.UserID) }</td>
 												<td class="p-2"></td>
 												<td class="p-2">
 													<div>ongoing</div>
 												</td>
-												<td><button class="btn btn-primary btn-xs" hx-post={ fmt.Sprintf("/sprintbacklog/%v/task/%v/sessions/%v/stop", sprintID, taskID, ws.ID) } hx-target="#logs-dialog">Stop</button></td>
+												<td style="display: flex; justify-content: flex-end; margin-right: 3px; margin-top: 3px;">
+													<button class="btn btn-primary btn-xs" hx-post={ fmt.Sprintf("/sprintbacklog/%v/task/%v/sessions/%v/stop", sprintID, taskID, ws.ID) } hx-target="#logs-dialog">
+														Stop
+													</button>
+													<div class="ml-2">
+														<button hx-delete={ fmt.Sprintf("/sprintbacklog/%v/task/%v/sessions/%v/stop", sprintID, taskID, ws.ID) } hx-confirm="Are you sure you want to delete this log?" hx-target="#dialog" class="btn btn-xs bg-primary" style="position: relative; z-index: 1;" disabled>
+															<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="white" class="w-5 h-5">
+																<path fill-rule="evenodd" d="M8.75 1A2.75 2.75 0 0 0 6 3.75v.443c-.795.077-1.584.176-2.365.298a.75.75 0 1 0 .23 1.482l.149-.022.841 10.518A2.75 2.75 0 0 0 7.596 19h4.807a2.75 2.75 0 0 0 2.742-2.53l.841-10.52.149.023a.75.75 0 0 0 .23-1.482A41.03 41.03 0 0 0 14 4.193V3.75A2.75 2.75 0 0 0 11.25 1h-2.5ZM10 4c.84 0 1.673.025 2.5.075V3.75c0-.69-.56-1.25-1.25-1.25h-2.5c-.69 0-1.25.56-1.25 1.25v.325C8.327 4.025 9.16 4 10 4ZM8.58 7.72a.75.75 0 0 0-1.5.06l.3 7.5a.75.75 0 1 0 1.5-.06l-.3-7.5Zm4.34.06a.75.75 0 1 0-1.5-.06l-.3 7.5a.75.75 0 1 0 1.5.06l.3-7.5Z" clip-rule="evenodd"></path>
+															</svg>
+														</button>
+													</div>
+												</td>
 											</tr>
 										} else {
 											<tr class="border-b">
 												<td class="p-2">{ ws.StartTime.Format("2006-01-02") }</td>
-												<td class="p-2">
-													<div id={ fmt.Sprintf("today-container-%v", ws.ID) }>
-														@DurationDialog(ws, sprintID, taskID, task)
-													</div>
+												<td class="p-2">{ GetUserFirstAndLastNameFromID(ws.UserID) }</td>
+												<td class="p-2" id={ fmt.Sprintf("today-container-%v", ws.ID) }>
+													@DurationDialog(ws, sprintID, taskID, task, ws.UserID == currentUserID)
 												</td>
 												<td class="p-2">
 													<div id={ fmt.Sprintf("remaining-container-%v", ws.ID) }>
-														@RemainingDialog(ws, sprintID, taskID, task)
+														@RemainingDialog(ws, sprintID, taskID, task, ws.UserID == currentUserID)
 													</div>
 												</td>
 												<td style="display: flex; justify-content: flex-end; margin-right: 3px; margin-top: 3px;">
@@ -152,7 +177,7 @@ templ LoggedTimeDialog(todayWS []database.WorkSession, otherWS []database.WorkSe
 				}
 				<div id="validation-error-logtime"></div>
 				<div class="flex justify-end mt-3">
-					<button class="btn btn-ghost" type="button" hx-get={ fmt.Sprint("/sprintbacklog/", sprintID) } hx-target="#whole">Close</button>
+					<button class="btn btn-ghost btn-sm mr-2" type="button" hx-on:click="dialog_container.close()">Close</button>
 				</div>
 			</form>
 		</div>
@@ -160,16 +185,26 @@ templ LoggedTimeDialog(todayWS []database.WorkSession, otherWS []database.WorkSe
 }
 
 templ ChangeDurationDialog(ws database.WorkSession, taskID uint, sprintID uint, task database.Task) {
-	<form id="duration-info" style="margin-bottom: 0px;" hx-post={ fmt.Sprintf("/sprintbacklog/%v/task/%v/sessions/%v/change", sprintID, taskID, ws.ID) } hx-target="#logs-dialog" hx-target-303="#validation-error-logtime">
-		<input type="text" name="duration" id="duration" value={ fmt.Sprintf("%v", common.FormatDuration(ws.Duration)) } class="input input-bordered w-20 input-xs mb-0" title="Enter duration in the format: XhXXm. Example: 1h30m for 1 hour and 30 minutes." style="margin-bottom: -20px;"/>
-		<button class="btn btn-primary btn-xs mb-0" style="margin-bottom: -20px;" type="submit">Change</button>
+	<form id="duration-info" style="margin-bottom: -4px; margin-top: -4px;" hx-post={ fmt.Sprintf("/sprintbacklog/%v/task/%v/sessions/%v/change", sprintID, taskID, ws.ID) } hx-target="#logs-dialog" hx-target-303="#validation-error-logtime" class="flex">
+		<input type="text" name="duration" id="duration" value={ fmt.Sprintf("%v", common.FormatDuration(ws.Duration)) } class="input input-bordered input-xs" title="Enter duration in the format: XhXXm. Example: 1h30m for 1 hour and 30 minutes." style="width: 4.5rem; text-align: center;"/>
+		<button class="btn btn-primary btn-xs ml-1" type="submit">
+			<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 15 15" fill="currentColor" width="15px" height="15px">
+				<path fill-rule="evenodd" d="M13.78 4.22a.75.75 0 0 1 0 1.06l-7 7a.75.75 0 0 1-1.06 0l-3.5-3.5a.75.75 0 1 1 1.06-1.06L6 10.94l6.72-6.72a.75.75 0 0 1 1.06 0z"></path>
+			</svg>
+		</button>
 	</form>
 }
 
-templ DurationDialog(ws database.WorkSession, taskID uint, sprintID uint, task database.Task) {
-	<div class="inline-block cursor-pointer" title="Click to edit" hx-get={ fmt.Sprintf("/sprintbacklog/%v/task/%v/sessions/%v/change", sprintID, taskID, ws.ID) } hx-target={ fmt.Sprintf("#today-container-%v", ws.ID) } hx-swap="innerHTML" id="today-container">
-		{ templ.JoinStringErrs(common.FormatDuration(ws.Duration)) }
-	</div>
+templ DurationDialog(ws database.WorkSession, taskID uint, sprintID uint, task database.Task, isCreator bool) {
+	if isCreator {
+		<div class="input input-bordered input-ghost input-xs" hx-get={ fmt.Sprintf("/sprintbacklog/%v/task/%v/sessions/%v/change", sprintID, taskID, ws.ID) } hx-target={ fmt.Sprintf("#today-container-%v", ws.ID) } hx-swap="innerHTML" id="today-container" style="width: 4.5rem; text-align: center; padding-top: 2px; margin-bottom: -4px; margin-top: -4px;">
+			{ templ.JoinStringErrs(common.FormatDuration(ws.Duration)) }
+		</div>
+	} else {
+		<div class="input input-bordered input-disabled input-xs" id="today-container" style="width: 4.5rem; text-align: center; padding-top: 2px; margin-bottom: -4px; margin-top: -4px;" title="This log was not made by you, so you cannot edit it.">
+			{ templ.JoinStringErrs(common.FormatDuration(ws.Duration)) }
+		</div>
+	}
 }
 
 templ UnfinishedSessionDialog(sprintID uint, taskID uint) {
@@ -186,16 +221,26 @@ templ UnfinishedSessionDialog(sprintID uint, taskID uint) {
 }
 
 templ ChangeRemainingDialog(ws database.WorkSession, taskID uint, sprintID uint, task database.Task) {
-	<form style="margin-bottom: 0px;" hx-post={ fmt.Sprintf("/sprintbacklog/%v/task/%v/sessions/%v/changeremaining", sprintID, taskID, ws.ID) } hx-target="#logs-dialog" hx-target-303="#validation-error-logtime">
-		<input type="text" name="remaining" id="remaining" value={ fmt.Sprintf("%v", common.FormatDuration(ws.Remaining)) } class="input input-bordered w-20 input-xs mb-0" title="Enter remaining duration in the format: XhXXm. Example: 1h30m for 1 hour and 30 minutes." style="margin-bottom: -20px;"/>
-		<button class="btn btn-primary btn-xs mb-0" style="margin-bottom: -20px;" type="submit">Change</button>
+	<form style="margin-bottom: -4px; margin-top: -4px;" hx-post={ fmt.Sprintf("/sprintbacklog/%v/task/%v/sessions/%v/changeremaining", sprintID, taskID, ws.ID) } hx-target="#logs-dialog" hx-target-303="#validation-error-logtime" class="flex">
+		<input type="text" name="remaining" id="remaining" value={ fmt.Sprintf("%v", common.FormatDuration(ws.Remaining)) } class="input input-bordered input-xs" title="Enter remaining duration in the format: XhXXm. Example: 1h30m for 1 hour and 30 minutes." style="width: 4.5rem; text-align: center;"/>
+		<button class="btn btn-primary btn-xs ml-1" type="submit">
+			<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 15 15" fill="currentColor" width="15px" height="15px">
+				<path fill-rule="evenodd" d="M13.78 4.22a.75.75 0 0 1 0 1.06l-7 7a.75.75 0 0 1-1.06 0l-3.5-3.5a.75.75 0 1 1 1.06-1.06L6 10.94l6.72-6.72a.75.75 0 0 1 1.06 0z"></path>
+			</svg>
+		</button>
 	</form>
 }
 
-templ RemainingDialog(ws database.WorkSession, taskID uint, sprintID uint, task database.Task) {
-	<div class="inline-block cursor-pointer" title="Click to edit" hx-get={ fmt.Sprintf("/sprintbacklog/%v/task/%v/sessions/%v/changeremaining", sprintID, taskID, ws.ID) } hx-target={ fmt.Sprintf("#remaining-container-%v", ws.ID) } hx-swap="innerHTML" id="remaining-container">
-		{ templ.JoinStringErrs(common.FormatDuration(ws.Remaining)) }
-	</div>
+templ RemainingDialog(ws database.WorkSession, taskID uint, sprintID uint, task database.Task, isCreator bool) {
+	if isCreator {
+		<div class="input input-bordered input-ghost input-xs" hx-get={ fmt.Sprintf("/sprintbacklog/%v/task/%v/sessions/%v/changeremaining", sprintID, taskID, ws.ID) } hx-target={ fmt.Sprintf("#remaining-container-%v", ws.ID) } hx-swap="innerHTML" id="remaining-container" style="width: 4.5rem; text-align: center; padding-top: 2px; margin-bottom: -4px; margin-top: -4px;">
+			{ templ.JoinStringErrs(common.FormatDuration(ws.Remaining)) }
+		</div>
+	} else {
+		<div class="input input-bordered input-disabled input-xs" id="remaining-container" style="width: 4.5rem; text-align: center; padding-top: 2px; margin-bottom: -4px; margin-top: -4px;" title="This log was not made by you, so you cannot edit it.">
+			{ templ.JoinStringErrs(common.FormatDuration(ws.Remaining)) }
+		</div>
+	}
 }
 
 templ createWorkSessionDialog(sprintID uint, taskID uint) {
@@ -207,7 +252,7 @@ templ createWorkSessionDialog(sprintID uint, taskID uint) {
 				class="bg-white rounded-lg p-8 shadow-xl w-1/2 h-auto space-y-4"
 				hx-post={ fmt.Sprintf("/sprintbacklog/%v/task/%v/add", sprintID, taskID) }
 			>
-				<a href="/docs/tasks#creating-tasks" target="_blank" class="help-button" style="padding-right=10rem;">?</a>
+				<a href="/docs/logs#logs" target="_blank" class="help-button" style="padding-right=10rem;">?</a>
 				<!-- Start Date Field -->
 				<div class="mb-4">
 					<label for="start_date" class="block text-sm font-medium text-gray-700">Start Date</label>
@@ -223,7 +268,7 @@ templ createWorkSessionDialog(sprintID uint, taskID uint) {
 				</div>
 				<div id="validation-error"></div>
 				<div class="flex justify-end mt-3">
-					<button class="btn btn-primary" type="submit">Create</button>
+					<button class="btn btn-primary" type="submit">Add log</button>
 					<button class="btn btn-ghost" type="button" hx-get={ fmt.Sprintf("/sprintbacklog/%v/task/%v/sessions", sprintID, taskID) } hx-target="#dialog">Close</button>
 				</div>
 			</form>

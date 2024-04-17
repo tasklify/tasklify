@@ -19,7 +19,7 @@ templ sprintBacklog(sprint *database.Sprint, projectRoles []database.ProjectRole
 						<input type="hidden" id="projectID" name="projectID" value={ fmt.Sprint(sprint.ProjectID) }/>
 						<button class="btn btn-primary btn-xs">Back To Product Backlog</button>
 					</form>
-					<a href="https://github.com/tasklify/tasklify/tree/main?tab=readme-ov-file#sprint-backlog" target="_blank" class="help-button ml-4" style="position: relative;top:0px;right:0px">?</a>
+					<a href="/docs/sprint_backlog#sprint-backlog" target="_blank" class="help-button ml-4" style="position: relative;top:0px;right:0px">?</a>
 				</div>
 				<!-- Sprint Details -->
 				<div class="sprint-details flex justify-between items-center mb-4 p-2 shadow-lg bg-white rounded-lg">
@@ -208,6 +208,7 @@ templ TaskRowSmall(task database.Task, userId uint, sprintID uint) {
 				</form>
 			}
 		</div>
+		<!-- Logs Button -->
 		<div class="logged-button">
 			if (GetTaskStatus(task) == "Active" || GetTaskStatus(task) == "Done") && (userId == *task.UserID) {
 				<form hx-get={ fmt.Sprintf("/sprintbacklog/%v/task/%v/sessions", sprintID, task.ID) } hx-target="#dialog">
