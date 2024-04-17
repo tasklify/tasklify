@@ -64,7 +64,7 @@ func StartWorkSession(w http.ResponseWriter, r *http.Request, params handlers.Re
 		return err
 	}
 
-	c := LoggedTimeDialog(todaysWS, otherWS, uint(taskID), uint(sprintID), *task)
+	c := LoggedTimeDialog(todaysWS, otherWS, uint(taskID), uint(sprintID), *task, params.UserID)
 	return c.Render(r.Context(), w)
 }
 
@@ -105,7 +105,7 @@ func ResumeWorkSession(w http.ResponseWriter, r *http.Request, params handlers.R
 		return err
 	}
 
-	c := LoggedTimeDialog(todaysWS, otherWS, uint(taskID), uint(sprintID), *task)
+	c := LoggedTimeDialog(todaysWS, otherWS, uint(taskID), uint(sprintID), *task, params.UserID)
 	return c.Render(r.Context(), w)
 }
 
@@ -151,7 +151,7 @@ func StopWorkSession(w http.ResponseWriter, r *http.Request, params handlers.Req
 		return err
 	}
 
-	c := LoggedTimeDialog(todaysWS, otherWS, uint(taskID), uint(sprintID), *task)
+	c := LoggedTimeDialog(todaysWS, otherWS, uint(taskID), uint(sprintID), *task, params.UserID)
 	return c.Render(r.Context(), w)
 }
 
@@ -186,7 +186,7 @@ func DeleteWorkSession(w http.ResponseWriter, r *http.Request, params handlers.R
 		return err
 	}
 
-	c := LoggedTimeDialog(todaysWS, otherWS, uint(taskID), uint(sprintID), *task)
+	c := LoggedTimeDialog(todaysWS, otherWS, uint(taskID), uint(sprintID), *task, params.UserID)
 	return c.Render(r.Context(), w)
 }
 
@@ -252,7 +252,7 @@ func GetLoggedTime(w http.ResponseWriter, r *http.Request, params handlers.Reque
 	}
 
 	otherWS = sortWorkSessionsByDate(otherWS)
-	c := LoggedTimeDialog(todaysWS, otherWS, uint(taskID), uint(sprintID), *task)
+	c := LoggedTimeDialog(todaysWS, otherWS, uint(taskID), uint(sprintID), *task, params.UserID)
 
 	return c.Render(r.Context(), w)
 
@@ -395,7 +395,7 @@ func PostChangeDuration(w http.ResponseWriter, r *http.Request, params handlers.
 
 	otherWS = sortWorkSessionsByDate(otherWS)
 
-	c := LoggedTimeDialog(todaysWS, otherWS, uint(taskID), uint(sprintID), *task)
+	c := LoggedTimeDialog(todaysWS, otherWS, uint(taskID), uint(sprintID), *task, params.UserID)
 
 	return c.Render(r.Context(), w)
 
@@ -503,7 +503,7 @@ func PostChangeRemaining(w http.ResponseWriter, r *http.Request, params handlers
 
 	otherWS = sortWorkSessionsByDate(otherWS)
 
-	c := LoggedTimeDialog(todaysWS, otherWS, uint(taskID), uint(sprintID), *task)
+	c := LoggedTimeDialog(todaysWS, otherWS, uint(taskID), uint(sprintID), *task, params.UserID)
 
 	return c.Render(r.Context(), w)
 
@@ -692,7 +692,12 @@ func PostStartPastWorkSession(w http.ResponseWriter, r *http.Request, params han
 
 	otherWS = sortWorkSessionsByDate(otherWS)
 
-	c := LoggedTimeDialog(todaysWS, otherWS, uint(taskID), uint(sprintID), *task)
+	c := LoggedTimeDialog(todaysWS, otherWS, uint(taskID), uint(sprintID), *task, params.UserID)
 
 	return c.Render(r.Context(), w)
+}
+
+func GetUserFirstAndLastNameFromID(userID uint) string {
+	user, _ := database.GetDatabase().GetUserByID(userID)
+	return user.FirstName + " " + user.LastName
 }
