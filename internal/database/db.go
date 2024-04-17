@@ -26,11 +26,15 @@ type Database interface {
 	CreateUserStory(userStory *UserStory) error
 	UpdateUserStory(userStory *UserStory) error
 	AddUserStoryToSprint(sprintID uint, userStories []uint) (*Sprint, error)
+	DeleteUserStory(userStoryID uint) error
 	GetUserStoriesLoad(userStoryIDs []uint) (uint, error)
 	GetUserStoriesByProject(projectID uint) ([]UserStory, error)
 	GetUserStoriesBySprint(sprintID uint) ([]UserStory, error)
 	GetUserStoryByID(id uint) (*UserStory, error)
+	GetAcceptanceTestsByUserStory(userStoryID uint) ([]AcceptanceTest, error)
+	DeleteAcceptanceTest(acceptanceTest *AcceptanceTest) error
 	UserStoryInThisProjectAlreadyExists(title string, projectID uint) bool
+	UserStoryInThisProjectAlreadyExistsEdit(title string, projectID uint, userStroyID uint) bool
 	GetTasksByUserStory(userStoryID uint) ([]Task, error)
 	CreateTask(task *Task) error
 	GetTaskByID(id uint) (*Task, error)

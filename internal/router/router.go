@@ -160,11 +160,22 @@ func Router() *chi.Mux {
 			"GET":  handlers.UnifiedHandler(handlers.AuthenticatedHandlerFunc(productbacklog.GetProductBacklog)),
 			"POST": handlers.UnifiedHandler(handlers.AuthenticatedHandlerFunc(productbacklog.PostAddUserStoryToSprint)),
 		})
+		r.Handle("/acceptancetest/add", ghandlers.MethodHandler{
+			"GET":  handlers.UnifiedHandler(handlers.AuthenticatedHandlerFunc(userstory.AddAcceptanceTest)),
+		})
+		r.Handle("/acceptancetest/delete", ghandlers.MethodHandler{
+			"GET":  handlers.UnifiedHandler(handlers.AuthenticatedHandlerFunc(userstory.DeleteAcceptanceTest)),
+		})
 		r.Handle("/userstory/{userStoryID}/remove-from-sprint", ghandlers.MethodHandler{
 			"POST": handlers.UnifiedHandler(handlers.AuthenticatedHandlerFunc(productbacklog.RemoveUserStoryFromSprint)),
 		})
 		r.Handle("/userstory/{userStoryID}/details", ghandlers.MethodHandler{
 			"GET": handlers.UnifiedHandler(handlers.AuthenticatedHandlerFunc(userstory.GetUserStoryDetails)),
+		})
+		r.Handle("/{projectID}/userstory/{userStoryID}", ghandlers.MethodHandler{
+			"GET": handlers.UnifiedHandler(handlers.AuthenticatedHandlerFunc(userstory.GetEditUserStory)),
+			"PUT": handlers.UnifiedHandler(handlers.AuthenticatedHandlerFunc(userstory.PutUserStory)),
+			"DELETE": handlers.UnifiedHandler(handlers.AuthenticatedHandlerFunc(userstory.DeleteUserStory)),
 		})
 		r.Handle("/userstory/{userStoryID}/accept", ghandlers.MethodHandler{
 			"POST": handlers.UnifiedHandler(handlers.AuthenticatedHandlerFunc(productbacklog.PostUserStoryAccepted)),
