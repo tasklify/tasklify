@@ -165,8 +165,60 @@ func (db *database) GetProjectHasUserByProjectAndUser(userID uint, projectID uin
 
 func (db *database) RemoveUsersNotInList(projectID uint, userIDs []uint) error {
 	if len(userIDs) == 0 {
-		return db.Where("project_id = ?", projectID).Delete(&ProjectHasUser{}).Error
+		projectHasUsers := []ProjectHasUser{}
+		if err := db.Where("project_id = ?", projectID).Preload("Tasks").Find(&projectHasUsers).Error; err != nil {
+			return err
+		}
+		return db.Where("project_id = ?", projectID).Delete(&projectHasUsers).Error
 	}
 
-	return db.Where("project_id = ? AND user_id NOT IN ?", projectID, userIDs).Delete(&ProjectHasUser{}).Error
+	projectHasUsers := []ProjectHasUser{}
+	if err := db.Where("project_id = ? AND user_id NOT IN ?", projectID, userIDs).Preload("Tasks").Find(&projectHasUsers).Error; err != nil {
+		return err
+	}
+
+	return db.Where("project_id = ? AND user_id NOT IN ?", projectID, userIDs).Delete(&projectHasUsers).Error
+}
+
+func (phu *ProjectHasUser) BeforeDelete(tx *gorm.DB) (err error) {
+	if err := phu.UnclaimUserTasks(tx); err != nil {
+		return err
+	}
+
+	return
+}
+
+func (phu *ProjectHasUser) UnclaimUserTasks(tx *gorm.DB) (err error) {
+	for _, task := range phu.Tasks {
+		// First, stop active time logging on this task
+		activeWS := []WorkSession{}
+		if err := tx.Where("user_id = ? AND end_time IS NULL AND task_id = ?", phu.UserID, task.ID).Find(&activeWS).Error; err != nil {
+			return err
+		}
+
+		for _, ws := range activeWS {
+			endTime := time.Now()
+			ws.Remaining = ws.Remaining - endTime.Sub(ws.StartTime)
+			if ws.Remaining < 0 {
+				ws.Remaining = 0
+			}
+			ws.EndTime = &endTime
+			ws.Duration += endTime.Sub(ws.StartTime)
+			ws.LeftUnfinished = false
+
+			if err = tx.Save(&ws).Error; err != nil {
+				return err
+			}
+		}
+
+		// Then, unclaim the task
+		task.UserAccepted = new(bool)
+		task.UserID = nil
+
+		if err = tx.Save(&task).Error; err != nil {
+			return err
+		}
+	}
+
+	return
 }

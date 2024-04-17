@@ -177,7 +177,7 @@ templ LoggedTimeDialog(todayWS []database.WorkSession, otherWS []database.WorkSe
 				}
 				<div id="validation-error-logtime"></div>
 				<div class="flex justify-end mt-3">
-					<button class="btn btn-ghost btn-sm mr-2" type="button" hx-on:click="dialog_container.close()">Close</button>
+					<button class="btn btn-ghost btn-sm mr-2" type="button" hx-on:click="dialog_container.close(); location.reload()">Close</button>
 				</div>
 			</form>
 		</div>
