@@ -142,7 +142,20 @@ templ LoggedTimeDialog(todayWS []database.WorkSession, otherWS []database.WorkSe
 													</div>
 												</td>
 												<td style="display: flex; justify-content: flex-end; margin-right: 3px; margin-top: 3px;">
-													<button class="btn btn-primary btn-xs" hx-post={ fmt.Sprintf("/sprintbacklog/%v/task/%v/sessions/%v/resume", sprintID, taskID, ws.ID) } hx-target="#logs-dialog">Resume</button>
+													<div
+														if task.Status.Val == database.StatusDone.Val {
+															title="Remaining time for this task is 0 so log cannot be resumed"
+														}
+													>
+														<button
+															class="btn btn-primary btn-xs"
+															hx-post={ fmt.Sprintf("/sprintbacklog/%v/task/%v/sessions/%v/resume", sprintID, taskID, ws.ID) }
+															hx-target="#logs-dialog"
+															if task.Status.Val == database.StatusDone.Val {
+																disabled
+															}
+														>Resume</button>
+													</div>
 													<div class="ml-2">
 														<button hx-delete={ fmt.Sprintf("/sprintbacklog/%v/task/%v/sessions/%v/stop", sprintID, taskID, ws.ID) } hx-confirm="Are you sure you want to delete this log?" hx-target="#dialog" class="btn btn-xs bg-primary" style="position: relative; z-index: 1;">
 															<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="white" class="w-5 h-5">
