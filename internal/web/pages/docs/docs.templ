@@ -14,14 +14,30 @@ func Docs(w http.ResponseWriter, r *http.Request) error {
 		return err
 	}
 
-	_, buf, err := internalDocs.ParseMDtoHTML([]byte(project.Docs))
+	_, buf, err := internalDocs.ParseMDtoHTMLorPDF([]byte(project.Docs), false, false)
 	if err != nil {
 		return err
 	}
 
 	c := content(buf.String())
 	c = docs(c, r)
-	return pages.Layout(c, project.Title, r).Render(r.Context(), w)
+	return pages.Layout(c, "Docs: "+project.Title, r).Render(r.Context(), w)
+}
+
+func DocsPDF(w http.ResponseWriter, r *http.Request) error {
+	project, err := database.GetDatabase().GetProjectByID(pages.GetProjectID(r))
+	if err != nil {
+		return err
+	}
+
+	_, buf, err := internalDocs.ParseMDtoHTMLorPDF([]byte(project.Docs), true, false)
+	if err != nil {
+		return err
+	}
+
+	w.Write(buf.Bytes())
+	w.WriteHeader(http.StatusOK)
+	return nil
 }
 
 templ docs(contents templ.Component, r *http.Request) {
@@ -30,11 +46,12 @@ templ docs(contents templ.Component, r *http.Request) {
 			<!-- markdown-body is for github-markdown.css -->
 			@contents
 		</main>
-		if pages.IsOnProject(r) {
-			<div class="p-8" hx-boost="true">
+		<div class="p-8" hx-boost="true">
+			if pages.IsOnProject(r) {
 				<a class="btn btn-primary" href={ templ.SafeURL(fmt.Sprintf("/projects/%d/docs/edit", pages.GetProjectID(r))) }>Edit</a>
-			</div>
-		}
+				<a class="btn btn-primary" href={ templ.SafeURL(fmt.Sprintf("/projects/%d/docs/pdf", pages.GetProjectID(r))) } target="_blank">Download PDF</a>
+			}
+		</div>
 	</div>
 	<style>
 		.markdown-body {
