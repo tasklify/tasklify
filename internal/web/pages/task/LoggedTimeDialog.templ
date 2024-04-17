@@ -167,7 +167,7 @@ templ ChangeDurationDialog(ws database.WorkSession, taskID uint, sprintID uint, 
 }
 
 templ DurationDialog(ws database.WorkSession, taskID uint, sprintID uint, task database.Task) {
-	<div hx-get={ fmt.Sprintf("/sprintbacklog/%v/task/%v/sessions/%v/change", sprintID, taskID, ws.ID) } hx-target={ fmt.Sprintf("#today-container-%v", ws.ID) } hx-swap="innerHTML" id="today-container">
+	<div class="inline-block cursor-pointer" title="Click to edit" hx-get={ fmt.Sprintf("/sprintbacklog/%v/task/%v/sessions/%v/change", sprintID, taskID, ws.ID) } hx-target={ fmt.Sprintf("#today-container-%v", ws.ID) } hx-swap="innerHTML" id="today-container">
 		{ templ.JoinStringErrs(common.FormatDuration(ws.Duration)) }
 	</div>
 }
@@ -193,7 +193,7 @@ templ ChangeRemainingDialog(ws database.WorkSession, taskID uint, sprintID uint,
 }
 
 templ RemainingDialog(ws database.WorkSession, taskID uint, sprintID uint, task database.Task) {
-	<div hx-get={ fmt.Sprintf("/sprintbacklog/%v/task/%v/sessions/%v/changeremaining", sprintID, taskID, ws.ID) } hx-target={ fmt.Sprintf("#remaining-container-%v", ws.ID) } hx-swap="innerHTML" id="remaining-container">
+	<div class="inline-block cursor-pointer" title="Click to edit" hx-get={ fmt.Sprintf("/sprintbacklog/%v/task/%v/sessions/%v/changeremaining", sprintID, taskID, ws.ID) } hx-target={ fmt.Sprintf("#remaining-container-%v", ws.ID) } hx-swap="innerHTML" id="remaining-container">
 		{ templ.JoinStringErrs(common.FormatDuration(ws.Remaining)) }
 	</div>
 }
