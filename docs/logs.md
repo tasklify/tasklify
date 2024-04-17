@@ -28,4 +28,9 @@ When a task is assigned, the assignee can begin logging time by clicking the **S
 
 - If a log has not been started today, and the predicted remaining time from the previous day is not 0, the user can start a log for today by clicking the **Start** button in the today's log section. This action will start an automatic timer, which can be paused and resumed as needed. The user can also manually edit the logged and remaining time for today's log by clicking on the duration/remaining time and modifying it. If the timer is not manually stopped within the same day, it will automatically halt at midnight, and the user will be alerted with a red exclamation mark.
 
-- If the predicted remaining time from the previous log or today's log is 0, the user can end the task by clicking the **End task** button. This action will mark the task as done and the user can no longer log time for the task.
+<!-- - If the predicted remaining time from the previous log or today's log is 0, the user can end the task by clicking the **End task** button. This action will mark the task as done and the user can no longer log time for the task. -->
+
+### End Task
+
+If the predicted remaining time from the previous log or today's log is 0, the task is automatically marked as **Done**. This indicates that work on the task is finished and the user can no longer log time for it.
+However, if the user wishes to resume work on the task at a later time, they can simply update the remaining time to a value greater than zero, and the task's status will revert to **In progress**.
