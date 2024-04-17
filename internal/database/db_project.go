@@ -8,6 +8,7 @@ type Project struct {
 	gorm.Model
 	Title            string            `gorm:"unique"`
 	Description      string            `gorm:"type:TEXT"`
+	Docs             string            `gorm:"type:TEXT"`
 	Developers       []User            `gorm:"many2many:project_has_users;"` // m:n (Project:User)
 	ProductOwnerID   uint              // 1:n (User:Project)
 	ProductOwner     User              `gorm:"-"`
@@ -77,4 +78,26 @@ func (db *database) GetUserProjects(userID uint) ([]Project, error) {
 
 func (db *database) UpdateProject(projectID uint, projectData Project) error {
 	return db.Model(&Project{}).Where("id = ?", projectID).Updates(projectData).Error
+}
+
+func (project Project) GetUserRoles(userID uint) []ProjectRole {
+	roles, err := databaseClient.GetProjectRoles(userID, project.ID)
+	if err != nil {
+		return []ProjectRole{}
+	}
+	return roles
+}
+
+func (project Project) GetActiveSprint() *Sprint {
+	sprints, err := databaseClient.GetSprintByProject(project.ID)
+	if err != nil {
+		return nil
+	}
+
+	for _, sprint := range sprints {
+		if sprint.DetermineStatus() == StatusInProgress {
+			return &sprint
+		}
+	}
+	return nil
 }

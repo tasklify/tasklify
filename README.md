@@ -10,6 +10,7 @@ sudo corepack enable # This will install and enable yarn
 go install github.com/go-task/task/v3/cmd/task@latest
 go install github.com/cosmtrek/air@latest
 go install github.com/a-h/templ/cmd/templ@latest
+go install github.com/onsi/ginkgo/v2/ginkgo@latest
 
 docker network create reverse-proxy
 ```
@@ -67,3 +68,7 @@ The Sprint Backlog page is a central hub for project participants, offering a cl
 
 - **Tasks and User Stories Breakdown**
   - The core of the page is dedicated to detailing the user stories within the sprint, along with their associated tasks. Each story is listed with options for deeper exploration or task creation, subject to the user's role and the story's completion status. Tasks are categorized by their current state: Unassigned, Assigned, Active, or Done, making it easy to gauge progress and workload at a glance. If a task has been assigned but not accepted by the user, it is displayed in the "Unassigned" section with a pending status.
+
+### Unassign Task
+
+A user assigned to a task has the option to unassign themselves from it by clicking on the **Unassign button** next to the "Assigned to" table rows in the user story tabels in the Sprint backlog page. After unassigning, a new **Assign button** appears, which allows a new user to assign the task to themselves.

@@ -9,10 +9,14 @@ import "context"
 import "io"
 import "bytes"
 
-import "net/http"
-import "tasklify/internal/auth"
-import "fmt"
-import "tasklify/internal/database"
+import (
+	"fmt"
+	"github.com/go-chi/chi/v5"
+	"net/http"
+	"strconv"
+	"tasklify/internal/auth"
+	"tasklify/internal/database"
+)
 
 func Layout(contents templ.Component, title string, r *http.Request) templ.Component {
 	return templ.ComponentFunc(func(ctx context.Context, templ_7745c5c3_W io.Writer) (templ_7745c5c3_Err error) {
@@ -90,13 +94,13 @@ func header(title string) templ.Component {
 		var templ_7745c5c3_Var3 string
 		templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinStringErrs(title)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/web/pages/layout.templ`, Line: 29, Col: 16}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/web/pages/layout.templ`, Line: 33, Col: 16}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var3))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</title><link rel=\"icon\" type=\"image/x-icon\" href=\"/static/assets/favicon.ico\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\"><meta name=\"htmx-config\" content=\"{&#34;responseTargetUnsetsError&#34;: false}\"><script src=\"/static/script/htmx.min.js\"></script><script src=\"/static/script/response-targets.js\"></script><link rel=\"stylesheet\" href=\"/static/css/style.css\"><link rel=\"stylesheet\" href=\"/static/css/github-markdown-light.css\"></head>")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</title><link rel=\"icon\" type=\"image/x-icon\" href=\"/static/assets/favicon.ico\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\"><meta name=\"htmx-config\" content=\"{&#34;responseTargetUnsetsError&#34;: false}\"><script src=\"/static/script/htmx.min.js\"></script><script src=\"/static/script/response-targets.js\"></script><script src=\"/static/script/apexcharts.min.js\"></script><link rel=\"stylesheet\" href=\"/static/css/style.css\"><link rel=\"stylesheet\" href=\"/static/css/github-markdown-light.css\"></head>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -124,7 +128,7 @@ func nav(r *http.Request) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		if isLoggedIn(r) {
+		if IsLoggedIn(r) {
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(" href=\"/dashboard\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
@@ -139,7 +143,7 @@ func nav(r *http.Request) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		if isLoggedIn(r) && IsAdmin(r) {
+		if IsLoggedIn(r) && IsAdmin(r) {
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<a class=\"btn btn-sm m-0.5\" href=\"/users\">Users</a>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
@@ -149,7 +153,7 @@ func nav(r *http.Request) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		if isLoggedIn(r) {
+		if IsLoggedIn(r) {
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div class=\"dropdown dropdown-hover dropdown-bottom dropdown-end ml-4 mr-2\"><div tabindex=\"0\" class=\"avatar max-w-full\"><div class=\"w-12 h-12 rounded-full\"><img src=\"/static/assets/tasklify_icon.svg\"></div></div><ul tabindex=\"0\" class=\"dropdown-content z-[10] menu p-2 shadow bg-base-100 rounded-box w-52\"><li><a class=\"btn btn-sm m-0.5\" hx-get=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
@@ -199,13 +203,41 @@ func footer() templ.Component {
 	})
 }
 
-func isLoggedIn(r *http.Request) bool {
+func IsLoggedIn(r *http.Request) bool {
 	sessionManager := auth.GetSession()
 	_, err := sessionManager.GetUserID(r)
 
 	isLoggedIn := err == nil // If error is nil, the user is considered logged in
 
 	return isLoggedIn
+}
+
+func GetProjectID(r *http.Request) uint {
+	projectIDInt, err := strconv.Atoi(chi.URLParam(r, "projectID"))
+	if err != nil {
+		return 0
+	}
+	projectID := uint(projectIDInt)
+
+	return projectID
+}
+
+func IsOnProject(r *http.Request) bool {
+	if !IsLoggedIn(r) {
+		return false
+	}
+
+	projectID := GetProjectID(r)
+
+	sessionManager := auth.GetSession()
+	userID, err := sessionManager.GetUserID(r)
+
+	_, err = database.GetDatabase().GetProjectHasUserByProjectAndUser(userID, projectID)
+	if err != nil {
+		return false
+	}
+
+	return true
 }
 
 func IsAdmin(r *http.Request) bool {

@@ -65,6 +65,7 @@ type Database interface {
 	AddUserStoryComment(comment UserStoryComment) error
 	EditUserStoryComment(userStoryID uint, commentID uint, body string) error
 	DeleteUserStoryComment(userStoryID uint, commentID uint) error
+	GetUserTasks(userID uint) ([]Task, error)
 	RawDB() *gorm.DB
 }
 
