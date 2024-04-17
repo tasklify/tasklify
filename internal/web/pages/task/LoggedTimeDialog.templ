@@ -159,13 +159,20 @@ templ LoggedTimeDialog(todayWS []database.WorkSession, otherWS []database.WorkSe
 						}
 					</div>
 				</div>
+				// if task.Status.Val != database.StatusDone.Val {
+				// 	if (len(todayWS) != 0  && todayWS[0].Remaining == 0) || (len(todayWS) == 0  && len(otherWS) != 0  && otherWS[len(otherWS)-1].Remaining == 0) {
+				// 		<div>
+				// 			<button class="btn btn-warning btn-sm" type="button" hx-post={ fmt.Sprintf("/sprintbacklog/%v/task/%v/end", sprintID, taskID) } hx-target="#whole">End Task</button>
+				// 		</div>
+				// 	} else {
+				// 		<div class="btn-container" title="Remaining time for this task is not 0.">
+				// 			<button class="btn btn-warning btn-sm" type="button" hx-get={ fmt.Sprintf("/sprintbacklog/%v", sprintID) } hx-target="#whole" disabled>End Task</button>
+				// 		</div>
+				// 	}
+				// }
 				if (len(todayWS) != 0  && todayWS[0].Remaining == 0) || (len(todayWS) == 0  && len(otherWS) != 0  && otherWS[len(otherWS)-1].Remaining == 0) {
-					<div>
-						<button class="btn btn-warning btn-sm" type="button" hx-get={ fmt.Sprintf("/sprintbacklog/%v", sprintID) } hx-target="#whole">End Task</button>
-					</div>
-				} else {
-					<div class="btn-container" title="Remaining time for this task is not 0.">
-						<button class="btn btn-warning btn-sm" type="button" hx-get={ fmt.Sprintf("/sprintbacklog/%v", sprintID) } hx-target="#whole" disabled>End Task</button>
+					<div class="bg-blue-100 border rounded-2xl border-blue-400 text-black px-4 py-3">
+						<span>This task is done because remaining time is zero. To make it active again, change the remaining time.</span>
 					</div>
 				}
 				<div id="validation-error-logtime"></div>

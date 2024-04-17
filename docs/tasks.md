@@ -1,9 +1,5 @@
 ---
 Title: Tasks
-Summary: Everything related to tasks
-Tags:
-- markdown
-- goldmark
 ---
 
 ## Creating Tasks
@@ -24,7 +20,7 @@ After filling out the necessary information, submit the form by clicking on the 
 
 Tasks can be edited by project developers and SCRUM master on the sprint backlog page. The fields that can be edited as follows:
 
-- **Title**: Short, descriptive title. 
+- **Title**: Short, descriptive title.
 - **Description**: Detailed description of what the task involves.
 - **Time Estimate**: Time needed to complete the task in hours. Use of decimals for partial hours (e.g., 1.5 for one and a half hours).
 
@@ -38,11 +34,11 @@ Tasks that are unassigned and have no logged time can be removed by clicking the
 
 - **Assign**
 
-    - A task that has no user assigned to it can be taken up by clicking on the **Assign button** next to the "Assigned to" column in the user story tables on the Sprint backlog page. Additionally, a project member can designate any user to a task via the task's creation or edit menu.
+  - A task that has no user assigned to it can be taken up by clicking on the **Assign button** next to the "Assigned to" column in the user story tables on the Sprint backlog page. Additionally, a project member can designate any user to a task via the task's creation or edit menu.
 
 - **Unassign**
 
-    - Users already assigned to a task can unassign themselves by selecting the **Unassign button** next to the "Assigned to" column in the user story tables on the Sprint backlog page.
+  - Users already assigned to a task can unassign themselves by selecting the **Unassign button** next to the "Assigned to" column in the user story tables on the Sprint backlog page.
 
 - **Accept/reject**
-    - If a user has been assigned to a task by another team member, they can either accept or reject this assignment. This is done by clicking on the **Accept or Reject buttons** located next to the "Assigned to" column in the user story table on the Sprint backlog page.
+  - If a user has been assigned to a task by another team member, they can either accept or reject this assignment. This is done by clicking on the **Accept or Reject buttons** located next to the "Assigned to" column in the user story table on the Sprint backlog page.

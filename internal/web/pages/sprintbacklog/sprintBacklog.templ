@@ -82,7 +82,7 @@ templ sprintBacklog(sprint *database.Sprint, projectRoles []database.ProjectRole
 								</tr>
 							</thead>
 							<tbody>
-								for _, task := range story.Tasks {
+								for _, task := range sortTasksByCreateDate(story.Tasks) {
 									if !*task.UserAccepted && task.UserID != nil && *task.UserID == userId {
 										<tr class="bg-warning shadow-lg">
 											@TaskRowSmall(task, userId, sprint.ID)
@@ -107,6 +107,16 @@ templ sprintBacklog(sprint *database.Sprint, projectRoles []database.ProjectRole
 			}
 		</div>
 	</div>
+}
+
+
+func sortTasksByCreateDate(tasks []database.Task) []database.Task {
+
+    sort.Slice(tasks, func(i, j int) bool {
+    		return tasks[i].CreatedAt.Before(tasks[j].CreatedAt)
+    })
+
+    return tasks
 }
 
 templ TaskRowSmall(task database.Task, userId uint, sprintID uint) {
@@ -200,7 +210,7 @@ templ TaskRowSmall(task database.Task, userId uint, sprintID uint) {
 		</div>
 		<!-- Logs Button -->
 		<div class="logged-button">
-			if (GetTaskStatus(task) == "Active") && (userId == *task.UserID) {
+			if (GetTaskStatus(task) == "Active" || GetTaskStatus(task) == "Done") && (userId == *task.UserID) {
 				<form hx-get={ fmt.Sprintf("/sprintbacklog/%v/task/%v/sessions", sprintID, task.ID) } hx-target="#dialog">
 					<button class="btn btn-xs">
 						<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-5 h-5">

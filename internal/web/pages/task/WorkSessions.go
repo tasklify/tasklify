@@ -78,11 +78,6 @@ func ResumeWorkSession(w http.ResponseWriter, r *http.Request, params handlers.R
 		return err
 	}
 
-	task, err := database.GetDatabase().GetTaskByID(uint(taskID))
-	if err != nil {
-		return err
-	}
-
 	sprintID, err := strconv.Atoi(chi.URLParam(r, "sprintID"))
 	if err != nil {
 		return err
@@ -105,6 +100,11 @@ func ResumeWorkSession(w http.ResponseWriter, r *http.Request, params handlers.R
 		return err
 	}
 
+	task, err := database.GetDatabase().GetTaskByID(uint(taskID))
+	if err != nil {
+		return err
+	}
+
 	c := LoggedTimeDialog(todaysWS, otherWS, uint(taskID), uint(sprintID), *task, params.UserID)
 	return c.Render(r.Context(), w)
 }
@@ -115,11 +115,6 @@ func StopWorkSession(w http.ResponseWriter, r *http.Request, params handlers.Req
 		return err
 	}
 	taskID, err := strconv.Atoi(chi.URLParam(r, "taskID"))
-	if err != nil {
-		return err
-	}
-	
-	task, err := database.GetDatabase().GetTaskByID(uint(taskID))
 	if err != nil {
 		return err
 	}
@@ -145,8 +140,13 @@ func StopWorkSession(w http.ResponseWriter, r *http.Request, params handlers.Req
 	if err != nil {
 		return err
 	}
-	
+
 	todaysWS, otherWS, err := FetchSessionsForTask(uint(taskID))
+	if err != nil {
+		return err
+	}
+
+	task, err := database.GetDatabase().GetTaskByID(uint(taskID))
 	if err != nil {
 		return err
 	}
@@ -155,18 +155,12 @@ func StopWorkSession(w http.ResponseWriter, r *http.Request, params handlers.Req
 	return c.Render(r.Context(), w)
 }
 
-
 func DeleteWorkSession(w http.ResponseWriter, r *http.Request, params handlers.RequestParams) error {
 	workSessionID, err := strconv.Atoi(chi.URLParam(r, "workSessionID"))
 	if err != nil {
 		return err
 	}
 	taskID, err := strconv.Atoi(chi.URLParam(r, "taskID"))
-	if err != nil {
-		return err
-	}
-	
-	task, err := database.GetDatabase().GetTaskByID(uint(taskID))
 	if err != nil {
 		return err
 	}
@@ -186,18 +180,17 @@ func DeleteWorkSession(w http.ResponseWriter, r *http.Request, params handlers.R
 		return err
 	}
 
-	c := LoggedTimeDialog(todaysWS, otherWS, uint(taskID), uint(sprintID), *task, params.UserID)
-	return c.Render(r.Context(), w)
-}
-
-
-func GetLoggedTime(w http.ResponseWriter, r *http.Request, params handlers.RequestParams) error {
-	taskID, err := strconv.Atoi(chi.URLParam(r, "taskID"))
+	task, err := database.GetDatabase().GetTaskByID(uint(taskID))
 	if err != nil {
 		return err
 	}
 
-	task, err := database.GetDatabase().GetTaskByID(uint(taskID))
+	c := LoggedTimeDialog(todaysWS, otherWS, uint(taskID), uint(sprintID), *task, params.UserID)
+	return c.Render(r.Context(), w)
+}
+
+func GetLoggedTime(w http.ResponseWriter, r *http.Request, params handlers.RequestParams) error {
+	taskID, err := strconv.Atoi(chi.URLParam(r, "taskID"))
 	if err != nil {
 		return err
 	}
@@ -252,6 +245,11 @@ func GetLoggedTime(w http.ResponseWriter, r *http.Request, params handlers.Reque
 	}
 
 	otherWS = sortWorkSessionsByDate(otherWS)
+	task, err := database.GetDatabase().GetTaskByID(uint(taskID))
+	if err != nil {
+		return err
+	}
+	
 	c := LoggedTimeDialog(todaysWS, otherWS, uint(taskID), uint(sprintID), *task, params.UserID)
 
 	return c.Render(r.Context(), w)
@@ -395,12 +393,17 @@ func PostChangeDuration(w http.ResponseWriter, r *http.Request, params handlers.
 
 	otherWS = sortWorkSessionsByDate(otherWS)
 
+	// Fetch task again, so the data that was changed in trigger "AfterUpdate" will be updated
+	task, err = database.GetDatabase().GetTaskByID(uint(taskID))
+	if err != nil {
+		return err
+	}
+
 	c := LoggedTimeDialog(todaysWS, otherWS, uint(taskID), uint(sprintID), *task, params.UserID)
 
 	return c.Render(r.Context(), w)
 
 }
-
 
 func GetChangeRemaining(w http.ResponseWriter, r *http.Request, params handlers.RequestParams) error {
 	sessionID, err := strconv.Atoi(chi.URLParam(r, "workSessionID"))
@@ -437,10 +440,6 @@ func PostChangeRemaining(w http.ResponseWriter, r *http.Request, params handlers
 		return err
 	}
 	taskID, err := strconv.Atoi(chi.URLParam(r, "taskID"))
-	if err != nil {
-		return err
-	}
-	task, err := database.GetDatabase().GetTaskByID(uint(taskID))
 	if err != nil {
 		return err
 	}
@@ -502,6 +501,11 @@ func PostChangeRemaining(w http.ResponseWriter, r *http.Request, params handlers
 	}
 
 	otherWS = sortWorkSessionsByDate(otherWS)
+
+	task, err := database.GetDatabase().GetTaskByID(uint(taskID))
+	if err != nil {
+		return err
+	}
 
 	c := LoggedTimeDialog(todaysWS, otherWS, uint(taskID), uint(sprintID), *task, params.UserID)
 
@@ -565,7 +569,7 @@ func GetStartPastWorkSession(w http.ResponseWriter, r *http.Request, params hand
 	if err != nil {
 		return err
 	}
-	
+
 	sprintID, err := strconv.Atoi(chi.URLParam(r, "sprintID"))
 	if err != nil {
 		return err
@@ -584,11 +588,10 @@ var timeConverter = func(value string) reflect.Value {
 	return reflect.Value{}
 }
 
-
 type WorkSessionFormData struct {
 	StartDate time.Time `schema:"start_date,required"`
-	Duration *float32 `schema:"duration,required"`
-	Remaining *float32 `schema:"remaining,required"`
+	Duration  *float32  `schema:"duration,required"`
+	Remaining *float32  `schema:"remaining,required"`
 }
 
 func PostStartPastWorkSession(w http.ResponseWriter, r *http.Request, params handlers.RequestParams) error {
@@ -629,13 +632,13 @@ func PostStartPastWorkSession(w http.ResponseWriter, r *http.Request, params han
 	}
 
 	//check if start date is before today7s dayso before the minight of today
-	if workSessionFormData.StartDate.After(time.Now().Truncate(24 * time.Hour)){
+	if workSessionFormData.StartDate.After(time.Now().Truncate(24 * time.Hour)) {
 		w.WriteHeader(http.StatusSeeOther)
 		c := common.ValidationError("Start date of a past log cannot be in the future.")
 		return c.Render(r.Context(), w)
 	}
 
-	if workSessionFormData.StartDate.Equal(time.Now().Truncate(24 * time.Hour)){
+	if workSessionFormData.StartDate.Equal(time.Now().Truncate(24 * time.Hour)) {
 		w.WriteHeader(http.StatusSeeOther)
 		c := common.ValidationError("Start date of a past log cannot be today. If you wish to start a log today, go back and click start.")
 		return c.Render(r.Context(), w)
@@ -657,13 +660,13 @@ func PostStartPastWorkSession(w http.ResponseWriter, r *http.Request, params han
 
 	// create new session
 	session := database.WorkSession{
-		StartTime: workSessionFormData.StartDate,
-		EndTime: &end,
-		Duration: time.Duration(*workSessionFormData.Duration * float32(time.Hour)),
-		Remaining: time.Duration(*workSessionFormData.Remaining * float32(time.Hour)),
-		TaskID: uint(taskID),
-		UserID: params.UserID,
-		OngoingToday: false,
+		StartTime:      workSessionFormData.StartDate,
+		EndTime:        &end,
+		Duration:       time.Duration(*workSessionFormData.Duration * float32(time.Hour)),
+		Remaining:      time.Duration(*workSessionFormData.Remaining * float32(time.Hour)),
+		TaskID:         uint(taskID),
+		UserID:         params.UserID,
+		OngoingToday:   false,
 		LeftUnfinished: false,
 	}
 

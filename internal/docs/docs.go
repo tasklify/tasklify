@@ -9,6 +9,7 @@ import (
 
 	chromahtml "github.com/alecthomas/chroma/v2/formatters/html"
 	"github.com/elliotchance/orderedmap/v2"
+	pdf "github.com/stephenafamo/goldmark-pdf"
 	"github.com/yuin/goldmark"
 	highlighting "github.com/yuin/goldmark-highlighting/v2"
 	meta "github.com/yuin/goldmark-meta"
@@ -72,7 +73,7 @@ func loadDocs() (*docs, error) {
 			return nil, err
 		}
 
-		title, buf, err := ParseMDtoHTML(source)
+		title, buf, err := ParseMDtoHTMLorPDF(source, false, true)
 		if err != nil {
 			return nil, err
 		}
@@ -92,8 +93,10 @@ func loadDocs() (*docs, error) {
 	return &docs{docsFS}, nil
 }
 
-func ParseMDtoHTML(source []byte) (title string, buf bytes.Buffer, err error) {
-	markdown := goldmark.New(
+func ParseMDtoHTMLorPDF(source []byte, outputPDF, metadata bool) (title string, buf bytes.Buffer, err error) {
+	var options []goldmark.Option
+
+	options = append(options,
 		goldmark.WithParserOptions(
 			parser.WithBlockParsers(),
 			parser.WithInlineParsers(),
@@ -110,18 +113,27 @@ func ParseMDtoHTML(source []byte) (title string, buf bytes.Buffer, err error) {
 			extension.GFM,
 			extension.DefinitionList,
 			extension.Footnote,
-			extension.Typographer,
+			// extension.Typographer, // Does not work with PDF
 			meta.Meta,
 			highlighting.NewHighlighting(
 				highlighting.WithFormatOptions(
 					chromahtml.WithLineNumbers(true),
 				),
 			),
-			&anchor.Extender{
-				Texter: anchor.Text("🔗"),
-			},
 		),
 	)
+
+	if outputPDF {
+		options = append(options, goldmark.WithRenderer(pdf.New()))
+	} else {
+		options = append(options, goldmark.WithExtensions(
+			&anchor.Extender{ // Does not work with PDF
+				Texter: anchor.Text("🔗"),
+			},
+		))
+	}
+
+	markdown := goldmark.New(options...)
 
 	context := parser.NewContext()
 	err = markdown.Convert(source, &buf, parser.WithContext(context))
@@ -129,7 +141,9 @@ func ParseMDtoHTML(source []byte) (title string, buf bytes.Buffer, err error) {
 		return
 	}
 
-	// metaData := meta.Get(context)
-	// title = metaData["Title"].(string)
+	if metadata {
+		metaData := meta.Get(context)
+		title = metaData["Title"].(string)
+	}
 	return
 }

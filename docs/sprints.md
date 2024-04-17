@@ -1,9 +1,5 @@
 ---
 Title: Sprints
-Summary: Everything related to sprints
-Tags:
-- markdown
-- goldmark
 ---
 
 ## Creating Sprints
