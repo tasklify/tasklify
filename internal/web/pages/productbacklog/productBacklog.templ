@@ -167,7 +167,9 @@ document.addEventListener("DOMContentLoaded", function() {
 											<tbody>
 												<!-- User stories rows -->
 												for _, v := range sprint.UserStories {
-													@userStoryTableRow(v, sprint.DetermineStatus(), projectRoles, "/productbacklog?projectID="+strconv.Itoa(int(projectID)))
+													if *v.Realized != true {
+														@userStoryTableRow(v, sprint.DetermineStatus(), projectRoles, "/productbacklog?projectID="+strconv.Itoa(int(projectID)))
+													}
 												}
 											</tbody>
 										</table>
