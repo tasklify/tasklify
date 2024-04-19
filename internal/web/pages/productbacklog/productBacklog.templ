@@ -85,7 +85,7 @@ document.addEventListener("DOMContentLoaded", function() {
 							<div class="collapse-title text-xl font-medium bg-base-300 text-base-500" style="display: flex; justify-content: space-between;">
 								<div>
 									{ sprint.Title }
-									<div class="text-sm text-gray-600">{ sprint.StartDate.Format("Mon Jan _2 2006") } - { sprint.EndDate.Format("Mon Jan _2 2006") }</div>
+									<div class="text-sm text-gray-600">{ sprint.StartDate.Format("02. 01. 2006") } - { sprint.EndDate.Format("02. 01. 2006") }</div>
 									<div class="text-sm text-gray-600">Velocity: { strconv.FormatFloat(float64(*sprint.Velocity), 'f', 2, 64) } spt</div>
 								</div>
 								if sprint.DetermineStatus() == database.StatusInProgress {
