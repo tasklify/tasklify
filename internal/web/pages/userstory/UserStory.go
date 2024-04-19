@@ -35,7 +35,8 @@ func PostUserStory(w http.ResponseWriter, r *http.Request, params handlers.Reque
 		Title           string            `schema:"title,required"`
 		Description     string            `schema:"description,required"`
 		Priority        database.Priority `schema:"priority,required"`
-		BusinessValue   int               `schema:"business_value,required"`
+		BusinessValue   uint              `schema:"business_value,required"`
+		StoryPoints     float64           `schema:"story_points,required"`
 		AcceptanceTests []string          `schema:"acceptanceTests"`
 	}
 	var userStoryData UserStoryFormData
@@ -60,10 +61,17 @@ func PostUserStory(w http.ResponseWriter, r *http.Request, params handlers.Reque
 		return c.Render(r.Context(), w)
 	}
 
+	if (userStoryData.StoryPoints < 0.1) || (userStoryData.StoryPoints > 999) {
+		w.WriteHeader(http.StatusBadRequest)
+		c := common.ValidationError("Story points must be between 0.1 and 999.")
+		return c.Render(r.Context(), w)
+	}
+
 	userStory := &database.UserStory{
 		Title:           userStoryData.Title,
 		Description:     &userStoryData.Description,
 		BusinessValue:   userStoryData.BusinessValue,
+		StoryPoints:     userStoryData.StoryPoints,
 		Priority:        userStoryData.Priority,
 		ProjectID:       uint(ProjectID),
 		Realized:        new(bool), // Defaults to false
@@ -143,7 +151,6 @@ func generateUUID() string {
 	return uuid
 }
 
-
 func AddAcceptanceTest(w http.ResponseWriter, r *http.Request, params handlers.RequestParams) error {
 	randUUID := generateUUID()
 	c := AcceptanceTestDialog(randUUID)
@@ -153,7 +160,6 @@ func AddAcceptanceTest(w http.ResponseWriter, r *http.Request, params handlers.R
 func DeleteAcceptanceTest(w http.ResponseWriter, r *http.Request, params handlers.RequestParams) error {
 	return nil
 }
-
 
 func GetUserStoryDetails(w http.ResponseWriter, r *http.Request, params handlers.RequestParams) error {
 	type RequestData struct {
@@ -209,7 +215,6 @@ func GetUserStoryDetails(w http.ResponseWriter, r *http.Request, params handlers
 
 }
 
-
 func GetEditUserStory(w http.ResponseWriter, r *http.Request, params handlers.RequestParams) error {
 	UserStoryID, err := strconv.Atoi(chi.URLParam(r, "userStoryID"))
 	if err != nil {
@@ -239,15 +244,14 @@ func GetEditUserStory(w http.ResponseWriter, r *http.Request, params handlers.Re
 	return c.Render(r.Context(), w)
 }
 
-
 func PutUserStory(w http.ResponseWriter, r *http.Request, params handlers.RequestParams) error {
 	type UserStoryFormData struct {
 		Title           string            `schema:"title,required"`
 		Description     string            `schema:"description,required"`
 		Priority        database.Priority `schema:"priority,required"`
-		BusinessValue   int               `schema:"business_value,required"`
+		BusinessValue   uint              `schema:"business_value,required"`
 		AcceptanceTests []string          `schema:"acceptanceTests"`
-		StoryPoints	 uint              `schema:"story_points"`
+		StoryPoints     float64           `schema:"story_points"`
 	}
 	var userStoryData UserStoryFormData
 	if err := decoder.Decode(&userStoryData, r.PostForm); err != nil {
@@ -275,6 +279,12 @@ func PutUserStory(w http.ResponseWriter, r *http.Request, params handlers.Reques
 	if (userStoryData.BusinessValue < 0) || (userStoryData.BusinessValue > 10) {
 		w.WriteHeader(http.StatusBadRequest)
 		c := common.ValidationError("Business value must be between 0 and 10.")
+		return c.Render(r.Context(), w)
+	}
+
+	if (userStoryData.StoryPoints < 0.1) || (userStoryData.StoryPoints > 999) {
+		w.WriteHeader(http.StatusBadRequest)
+		c := common.ValidationError("Story points must be between 0.1 and 999.")
 		return c.Render(r.Context(), w)
 	}
 
@@ -308,7 +318,7 @@ func PutUserStory(w http.ResponseWriter, r *http.Request, params handlers.Reques
 	for _, testDescription := range userStoryData.AcceptanceTests {
 		acceptanceTest := &database.AcceptanceTest{
 			Description: &testDescription,
-			Realized:   new(bool), // Defaults to false
+			Realized:    new(bool), // Defaults to false
 			UserStoryID: userStory.ID,
 		}
 		if err := database.GetDatabase().CreateAcceptanceTest(acceptanceTest); err != nil {
