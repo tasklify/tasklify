@@ -447,7 +447,7 @@ templ EditUserStoryDialog(userStory *database.UserStory) {
 					</div>
 					<div class="mb-4">
 						<label for="story_points" class="block text-sm font-medium text-gray-700">Story Points:</label>
-						<input type="number" id="story_points" name="story_points" class="input input-bordered input-primary w-full max-w-s mt-1" value={ strconv.Itoa(int(userStory.StoryPoints)) } required/>
+						<input type="number" id="story_points" name="story_points" class="input input-bordered input-primary w-full max-w-s mt-1" min="0" value={ strconv.Itoa(int(userStory.StoryPoints)) } required/>
 					</div>
 				</div>
 				<div id="validation-error"></div>

@@ -271,7 +271,7 @@ func PutUserStory(w http.ResponseWriter, r *http.Request, params handlers.Reques
 		c := common.ValidationError("User story with same title already exists.")
 		return c.Render(r.Context(), w)
 	}
-	fmt.Println(userStoryData)
+
 	if (userStoryData.BusinessValue < 0) || (userStoryData.BusinessValue > 10) {
 		w.WriteHeader(http.StatusBadRequest)
 		c := common.ValidationError("Business value must be between 0 and 10.")
