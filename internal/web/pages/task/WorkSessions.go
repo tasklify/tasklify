@@ -14,7 +14,7 @@ import (
 	"github.com/go-chi/chi/v5"
 )
 
-func sortWorkSessionsByDate(workSessions []database.WorkSession) []database.WorkSession {
+func SortWorkSessionsByDate(workSessions []database.WorkSession) []database.WorkSession {
 	sort.Slice(workSessions, func(i, j int) bool {
 		return workSessions[i].StartTime.Before(workSessions[j].StartTime)
 	})
@@ -244,12 +244,12 @@ func GetLoggedTime(w http.ResponseWriter, r *http.Request, params handlers.Reque
 		}
 	}
 
-	otherWS = sortWorkSessionsByDate(otherWS)
+	otherWS = SortWorkSessionsByDate(otherWS)
 	task, err := database.GetDatabase().GetTaskByID(uint(taskID))
 	if err != nil {
 		return err
 	}
-	
+
 	c := LoggedTimeDialog(todaysWS, otherWS, uint(taskID), uint(sprintID), *task, params.UserID)
 
 	return c.Render(r.Context(), w)
@@ -343,7 +343,7 @@ func PostChangeDuration(w http.ResponseWriter, r *http.Request, params handlers.
 		return err
 	}
 
-	workSessions = sortWorkSessionsByDate(workSessions)
+	workSessions = SortWorkSessionsByDate(workSessions)
 
 	var lastSession *database.WorkSession
 	for _, ws := range workSessions {
@@ -379,7 +379,7 @@ func PostChangeDuration(w http.ResponseWriter, r *http.Request, params handlers.
 		return err
 	}
 
-	workSessions = sortWorkSessionsByDate(workSessions)
+	workSessions = SortWorkSessionsByDate(workSessions)
 
 	todaysWS := []database.WorkSession{}
 	otherWS := []database.WorkSession{}
@@ -391,7 +391,7 @@ func PostChangeDuration(w http.ResponseWriter, r *http.Request, params handlers.
 		}
 	}
 
-	otherWS = sortWorkSessionsByDate(otherWS)
+	otherWS = SortWorkSessionsByDate(otherWS)
 
 	// Fetch task again, so the data that was changed in trigger "AfterUpdate" will be updated
 	task, err = database.GetDatabase().GetTaskByID(uint(taskID))
@@ -488,7 +488,7 @@ func PostChangeRemaining(w http.ResponseWriter, r *http.Request, params handlers
 		return err
 	}
 
-	workSessions = sortWorkSessionsByDate(workSessions)
+	workSessions = SortWorkSessionsByDate(workSessions)
 
 	todaysWS := []database.WorkSession{}
 	otherWS := []database.WorkSession{}
@@ -500,7 +500,7 @@ func PostChangeRemaining(w http.ResponseWriter, r *http.Request, params handlers
 		}
 	}
 
-	otherWS = sortWorkSessionsByDate(otherWS)
+	otherWS = SortWorkSessionsByDate(otherWS)
 
 	task, err := database.GetDatabase().GetTaskByID(uint(taskID))
 	if err != nil {
@@ -559,7 +559,7 @@ func FetchSessionsForTask(taskID uint) ([]database.WorkSession, []database.WorkS
 		}
 	}
 
-	otherWS = sortWorkSessionsByDate(otherWS)
+	otherWS = SortWorkSessionsByDate(otherWS)
 
 	return todaysWS, otherWS, nil
 }
@@ -681,7 +681,7 @@ func PostStartPastWorkSession(w http.ResponseWriter, r *http.Request, params han
 		return err
 	}
 
-	workSessions = sortWorkSessionsByDate(workSessions)
+	workSessions = SortWorkSessionsByDate(workSessions)
 
 	todaysWS := []database.WorkSession{}
 	otherWS := []database.WorkSession{}
@@ -693,7 +693,7 @@ func PostStartPastWorkSession(w http.ResponseWriter, r *http.Request, params han
 		}
 	}
 
-	otherWS = sortWorkSessionsByDate(otherWS)
+	otherWS = SortWorkSessionsByDate(otherWS)
 
 	c := LoggedTimeDialog(todaysWS, otherWS, uint(taskID), uint(sprintID), *task, params.UserID)
 

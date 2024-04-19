@@ -13,6 +13,7 @@ import (
 	"tasklify/internal/web/pages/productbacklog"
 	"tasklify/internal/web/pages/project"
 	"tasklify/internal/web/pages/projectinfo"
+	"tasklify/internal/web/pages/projectstats"
 	"tasklify/internal/web/pages/projectwall"
 	"tasklify/internal/web/pages/sprint"
 	"tasklify/internal/web/pages/sprintbacklog"
@@ -20,8 +21,6 @@ import (
 	"tasklify/internal/web/pages/users"
 	userSlug "tasklify/internal/web/pages/users/slug"
 	"tasklify/internal/web/pages/userstory"
-
-	"tasklify/internal/web/pages/stats"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
@@ -46,8 +45,6 @@ func Router() *chi.Mux {
 			// TODO: CORS
 			middleware.Compress(5),
 		)
-
-		// Public
 
 		r.Get("/docs", handlers.DocsHandler(internalDocs.RenderDoc))
 		r.Handle("/docs/*", http.StripPrefix("/docs/", handlers.DocsHandler(internalDocs.RenderDoc)))
@@ -242,7 +239,7 @@ func Router() *chi.Mux {
 		})
 
 		r.Handle("/projects/{projectID}/stats", ghandlers.MethodHandler{
-			"GET": handlers.UnifiedHandler(handlers.AuthenticatedHandlerFunc(stats.Stats)),
+			"GET": handlers.UnifiedHandler(handlers.AuthenticatedHandlerFunc(projectstats.ProjectStats)),
 		})
 		r.Handle("/projects/{projectID}/docs", ghandlers.MethodHandler{
 			"GET":   handlers.UnifiedHandler(handlers.PlainHandlerFunc(projectDocs.Docs)),

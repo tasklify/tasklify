@@ -9,8 +9,8 @@ type UserStory struct {
 	Title             string
 	Description       *string `gorm:"type:TEXT"`
 	Priority          Priority
-	BusinessValue     int
-	StoryPoints       uint
+	BusinessValue     uint
+	StoryPoints       float64
 	Realized          *bool
 	RejectionComment  *string `gorm:"type:TEXT"`
 	WorkflowStepID    *uint   // 1:1 (WorkflowStep:UserStory)

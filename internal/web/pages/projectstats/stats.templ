@@ -1,0 +1,253 @@
+package projectstats
+
+import (
+	"tasklify/internal/handlers"
+	"tasklify/internal/database"
+	"tasklify/internal/web/pages"
+	"net/http"
+	"time"
+	"tasklify/internal/web/components/common"
+	"tasklify/internal/web/pages/task"
+	"sort"
+	"fmt"
+)
+
+type StatsData struct {
+	StoryPoints float64
+	Realized    bool
+	StartDate   time.Time
+	EndDate     *time.Time
+}
+
+type ChartDataPoint struct {
+	X string  `json:"x"`
+	Y float64 `json:"y"`
+}
+
+type ChartSeries struct {
+	Name string           `json:"name"`
+	Data []ChartDataPoint `json:"data"`
+}
+
+func ProjectStats(w http.ResponseWriter, r *http.Request, params handlers.RequestParams) error {
+	projectID := pages.GetProjectID(r)
+
+	project, err := database.GetDatabase().GetProjectByID(projectID)
+	if err != nil {
+		return err
+	}
+
+	sprints, err := database.GetDatabase().GetSprintByProject(projectID)
+	if err != nil {
+		return err
+	}
+
+	statsData, err := getStatsDataRaw(sprints)
+	if err != nil {
+		return err
+	}
+
+	totalPoints, realizedPoints, err := getStatsData(statsData)
+	if err != nil {
+		return err
+	}
+
+	fmt.Println(statsData)
+	fmt.Println(totalPoints, realizedPoints)
+	fmt.Println()
+
+	chartData, dataPoints := getStatsDataIntoChartData(totalPoints, realizedPoints)
+
+	user, err := database.GetDatabase().GetUserByID(params.UserID)
+	if err != nil {
+		return err
+	}
+	projectRoles, _ := database.GetDatabase().GetProjectRoles(params.UserID, projectID)
+
+	c := stats(*project, projectRoles, user.SystemRole, chartData, dataPoints)
+	return pages.Layout(c, "Stats", r).Render(r.Context(), w)
+}
+
+templ stats(project database.Project, projectRoles []database.ProjectRole, user_SystemRole database.SystemRole, chartData []ChartSeries, dataPoints []string) {
+	@common.ProjectNavbar(project, projectRoles, user_SystemRole, "project_stats") {
+		<div class="min-h-screen">
+			<div id="chart" class="w-3/4"></div>
+		</div>
+		@graph(chartData, dataPoints)
+	}
+}
+
+script graph(chartData []ChartSeries, dataPoints []string) {
+	var startDate = chartData[0].data[0].x; // First date in the first series
+	var endDate = chartData[0].data[chartData[0].data.length - 1].x; // Last date in the first series
+
+	console.log(startDate, endDate)
+
+	var options = {
+		series: chartData,
+          chart: {
+          height: 500,
+          type: 'area',
+		  zoom: {
+            autoScaleYaxis: false
+          },
+        },
+        stroke: {
+          curve: 'smooth'
+        },
+        xaxis: {
+			type: 'datetime',
+			min: new Date(startDate).getTime(), // Sets the minimum boundary
+        	max: new Date(endDate).getTime(), // Sets the maximum boundary
+        },
+        tooltip: {
+          x: {
+            format: 'yyyy-MM-dd'
+          },
+        },
+	}
+
+	// Get the chart container element
+	var chartContainer = document.querySelector('#chart');
+
+	// Function to clear all child elements from a node
+	function clearNode(node) {
+		while (node.firstChild) {
+			node.removeChild(node.firstChild);
+		}
+	}
+
+	// Check if the chart container exists, clear it and render the chart
+	if (chartContainer) {
+		clearNode(chartContainer);
+
+		// Create and render the chart
+		var chart = new ApexCharts(chartContainer, options);
+		chart.render();
+		//console.log({ realizedPoints });
+	} else {
+		console.log("Chart container not found.");
+	}
+}
+
+func getStatsDataRaw(sprints []database.Sprint) ([]StatsData, error) {
+	var statsData []StatsData
+	for _, sprint := range sprints {
+		if database.StatusTodo != sprint.DetermineStatus() {
+			userStories, err := database.GetDatabase().GetUserStoriesBySprint(sprint.ID)
+			if err != nil {
+				return nil, err
+			}
+
+			for _, userStory := range userStories {
+
+				tasks, err := database.GetDatabase().GetTasksByUserStory(userStory.ID)
+				if err != nil {
+					return nil, err
+				}
+
+				var userStoryWorkSessions []database.WorkSession
+				for _, task := range tasks {
+
+					workSessions, err := database.GetDatabase().GetWorkSessionsForTask(task.ID)
+					if err != nil {
+						return nil, err
+					}
+
+					userStoryWorkSessions = append(userStoryWorkSessions, workSessions...)
+				}
+
+				userStoryWorkSessions = task.SortWorkSessionsByDate(userStoryWorkSessions)
+
+				var realized bool
+
+				realizedTemp := userStory.Realized
+				if realizedTemp != nil {
+					realized = *realizedTemp
+				}
+
+				temp := StatsData{
+					StoryPoints: userStory.StoryPoints,
+					Realized:    realized,
+					StartDate:   sprint.StartDate,
+				}
+
+				if realized {
+					temp.EndDate = userStoryWorkSessions[len(userStoryWorkSessions)-1].EndTime
+				}
+
+				statsData = append(statsData, temp)
+			}
+		}
+	}
+
+	return statsData, nil
+}
+
+func getStatsData(statsDataRaw []StatsData) (totalPoints, realizedPoints map[time.Time]float64, err error) {
+	sort.Slice(statsDataRaw, func(i, j int) bool {
+		return statsDataRaw[i].StartDate.Before(statsDataRaw[j].StartDate)
+	})
+
+	startDate := statsDataRaw[0].StartDate
+	endDate := time.Now().Truncate(24 * time.Hour) // Use current day as the end point
+
+	totalPoints = make(map[time.Time]float64)
+	realizedPoints = make(map[time.Time]float64)
+	currentTotal := 0.0
+
+	// Initialize realized points to zero for all potential dates
+	for _, d := range statsDataRaw {
+		if _, exists := realizedPoints[d.StartDate]; !exists {
+			realizedPoints[d.StartDate] = 0
+		}
+	}
+
+	// Calculate total story points added and realized up to each day
+	for _, d := range statsDataRaw {
+		currentTotal += d.StoryPoints
+		totalPoints[d.StartDate] = currentTotal
+		if d.Realized && d.EndDate != nil {
+			realizedPoints[*d.EndDate] += d.StoryPoints
+		}
+	}
+
+	// Ensure every day has an entry in the maps
+	for date := startDate; !date.After(endDate); date = date.AddDate(0, 0, 1) {
+		if _, exists := totalPoints[date]; !exists {
+			totalPoints[date] = currentTotal
+		}
+		if _, exists := realizedPoints[date]; !exists {
+			realizedPoints[date] = 0
+		}
+	}
+
+	return
+}
+
+func getStatsDataIntoChartData(totalPoints, realizedPoints map[time.Time]float64) ([]ChartSeries, []string) {
+	var actualSeriesData []ChartDataPoint
+	var expectedSeriesData []ChartDataPoint
+	var dataPoints []string
+	remainingPoints := 0.0 // starting points
+
+	for _, points := range totalPoints {
+		remainingPoints += points
+	}
+
+	for date, points := range totalPoints {
+		parsedDate := date.Format(time.DateOnly)
+
+		remainingPoints -= realizedPoints[date]
+		actualSeriesData = append(actualSeriesData, ChartDataPoint{X: parsedDate, Y: remainingPoints})
+		expectedSeriesData = append(expectedSeriesData, ChartDataPoint{X: parsedDate, Y: points})
+		dataPoints = append(dataPoints, parsedDate)
+	}
+
+	actualSeries := ChartSeries{Name: "Actual Story Points", Data: actualSeriesData}
+	expectedSeries := ChartSeries{Name: "Expected/remaining Story Points", Data: expectedSeriesData}
+
+	chartData := []ChartSeries{actualSeries, expectedSeries}
+
+	return chartData, dataPoints
+}
