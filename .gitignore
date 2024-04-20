@@ -16,6 +16,9 @@
 # Go workspace file
 go.work
 
+# Testing/coverage report
+coverage_report
+
 ## Other than Golang ##
 
 # compiled using TailwindCSS or managed by yarn
