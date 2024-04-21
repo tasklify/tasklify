@@ -101,3 +101,17 @@ func (project Project) GetActiveSprint() *Sprint {
 	}
 	return nil
 }
+
+func (db *database) DeleteProject(projectID uint) error {
+	// Delete project
+	if err := db.Unscoped().Delete(&Project{}, projectID).Error; err != nil {
+		return err
+	}
+
+	// Also remove all users from that project
+	if err := db.Unscoped().Where("project_id = ?", projectID).Delete(&ProjectHasUser{}).Error; err != nil {
+		return err
+	}
+
+	return nil
+}
