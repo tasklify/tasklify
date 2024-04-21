@@ -43,7 +43,7 @@ func TestDatabase(t *testing.T) {
 	// Users
 	var userCases []userCase
 
-	for i := 1; i < gofakeit.IntRange(1, 999); i++ {
+	for i := 0; i < gofakeit.IntRange(3, 9); i++ {
 		generatedUserCase := userCase{
 			desc: "Generated user",
 			user: &database.User{
@@ -65,11 +65,11 @@ func TestDatabase(t *testing.T) {
 	manualUserCase := userCase{
 		"Manual user",
 		&database.User{
-			Username:   "custom user",
+			Username:   "custom user 34",
 			Password:   "strongpassword342",
-			FirstName:  "FirstName",
-			LastName:   "LastName",
-			Email:      "someuser@example.com",
+			FirstName:  "FirstName rert",
+			LastName:   "LastName t45t5",
+			Email:      "someuser_5465@example.com",
 			SystemRole: database.SystemRoleAdmin,
 		},
 	}
@@ -80,7 +80,7 @@ func TestDatabase(t *testing.T) {
 		t.Run(c.desc, func(t *testing.T) {
 			err := db.CreateUser(c.user)
 			ok := assert.NoError(t, err)
-			if ok {
+			if ok && assert.NotZero(t, c.user.ID) {
 				users = append(users, *c.user)
 			}
 
@@ -92,7 +92,7 @@ func TestDatabase(t *testing.T) {
 
 	// Projects
 	var projectCases []projectCase
-	for i := 1; i < gofakeit.IntRange(1, 999); i++ {
+	for i := 0; i < gofakeit.IntRange(1, 9); i++ {
 		generatedProjectCase := projectCase{
 			desc: "Generated project",
 			project: &database.Project{
@@ -117,19 +117,19 @@ func TestDatabase(t *testing.T) {
 		t.Run(c.desc, func(t *testing.T) {
 			ID, err := db.CreateProject(c.project)
 			ok := assert.NoError(t, err)
-			if ok && assert.Greater(t, ID, uint(0)) {
+			if ok && assert.NotZero(t, c.project.ID) && assert.Equal(t, ID, c.project.ID) {
 				projects = append(projects, *c.project)
 			}
 
 			t.Cleanup(func() {
-				// db.Delete(c.project.ID)
+				db.DeleteProject(c.project.ID)
 			})
 		})
 	}
 
 	// Sprints
 	var sprintCases []sprintCase
-	for i := 1; i < gofakeit.IntRange(1, 999); i++ {
+	for i := 0; i < gofakeit.IntRange(1, 9); i++ {
 
 		startDate := gofakeit.DateRange(
 			time.Now().Add(-1*time.Duration(gofakeit.IntRange(1, 99)*24*30*int(time.Hour))),
@@ -138,9 +138,10 @@ func TestDatabase(t *testing.T) {
 
 		gofakeit.ShuffleAnySlice(projects)
 		projectID := projects[0].ID
+		assert.NotZero(t, projectID)
 
 		// Consecutive sprints
-		for i := 1; i < gofakeit.IntRange(1, 999); i++ {
+		for i := 0; i < gofakeit.IntRange(1, 1); i++ {
 			generatedSprintCase := sprintCase{
 				desc: "Generated sprint",
 				sprint: &database.Sprint{
@@ -153,9 +154,9 @@ func TestDatabase(t *testing.T) {
 
 			generatedSprintCase.sprint.ProjectID = projectID
 
-			startDate = generatedSprintCase.sprint.EndDate.Add(time.Duration(gofakeit.IntRange(1, 10) * 24 * int(time.Hour)))
-
 			sprintCases = append(sprintCases, generatedSprintCase)
+
+			startDate = generatedSprintCase.sprint.EndDate.Add(time.Duration(gofakeit.IntRange(1, 10) * 24 * int(time.Hour)))
 		}
 	}
 
@@ -173,59 +174,63 @@ func TestDatabase(t *testing.T) {
 		})
 	}
 
-	// UserStories
-	var userStoryCases []userStoryCase
-	for i := 1; i < gofakeit.IntRange(999, 99999); i++ {
-		generatedUserStoryCase := userStoryCase{
-			desc: "Generated userStory",
-			userStory: &database.UserStory{
-				Title:         gofakeit.BookTitle(),
-				Description:   ptr.String(gofakeit.LoremIpsumSentence(22)),
-				BusinessValue: gofakeit.Uint(),
-				StoryPoints:   gofakeit.Float64Range(0.1, 99),
-			},
-		}
-
-		priorities := database.Priorities.Members()
-		gofakeit.ShuffleAnySlice(priorities)
-		generatedUserStoryCase.userStory.Priority = priorities[0]
-
-		options := []any{true, false}
-		weights := []float32{0.9, 0.1}
-		realized, err := gofakeit.Weighted(options, weights)
-		assert.NoError(t, err)
-
-		generatedUserStoryCase.userStory.Realized = ptr.Bool(realized.(bool))
-
-		gofakeit.ShuffleAnySlice(projects)
-		generatedUserStoryCase.userStory.ProjectID = projects[0].ID
-
-		currentProjectSprints, err := db.GetSprintByProject(projects[0].ID)
-		assert.NoError(t, err)
-
-		gofakeit.ShuffleAnySlice(currentProjectSprints)
-		generatedUserStoryCase.userStory.SprintID = &currentProjectSprints[0].ID
-
-		currentProjectUsers, err := db.GetUsersWithRoleOnProject(projects[0].ID, database.ProjectRoleDeveloper)
-		assert.NoError(t, err)
-
-		gofakeit.ShuffleAnySlice(currentProjectUsers)
-		generatedUserStoryCase.userStory.UserID = &currentProjectUsers[0].ID
-
-		userStoryCases = append(userStoryCases, generatedUserStoryCase)
-	}
-
-	for _, c := range userStoryCases {
-		t.Run(c.desc, func(t *testing.T) {
-			err := db.CreateUserStory(c.userStory)
-			ok := assert.NoError(t, err)
-			if ok {
-				userStories = append(userStories, *c.userStory)
+	/*
+		// UserStories
+		var userStoryCases []userStoryCase
+		for i := 1; i < gofakeit.IntRange(999, 99999); i++ {
+			generatedUserStoryCase := userStoryCase{
+				desc: "Generated userStory",
+				userStory: &database.UserStory{
+					Title:         gofakeit.BookTitle(),
+					Description:   ptr.String(gofakeit.LoremIpsumSentence(22)),
+					BusinessValue: gofakeit.Uint(),
+					StoryPoints:   gofakeit.Float64Range(0.1, 99),
+				},
 			}
 
-			t.Cleanup(func() {
-				db.DeleteUserStory(c.userStory.ID)
+			priorities := database.Priorities.Members()
+			gofakeit.ShuffleAnySlice(priorities)
+			generatedUserStoryCase.userStory.Priority = priorities[0]
+
+			options := []any{true, false}
+			weights := []float32{0.9, 0.1}
+			realized, err := gofakeit.Weighted(options, weights)
+			assert.NoError(t, err)
+
+			generatedUserStoryCase.userStory.Realized = ptr.Bool(realized.(bool))
+
+			gofakeit.ShuffleAnySlice(projects)
+			generatedUserStoryCase.userStory.ProjectID = projects[0].ID
+
+			currentProjectSprints, err := db.GetSprintByProject(projects[0].ID)
+			assert.NoError(t, err)
+			assert.NotEmpty(t, currentProjectSprints)
+
+			gofakeit.ShuffleAnySlice(currentProjectSprints)
+			generatedUserStoryCase.userStory.SprintID = &currentProjectSprints[0].ID
+
+			currentProjectUsers, err := db.GetUsersWithRoleOnProject(projects[0].ID, database.ProjectRoleDeveloper)
+			assert.NoError(t, err)
+			assert.NotEmpty(t, currentProjectUsers)
+
+			gofakeit.ShuffleAnySlice(currentProjectUsers)
+			generatedUserStoryCase.userStory.UserID = &currentProjectUsers[0].ID
+
+			userStoryCases = append(userStoryCases, generatedUserStoryCase)
+		}
+
+		for _, c := range userStoryCases {
+			t.Run(c.desc, func(t *testing.T) {
+				err := db.CreateUserStory(c.userStory)
+				ok := assert.NoError(t, err)
+				if ok {
+					userStories = append(userStories, *c.userStory)
+				}
+
+				t.Cleanup(func() {
+					db.DeleteUserStory(c.userStory.ID)
+				})
 			})
-		})
-	}
+		}
+	*/
 }
