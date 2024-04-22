@@ -420,16 +420,8 @@ templ userStoryTableRow(us database.UserStory, status database.Status, projectRo
 		</td>
 		<!-- Details -->
 		<td>
-			<div class="flex flex-col space-y-2">
-				<div class="flex btn-container space-x-4 max-w-[10rem]">
-					<!--Details button-->
-					<button hx-get={ fmt.Sprintf("/userstory/%v/details", us.ID) } hx-target="#dialog" hx-indicator="#dialog" class="btn btn-xs">
-						<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
-							<path stroke-linecap="round" stroke-linejoin="round" d="M6.75 12a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0ZM12.75 12a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0ZM18.75 12a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Z"></path>
-						</svg>
-					</button>
-					<!--Remove from sprint button-->
-					<!--if *us.Realized {
+			<!--Remove from sprint button-->
+			<!--if *us.Realized {
 						<div class="flex-grow" title="Can't remove relaized user story from sprint">
 							<button class="btn btn-xs" disabled>
 								<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
@@ -447,40 +439,78 @@ templ userStoryTableRow(us database.UserStory, status database.Status, projectRo
 							</button>
 						</form>
 					}-->
-				</div>
-				<div class="flex justify-start space-x-2">
-					if (*us.Realized == false && slices.Contains(projectRoles, database.ProjectRoleManager) && status == database.StatusDone) {
-						if (us.AllTasksRealized() == false && us.AllAcceptanceTestsRealized() == false) {
-							<div class="btn-container" title="Not all tasks were realized and not all acceptance tests were passed for this user story.">
-								<button type="submit" class="btn btn-xs" disabled>Accept</button>
-							</div>
-							<form hx-get={ fmt.Sprintf("/userstory/%v/reject", us.ID) } hx-target="#dialog">
-								<button type="submit" class="btn bg-red-500 btn-xs">Reject</button>
-							</form>
-						} else if us.AllTasksRealized() == false && us.AllAcceptanceTestsRealized() == true {
-							<div class="btn-container" title="Not all tasks were realized for this user story.">
-								<button type="submit" class="btn btn-xs" disabled>Accept</button>
-							</div>
-							<form hx-get={ fmt.Sprintf("/userstory/%v/reject", us.ID) } hx-target="#dialog">
-								<button type="submit" class="btn bg-red-500 btn-xs">Reject</button>
-							</form>
-						} else if us.AllTasksRealized() == true && us.AllAcceptanceTestsRealized() == false {
-							<div class="btn-container" title="Not all acceptance tests were passed for this user story.">
-								<button type="submit" class="btn btn-xs" disabled>Accept</button>
-							</div>
-							<form hx-get={ fmt.Sprintf("/userstory/%v/reject", us.ID) } hx-target="#dialog">
-								<button type="submit" class="btn bg-red-500 btn-xs">Reject</button>
-							</form>
-						} else {
-							<form hx-post={ fmt.Sprintf("/userstory/%v/accept", us.ID) } id="backlogForm">
-								<button type="submit" class="btn bg-green-600 btn-xs">Accept</button>
-							</form>
-							<form hx-get={ fmt.Sprintf("/userstory/%v/reject", us.ID) } hx-target="#dialog">
-								<button type="submit" class="btn bg-red-500 btn-xs">Reject</button>
-							</form>
-						}
+			<div class="flex justify-end gap-2">
+				<!--Details button-->
+				<button hx-get={ fmt.Sprintf("/userstory/%v/details", us.ID) } hx-target="#dialog" hx-indicator="#dialog" class="btn btn-xs">
+					<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+						<path stroke-linecap="round" stroke-linejoin="round" d="M6.75 12a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0ZM12.75 12a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0ZM18.75 12a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Z"></path>
+					</svg>
+				</button>
+				if (*us.Realized == false && slices.Contains(projectRoles, database.ProjectRoleManager) && status == database.StatusDone) {
+					if (us.AllTasksRealized() == false && us.AllAcceptanceTestsRealized() == false) {
+						<div class="btn-container" title="Not all tasks were realized and not all acceptance tests were passed for this user story.">
+							<button type="submit" class="btn btn-xs" disabled>
+								<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+									<path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5"></path>
+								</svg>
+							</button>
+						</div>
+						<form hx-get={ fmt.Sprintf("/userstory/%v/reject", us.ID) } hx-target="#dialog">
+							<button type="submit" class="btn bg-red-500 btn-xs">
+								<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+									<path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12"></path>
+								</svg>
+							</button>
+						</form>
+					} else if us.AllTasksRealized() == false && us.AllAcceptanceTestsRealized() == true {
+						<div class="btn-container" title="Not all tasks were realized for this user story.">
+							<button type="submit" class="btn btn-xs" disabled>
+								<div class="text-green-500 text-lg">
+									<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+										<path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5"></path>
+									</svg>
+								</div>
+							</button>
+						</div>
+						<form hx-get={ fmt.Sprintf("/userstory/%v/reject", us.ID) } hx-target="#dialog">
+							<button type="submit" class="btn bg-red-500 btn-xs">
+								<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+									<path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12"></path>
+								</svg>
+							</button>
+						</form>
+					} else if us.AllTasksRealized() == true && us.AllAcceptanceTestsRealized() == false {
+						<div class="btn-container" title="Not all acceptance tests were passed for this user story.">
+							<button type="submit" class="btn btn-xs" disabled>
+								<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+									<path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5"></path>
+								</svg>
+							</button>
+						</div>
+						<form hx-get={ fmt.Sprintf("/userstory/%v/reject", us.ID) } hx-target="#dialog">
+							<button type="submit" class="btn bg-red-500 btn-xs">
+								<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+									<path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12"></path>
+								</svg>
+							</button>
+						</form>
+					} else {
+						<form hx-post={ fmt.Sprintf("/userstory/%v/accept", us.ID) } id="backlogForm">
+							<button type="submit" class="btn bg-green-600 btn-xs">
+								<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+									<path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5"></path>
+								</svg>
+							</button>
+						</form>
+						<form hx-get={ fmt.Sprintf("/userstory/%v/reject", us.ID) } hx-target="#dialog">
+							<button type="submit" class="btn bg-red-500 btn-xs">
+								<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+									<path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12"></path>
+								</svg>
+							</button>
+						</form>
 					}
-				</div>
+				}
 			</div>
 		</td>
 	</tr>
