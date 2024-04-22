@@ -10,6 +10,8 @@ import (
 	"tasklify/internal/web/pages/task"
 	"sort"
 	"fmt"
+	"math"
+	"github.com/elliotchance/orderedmap/v2"
 )
 
 type StatsData struct {
@@ -52,11 +54,10 @@ func ProjectStats(w http.ResponseWriter, r *http.Request, params handlers.Reques
 		return err
 	}
 
-	fmt.Println(statsData)
-	fmt.Println(totalPoints, realizedPoints)
-	fmt.Println()
-
-	chartData, dataPoints := getStatsDataIntoChartData(totalPoints, realizedPoints)
+	chartData, err := getStatsDataIntoChartData(totalPoints, realizedPoints)
+	if err != nil {
+		return err
+	}
 
 	user, err := database.GetDatabase().GetUserByID(params.UserID)
 	if err != nil {
@@ -64,20 +65,28 @@ func ProjectStats(w http.ResponseWriter, r *http.Request, params handlers.Reques
 	}
 	projectRoles, _ := database.GetDatabase().GetProjectRoles(params.UserID, projectID)
 
-	c := stats(*project, projectRoles, user.SystemRole, chartData, dataPoints)
+	c := stats(*project, projectRoles, user.SystemRole, chartData)
 	return pages.Layout(c, "Stats", r).Render(r.Context(), w)
 }
 
-templ stats(project database.Project, projectRoles []database.ProjectRole, user_SystemRole database.SystemRole, chartData []ChartSeries, dataPoints []string) {
+templ stats(project database.Project, projectRoles []database.ProjectRole, user_SystemRole database.SystemRole, chartData []ChartSeries) {
 	@common.ProjectNavbar(project, projectRoles, user_SystemRole, "project_stats") {
-		<div class="min-h-screen">
-			<div id="chart" class="w-3/4"></div>
-		</div>
-		@graph(chartData, dataPoints)
+		if len(chartData[0].Data) > 0 {
+			<div class="min-h-screen">
+				<div id="chart" class="w-3/4"></div>
+			</div>
+			@graph(chartData)
+		} else {
+			<div class="flex items-center justify-center min-h-screen">
+				<p class="text-center mx-auto w-max text-2xl">
+					No chart data to display
+				</p>
+			</div>
+		}
 	}
 }
 
-script graph(chartData []ChartSeries, dataPoints []string) {
+script graph(chartData []ChartSeries) {
 	var startDate = chartData[0].data[0].x; // First date in the first series
 	var endDate = chartData[0].data[chartData[0].data.length - 1].x; // Last date in the first series
 
@@ -93,12 +102,12 @@ script graph(chartData []ChartSeries, dataPoints []string) {
           },
         },
         stroke: {
-          curve: 'smooth'
+       //   curve: 'smooth'
         },
         xaxis: {
 			type: 'datetime',
-			min: new Date(startDate).getTime(), // Sets the minimum boundary
-        	max: new Date(endDate).getTime(), // Sets the maximum boundary
+		//	min: new Date(startDate).getTime(), // Sets the minimum boundary
+        //	max: new Date(endDate).getTime(), // Sets the maximum boundary
         },
         tooltip: {
           x: {
@@ -184,64 +193,97 @@ func getStatsDataRaw(sprints []database.Sprint) ([]StatsData, error) {
 	return statsData, nil
 }
 
-func getStatsData(statsDataRaw []StatsData) (totalPoints, realizedPoints map[time.Time]float64, err error) {
+func getStatsData(statsDataRaw []StatsData) (totalPoints, realizedPoints *orderedmap.OrderedMap[time.Time, float64], err error) {
 	sort.Slice(statsDataRaw, func(i, j int) bool {
 		return statsDataRaw[i].StartDate.Before(statsDataRaw[j].StartDate)
 	})
 
-	startDate := statsDataRaw[0].StartDate
-	endDate := time.Now().Truncate(24 * time.Hour) // Use current day as the end point
+	/*
+		startDate := statsDataRaw[0].StartDate
+		endDate := time.Now().Truncate(24 * time.Hour) // Use current day as the end point
+	*/
 
-	totalPoints = make(map[time.Time]float64)
-	realizedPoints = make(map[time.Time]float64)
-	currentTotal := 0.0
+	totalPoints = orderedmap.NewOrderedMap[time.Time, float64]()
+	realizedPoints = orderedmap.NewOrderedMap[time.Time, float64]()
+	currentTotalPoints := 0.0
+	currentRealizedPoints := 0.0
 
-	// Initialize realized points to zero for all potential dates
 	for _, d := range statsDataRaw {
-		if _, exists := realizedPoints[d.StartDate]; !exists {
-			realizedPoints[d.StartDate] = 0
-		}
+		currentTotalPoints += d.StoryPoints
 	}
 
-	// Calculate total story points added and realized up to each day
-	for _, d := range statsDataRaw {
-		currentTotal += d.StoryPoints
-		totalPoints[d.StartDate] = currentTotal
-		if d.Realized && d.EndDate != nil {
-			realizedPoints[*d.EndDate] += d.StoryPoints
+	currentRealizedPoints = currentTotalPoints
+
+	// Calculate total story points added and realized up to each date
+	for i, d := range statsDataRaw {
+		totalPoints.Set(d.StartDate, currentTotalPoints)
+
+		// Have first day synced
+		if i == 0 {
+			realizedPoints.Set(d.StartDate, currentRealizedPoints)
 		}
+
+		if d.Realized && d.EndDate != nil {
+			currentRealizedPoints -= d.StoryPoints
+			realizedPoints.Set(*d.EndDate, currentRealizedPoints)
+		}
+
+		// Sync last day
+		if i == len(statsDataRaw)-1 {
+			totalPoints.Set(time.Now(), currentTotalPoints)
+			realizedPoints.Set(time.Now(), currentRealizedPoints)
+		}
+
+		currentTotalPoints -= d.StoryPoints
 	}
 
 	// Ensure every day has an entry in the maps
-	for date := startDate; !date.After(endDate); date = date.AddDate(0, 0, 1) {
-		if _, exists := totalPoints[date]; !exists {
-			totalPoints[date] = currentTotal
+	/*
+		for date := startDate; !date.After(endDate); date = date.AddDate(0, 0, 1) {
+			if _, exists := totalPoints[date]; !exists {
+				totalPoints[date] = currentTotal
+			}
+			if _, exists := realizedPoints[date]; !exists {
+				realizedPoints[date] = 0
+			}
 		}
-		if _, exists := realizedPoints[date]; !exists {
-			realizedPoints[date] = 0
-		}
-	}
+	*/
 
 	return
 }
 
-func getStatsDataIntoChartData(totalPoints, realizedPoints map[time.Time]float64) ([]ChartSeries, []string) {
+func getStatsDataIntoChartData(totalPoints, realizedPoints *orderedmap.OrderedMap[time.Time, float64]) ([]ChartSeries, error) {
 	var actualSeriesData []ChartDataPoint
 	var expectedSeriesData []ChartDataPoint
-	var dataPoints []string
-	remainingPoints := 0.0 // starting points
 
-	for _, points := range totalPoints {
-		remainingPoints += points
+	sortedTotalKeys := totalPoints.Keys()
+	sort.Slice(sortedTotalKeys, func(i, j int) bool {
+		return sortedTotalKeys[i].Before(sortedTotalKeys[j])
+	})
+
+	for _, date := range sortedTotalKeys {
+		points, ok := totalPoints.Get(date)
+		if !ok {
+			return nil, fmt.Errorf("totalPoints.Get(date)", date)
+		}
+
+		parsedDate := date.Format(time.DateOnly)
+		actualSeriesData = append(actualSeriesData, ChartDataPoint{X: parsedDate, Y: roundToTwoDecimals(points)})
 	}
 
-	for date, points := range totalPoints {
-		parsedDate := date.Format(time.DateOnly)
+	sortedRealizedPoints := realizedPoints.Keys()
+	sort.Slice(sortedRealizedPoints, func(i, j int) bool {
+		return sortedRealizedPoints[i].Before(sortedRealizedPoints[j])
+	})
 
-		remainingPoints -= realizedPoints[date]
-		actualSeriesData = append(actualSeriesData, ChartDataPoint{X: parsedDate, Y: remainingPoints})
-		expectedSeriesData = append(expectedSeriesData, ChartDataPoint{X: parsedDate, Y: points})
-		dataPoints = append(dataPoints, parsedDate)
+	for _, date := range sortedRealizedPoints {
+		points, ok := realizedPoints.Get(date)
+		if !ok {
+			return nil, fmt.Errorf("realizedPoints.Get(date)", date)
+		}
+
+		parsedDate := date.Format(time.DateOnly)
+		expectedSeriesData = append(expectedSeriesData, ChartDataPoint{X: parsedDate, Y: roundToTwoDecimals(points)})
 	}
 
 	actualSeries := ChartSeries{Name: "Actual Story Points", Data: actualSeriesData}
@@ -249,5 +291,11 @@ func getStatsDataIntoChartData(totalPoints, realizedPoints map[time.Time]float64
 
 	chartData := []ChartSeries{actualSeries, expectedSeries}
 
-	return chartData, dataPoints
+	return chartData, nil
+}
+
+// roundToTwoDecimals rounds a float64 to two decimal places.
+func roundToTwoDecimals(num float64) float64 {
+	factor := 100.0
+	return math.Round(num*factor) / factor
 }

@@ -65,8 +65,8 @@ tasks:
 
   test:
     cmds:
-      - go test -v ./tests/... -coverpkg=./internal/... -coverprofile=coverage_report
-      - go tool cover -html=coverage_report
+      - go test -v ./tests/... -coverpkg=./internal/... # -coverprofile=coverage_report
+      #- go tool cover -html=coverage_report
 
   ## Docker compose
 

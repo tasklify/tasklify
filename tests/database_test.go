@@ -1,6 +1,7 @@
 package tests
 
 import (
+	"fmt"
 	"tasklify/internal/config"
 	"tasklify/internal/database"
 	"testing"
@@ -8,15 +9,18 @@ import (
 
 	"github.com/aws/smithy-go/ptr"
 	"github.com/brianvoe/gofakeit/v7"
+	"github.com/mroth/weightedrand/v2"
 	"github.com/stretchr/testify/assert"
 )
 
 var (
-	db          = database.GetDatabase(config.GetConfig())
-	users       []database.User
-	projects    []database.Project
-	sprints     []database.Sprint
-	userStories []database.UserStory
+	db           = database.GetDatabase(config.GetConfig())
+	users        []database.User
+	projects     []database.Project
+	sprints      []database.Sprint
+	userStories  []database.UserStory
+	tasks        []database.Task
+	workSessions []database.WorkSession
 )
 
 type userCase struct {
@@ -39,15 +43,25 @@ type userStoryCase struct {
 	userStory *database.UserStory
 }
 
+type taskCase struct {
+	desc string
+	task *database.Task
+}
+
+type workSessionCase struct {
+	desc        string
+	workSession *database.WorkSession
+}
+
 func TestDatabase(t *testing.T) {
 	// Users
 	var userCases []userCase
 
-	for i := 0; i < gofakeit.IntRange(3, 9); i++ {
+	for i := 0; i < gofakeit.IntRange(20, 30); i++ {
 		generatedUserCase := userCase{
 			desc: "Generated user",
 			user: &database.User{
-				Username:  gofakeit.Username(),
+				Username:  gofakeit.Username() + " " + fmt.Sprint(gofakeit.Uint()),
 				Password:  gofakeit.Password(gofakeit.Bool(), gofakeit.Bool(), gofakeit.Bool(), gofakeit.Bool(), gofakeit.Bool(), int(gofakeit.UintRange(20, 999))),
 				FirstName: gofakeit.Name(),
 				LastName:  gofakeit.LastName(),
@@ -55,26 +69,26 @@ func TestDatabase(t *testing.T) {
 			},
 		}
 
-		systemRoles := database.SystemRoles.Members()
-		gofakeit.ShuffleAnySlice(systemRoles)
-		generatedUserCase.user.SystemRole = systemRoles[0]
+		generatedUserCase.user.SystemRole = database.SystemRoleUser
 
 		userCases = append(userCases, generatedUserCase)
 	}
 
-	manualUserCase := userCase{
-		"Manual user",
-		&database.User{
-			Username:   "custom user 34",
-			Password:   "strongpassword342",
-			FirstName:  "FirstName rert",
-			LastName:   "LastName t45t5",
-			Email:      "someuser_5465@example.com",
-			SystemRole: database.SystemRoleAdmin,
-		},
-	}
+	/*
+		manualUserCase := userCase{
+			"Manual user",
+			&database.User{
+				Username:   "custom user 34",
+				Password:   "strongpassword342",
+				FirstName:  "FirstName rert",
+				LastName:   "LastName t45t5",
+				Email:      "someuser_5465@example.com",
+				SystemRole: database.SystemRoleAdmin,
+			},
+		}
 
-	userCases = append(userCases, manualUserCase)
+		userCases = append(userCases, manualUserCase)
+	*/
 
 	for _, c := range userCases {
 		t.Run(c.desc, func(t *testing.T) {
@@ -83,20 +97,16 @@ func TestDatabase(t *testing.T) {
 			if ok && assert.NotZero(t, c.user.ID) {
 				users = append(users, *c.user)
 			}
-
-			t.Cleanup(func() {
-				db.DeleteUserByID(c.user.ID)
-			})
 		})
 	}
 
 	// Projects
 	var projectCases []projectCase
-	for i := 0; i < gofakeit.IntRange(1, 9); i++ {
+	for i := 0; i < gofakeit.IntRange(5, 10); i++ {
 		generatedProjectCase := projectCase{
 			desc: "Generated project",
 			project: &database.Project{
-				Title:       gofakeit.BookTitle(),
+				Title:       gofakeit.BookTitle() + " " + fmt.Sprint(gofakeit.UintRange(1, 9999)),
 				Description: gofakeit.Paragraph(1, 5, 12, " "),
 				Docs:        gofakeit.Paragraph(3, 4, 7, " "),
 			},
@@ -120,44 +130,54 @@ func TestDatabase(t *testing.T) {
 			if ok && assert.NotZero(t, c.project.ID) && assert.Equal(t, ID, c.project.ID) {
 				projects = append(projects, *c.project)
 			}
+		})
+	}
 
-			t.Cleanup(func() {
-				db.DeleteProject(c.project.ID)
-			})
+	for _, project := range projects {
+		t.Run("Test if projects are in database", func(t *testing.T) {
+
+			assert.NotZero(t, project.ID)
+			projectOutput, err := db.GetProjectByID(project.ID)
+			ok := assert.NoError(t, err)
+			if ok {
+				assert.NotZero(t, projectOutput)
+				assert.Equal(t, projectOutput.ID, project.ID)
+			}
 		})
 	}
 
 	// Sprints
 	var sprintCases []sprintCase
-	for i := 0; i < gofakeit.IntRange(1, 9); i++ {
+	for i := 0; i < gofakeit.IntRange(10, 20); i++ {
+		t.Run("Generate sprint cases", func(t *testing.T) {
+			startDate := gofakeit.DateRange(
+				time.Now().Add(-1*time.Duration(gofakeit.IntRange(1, 99)*24*30*int(time.Hour))),
+				time.Now().Add(time.Duration(gofakeit.IntRange(1, 10)*24*30*int(time.Hour))),
+			)
 
-		startDate := gofakeit.DateRange(
-			time.Now().Add(-1*time.Duration(gofakeit.IntRange(1, 99)*24*30*int(time.Hour))),
-			time.Now().Add(time.Duration(gofakeit.IntRange(1, 10)*24*30*int(time.Hour))),
-		)
+			gofakeit.ShuffleAnySlice(projects)
+			projectID := projects[0].ID
+			assert.NotZero(t, projectID)
 
-		gofakeit.ShuffleAnySlice(projects)
-		projectID := projects[0].ID
-		assert.NotZero(t, projectID)
+			// Consecutive sprints
+			for ii := 0; ii < gofakeit.IntRange(1, 20); ii++ {
+				generatedSprintCase := sprintCase{
+					desc: "Generated sprint",
+					sprint: &database.Sprint{
+						Title:     gofakeit.BookTitle() + " " + fmt.Sprint(ii),
+						StartDate: startDate,
+						EndDate:   startDate.Add(time.Duration(gofakeit.IntRange(2, 99) * 24 * int(time.Hour))),
+						Velocity:  ptr.Float32(gofakeit.Float32Range(10, 200)),
+					},
+				}
 
-		// Consecutive sprints
-		for i := 0; i < gofakeit.IntRange(1, 1); i++ {
-			generatedSprintCase := sprintCase{
-				desc: "Generated sprint",
-				sprint: &database.Sprint{
-					Title:     gofakeit.BookTitle(),
-					StartDate: startDate,
-					EndDate:   startDate.Add(time.Duration(gofakeit.IntRange(2, 99) * 24 * int(time.Hour))),
-					Velocity:  ptr.Float32(gofakeit.Float32Range(10, 9999)),
-				},
+				generatedSprintCase.sprint.ProjectID = projectID
+
+				sprintCases = append(sprintCases, generatedSprintCase)
+
+				startDate = generatedSprintCase.sprint.EndDate.Add(time.Duration(gofakeit.IntRange(1, 10) * 24 * int(time.Hour)))
 			}
-
-			generatedSprintCase.sprint.ProjectID = projectID
-
-			sprintCases = append(sprintCases, generatedSprintCase)
-
-			startDate = generatedSprintCase.sprint.EndDate.Add(time.Duration(gofakeit.IntRange(1, 10) * 24 * int(time.Hour)))
-		}
+		})
 	}
 
 	for _, c := range sprintCases {
@@ -167,24 +187,27 @@ func TestDatabase(t *testing.T) {
 			if ok {
 				sprints = append(sprints, *c.sprint)
 			}
-
-			t.Cleanup(func() {
-				db.DeleteSprint(c.sprint.ProjectID, c.sprint.ID)
-			})
 		})
 	}
 
-	/*
-		// UserStories
-		var userStoryCases []userStoryCase
-		for i := 1; i < gofakeit.IntRange(999, 99999); i++ {
+	// UserStories
+	realizedChooser, err := weightedrand.NewChooser(
+		weightedrand.NewChoice(true, 9),
+		weightedrand.NewChoice(false, 1),
+	)
+	assert.NoError(t, err)
+
+	var userStoryCases []userStoryCase
+	for i := 0; i < gofakeit.IntRange(100, 300); i++ {
+		t.Run("Generate user story cases", func(t *testing.T) {
 			generatedUserStoryCase := userStoryCase{
 				desc: "Generated userStory",
 				userStory: &database.UserStory{
-					Title:         gofakeit.BookTitle(),
+					Title:         gofakeit.BookTitle() + " " + fmt.Sprint(gofakeit.UintRange(1, 9999)),
 					Description:   ptr.String(gofakeit.LoremIpsumSentence(22)),
-					BusinessValue: gofakeit.Uint(),
+					BusinessValue: gofakeit.UintRange(0, 10),
 					StoryPoints:   gofakeit.Float64Range(0.1, 99),
+					Realized:      ptr.Bool(realizedChooser.Pick()),
 				},
 			}
 
@@ -192,45 +215,155 @@ func TestDatabase(t *testing.T) {
 			gofakeit.ShuffleAnySlice(priorities)
 			generatedUserStoryCase.userStory.Priority = priorities[0]
 
-			options := []any{true, false}
-			weights := []float32{0.9, 0.1}
-			realized, err := gofakeit.Weighted(options, weights)
-			assert.NoError(t, err)
-
-			generatedUserStoryCase.userStory.Realized = ptr.Bool(realized.(bool))
-
 			gofakeit.ShuffleAnySlice(projects)
-			generatedUserStoryCase.userStory.ProjectID = projects[0].ID
 
-			currentProjectSprints, err := db.GetSprintByProject(projects[0].ID)
+			projectID := projects[0].ID
+
+			generatedUserStoryCase.userStory.ProjectID = projectID
+
+			currentProjectSprints, err := db.GetSprintByProject(projectID)
 			assert.NoError(t, err)
-			assert.NotEmpty(t, currentProjectSprints)
 
-			gofakeit.ShuffleAnySlice(currentProjectSprints)
-			generatedUserStoryCase.userStory.SprintID = &currentProjectSprints[0].ID
+			if len(currentProjectSprints) != 0 {
+				gofakeit.ShuffleAnySlice(currentProjectSprints)
+				generatedUserStoryCase.userStory.SprintID = ptr.Uint(currentProjectSprints[0].ID)
+			}
 
-			currentProjectUsers, err := db.GetUsersWithRoleOnProject(projects[0].ID, database.ProjectRoleDeveloper)
+			currentProjectUsers, err := db.GetUsersWithRoleOnProject(projectID, database.ProjectRoleDeveloper)
 			assert.NoError(t, err)
 			assert.NotEmpty(t, currentProjectUsers)
 
 			gofakeit.ShuffleAnySlice(currentProjectUsers)
-			generatedUserStoryCase.userStory.UserID = &currentProjectUsers[0].ID
+			generatedUserStoryCase.userStory.UserID = ptr.Uint(currentProjectUsers[0].ID)
 
 			userStoryCases = append(userStoryCases, generatedUserStoryCase)
-		}
+		})
+	}
 
-		for _, c := range userStoryCases {
-			t.Run(c.desc, func(t *testing.T) {
-				err := db.CreateUserStory(c.userStory)
-				ok := assert.NoError(t, err)
-				if ok {
-					userStories = append(userStories, *c.userStory)
+	for _, c := range userStoryCases {
+		t.Run(c.desc, func(t *testing.T) {
+			err := db.CreateUserStory(c.userStory)
+			ok := assert.NoError(t, err)
+			if ok {
+				userStories = append(userStories, *c.userStory)
+			}
+		})
+	}
+
+	// Tasks
+	var taskCases []taskCase
+	for _, userStory := range userStories {
+		t.Run("Generate task cases", func(t *testing.T) {
+			taskCase := taskCase{
+				desc: "Generated task case",
+				task: &database.Task{
+					Title:       ptr.String(gofakeit.BookTitle() + " " + fmt.Sprint(gofakeit.UintRange(1, 9999))),
+					Description: ptr.String(gofakeit.LoremIpsumSentence(22)),
+					Status:      &database.StatusTodo,
+					ProjectID:   userStory.ProjectID,
+					UserID:      userStory.UserID,
+					UserStoryID: userStory.ID,
+				},
+			}
+
+			if *userStory.Realized {
+				taskCase.task.Status = &database.StatusDone
+				taskCases = append(taskCases, taskCase)
+			} else {
+				if gofakeit.Bool() {
+					taskCases = append(taskCases, taskCase)
+				}
+			}
+
+		})
+	}
+
+	for _, c := range taskCases {
+		t.Run(c.desc, func(t *testing.T) {
+			err := db.CreateTask(c.task)
+			ok := assert.NoError(t, err)
+			if ok {
+				tasks = append(tasks, *c.task)
+			}
+		})
+	}
+
+	// Work sessions
+	var workSessionCases []workSessionCase
+	for _, task := range tasks {
+		t.Run("Generate work cases", func(t *testing.T) {
+			projectSprints, err := db.GetSprintByProject(task.ProjectID)
+			assert.NoError(t, err)
+
+			if len(projectSprints) != 0 { // UserStories and Tasks can exist even without a Sprint
+				gofakeit.ShuffleAnySlice(projectSprints)
+
+				taskUserStory, err := db.GetUserStoryByID(task.UserStoryID)
+				assert.NoError(t, err)
+
+				workSession := workSessionCase{
+					desc: "Generated work session",
+					workSession: &database.WorkSession{
+						StartTime: projectSprints[0].StartDate,
+						EndTime:   ptr.Time(gofakeit.DateRange(projectSprints[0].StartDate, projectSprints[0].EndDate)),
+						Duration:  time.Duration(taskUserStory.StoryPoints),
+						Remaining: time.Duration(gofakeit.Float32Range(0.1, 10) * float32(time.Hour)),
+						TaskID:    task.ID,
+						UserID:    *task.UserID,
+					},
 				}
 
-				t.Cleanup(func() {
-					db.DeleteUserStory(c.userStory.ID)
-				})
-			})
-		}
+				if *taskUserStory.Realized {
+					workSession.workSession.Remaining = 0
+				}
+
+				workSessionCases = append(workSessionCases, workSession)
+			}
+		})
+	}
+
+	for _, c := range workSessionCases {
+		t.Run(c.desc, func(t *testing.T) {
+			err = db.CreateWorkSession(c.workSession)
+			ok := assert.NoError(t, err)
+			if ok {
+				workSessions = append(workSessions, *c.workSession)
+			}
+		})
+	}
+
+	// Cleanup
+	/*
+		t.Cleanup(func() {
+			for _, workSession := range workSessions {
+				err := db.RawDB().Unscoped().Delete(&workSession).Error
+				assert.NoError(t, err)
+			}
+
+			for _, task := range tasks {
+				err := db.RawDB().Unscoped().Delete(&task).Error
+				assert.NoError(t, err)
+			}
+
+			for _, userStory := range userStories {
+				err := db.RawDB().Unscoped().Delete(&userStory).Error
+				assert.NoError(t, err)
+			}
+
+			for _, sprint := range sprints {
+				err := db.RawDB().Unscoped().Delete(&sprint).Error
+				assert.NoError(t, err)
+			}
+
+			for _, project := range projects {
+				err := db.RawDB().Unscoped().Delete(&project).Error
+				assert.NoError(t, err)
+			}
+
+			for _, user := range users {
+				err := db.RawDB().Unscoped().Delete(&user).Error
+				assert.NoError(t, err)
+			}
+		})
 	*/
 }
