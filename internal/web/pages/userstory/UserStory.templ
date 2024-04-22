@@ -4,6 +4,7 @@ import "fmt"
 import "tasklify/internal/database"
 import "strconv"
 import "slices"
+import "time"
 
 templ CreateUserStoryDialog(projectID uint) {
 	<div hx-ext="response-targets">
@@ -158,7 +159,7 @@ templ UserStoryDetailsDialog(us database.UserStory, activeTab string, currentUse
 					</div>
 					if activeTab == "details" {
 						<div id="details" role="tabpanel" class="tab-content block py-7 px-8">
-							@UserStoryDetails(us)
+							@UserStoryDetails(us, projectRoles)
 						</div>
 					} else if activeTab == "tasks" {
 						<div id="tasks" role="tabpanel" class="tab-content block py-7 px-8">
@@ -182,7 +183,7 @@ templ UserStoryDetailsDialog(us database.UserStory, activeTab string, currentUse
 	</div>
 }
 
-templ UserStoryDetails(us database.UserStory) {
+templ UserStoryDetails(us database.UserStory, projectRoles []database.ProjectRole) {
 	<div class="grid grid-cols-2 gap-4 mb-4">
 		<div>
 			<!-- Realized Status -->
@@ -245,11 +246,31 @@ templ UserStoryDetails(us database.UserStory) {
 		<div class="text-gray-800 whitespace-break-spaces p-4 bg-gray-100 rounded-lg">{ *us.Description }</div>
 	</div>
 	if len(us.AcceptanceTests) > 0 {
-		<div class="mb-4">
-			<div class="font-medium mb-2" style="color: #cc8e35;">Acceptance Tests</div>
+		<div class="mb-4" id="accept-tests">
+			<div class="flex justify-between">
+				<div class="font-medium mb-2" style="color: #cc8e35;">Acceptance Tests</div>
+				if us.SprintID != nil {
+					if slices.Contains(projectRoles, database.ProjectRoleManager) && (GetSprintFromID(us.SprintID).EndDate.Before(time.Now())) {
+						<div class="btn btn-xs" hx-get={ fmt.Sprintf("/userstory/%v/tests", us.ID) } hx-target="#accept-tests">Edit status</div>
+					}
+				}
+			</div>
 			for _, test := range us.AcceptanceTests {
-				<div style="background-color: #f4deb3; color: #654321; padding: 4px 8px; margin-bottom: 4px; border-radius: 4px;">
+				<div style="background-color: #f4deb3; color: #654321; padding: 4px 8px; margin-bottom: 4px; border-radius: 4px; display: flex; justify-content: space-between; ">
 					# { *test.Description }
+					if *test.Realized {
+						<div class="text-green-500 text-lg">
+							<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+								<path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5"></path>
+							</svg>
+						</div>
+					} else {
+						<div class="text-red-500 text-lg">
+							<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+								<path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12"></path>
+							</svg>
+						</div>
+					}
 				</div>
 			}
 		</div>
@@ -261,6 +282,25 @@ templ UserStoryDetails(us database.UserStory) {
 			<div class="text-gray-800 whitespace-break-spaces p-4 bg-unassigned-300 rounded-lg">{ *us.RejectionComment }</div>
 		</div>
 	}
+}
+
+templ UserStoryTestsDialog(acceptanceTests []database.AcceptanceTest, userStoryID uint) {
+	<form hx-put={ fmt.Sprintf("/userstory/%v/tests", userStoryID) } hx-target="#accept-tests">
+		<div class="flex justify-between">
+			<div class="font-medium mb-2" style="color: #cc8e35;">Acceptance Tests</div>
+			<button class="btn btn-xs" type="submit">Save</button>
+		</div>
+		for _, test := range acceptanceTests {
+			<div style="background-color: #f4deb3; color: #654321; padding: 4px 8px; margin-bottom: 4px; border-radius: 4px; display: flex; justify-content: space-between; ">
+				# { *test.Description }
+				if *test.Realized {
+					<input class="checkbox checkbox-xs" type="checkbox" name="acceptanceTests" value={ fmt.Sprintf("%v", test.ID) } checked/>
+				} else {
+					<input class="checkbox checkbox-xs" type="checkbox" name="acceptanceTests" value={ fmt.Sprintf("%v", test.ID) }/>
+				}
+			</div>
+		}
+	</form>
 }
 
 templ UserStoryTasks(us database.UserStory) {
@@ -464,4 +504,12 @@ templ EditUserStoryDialog(userStory *database.UserStory) {
 			</form>
 		</div>
 	</div>
+}
+
+func GetSprintFromID(sprintID *uint) *database.Sprint {
+	sprint, err := database.GetDatabase().GetSprintByID(*sprintID)
+	if err != nil {
+		return nil
+	}
+	return sprint
 }

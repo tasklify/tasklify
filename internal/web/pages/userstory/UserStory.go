@@ -332,3 +332,69 @@ func PutUserStory(w http.ResponseWriter, r *http.Request, params handlers.Reques
 
 	return nil
 }
+
+
+func GetUserStoryTests (w http.ResponseWriter, r *http.Request, params handlers.RequestParams) error {
+	userStoryID, err := strconv.Atoi(chi.URLParam(r, "userStoryID"))
+	if err != nil {
+		return err
+	}
+
+	userStory, err := database.GetDatabase().GetUserStoryByID(uint(userStoryID))
+	if err != nil {
+		return err
+	}
+
+	acceptanceTests, err := database.GetDatabase().GetAcceptanceTestsByUserStory(userStory.ID)
+	if err != nil {
+		return err
+	}
+
+	c := UserStoryTestsDialog(acceptanceTests, uint(userStoryID))
+	return c.Render(r.Context(), w)
+}
+
+func PostUserStoryTests(w http.ResponseWriter, r *http.Request, params handlers.RequestParams) error {
+	type TestFormData struct {
+		AcceptanceTests []string          `schema:"acceptanceTests"`
+	}
+
+	var testFormData TestFormData
+	if err := decoder.Decode(&testFormData, r.PostForm); err != nil {
+		return err
+	}
+
+	userStoryID, err := strconv.Atoi(chi.URLParam(r, "userStoryID"))
+	if err != nil {
+		return err
+	}
+
+	userStory, err := database.GetDatabase().GetUserStoryByID(uint(userStoryID))
+	if err != nil {
+		return err
+	}
+
+	acceptanceTests, err := database.GetDatabase().GetAcceptanceTestsByUserStory(uint(userStoryID))
+	if err != nil {
+		return err
+	}
+
+	for _, test := range acceptanceTests {
+		if slices.Contains(testFormData.AcceptanceTests, fmt.Sprint(test.ID)) {
+			*test.Realized = true
+		} else {
+			*test.Realized = false	
+		} 
+		if err := database.GetDatabase().UpdateAcceptanceTest(&test); err != nil {
+			return err
+		}
+
+	}
+
+	redirectURL := fmt.Sprintf("/productbacklog?projectID=%d", userStory.ProjectID)
+	w.Header().Set("HX-Redirect", redirectURL)
+	w.WriteHeader(http.StatusSeeOther)
+
+	return nil	
+
+}

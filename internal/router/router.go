@@ -169,6 +169,10 @@ func Router() *chi.Mux {
 		r.Handle("/userstory/{userStoryID}/details", ghandlers.MethodHandler{
 			"GET": handlers.UnifiedHandler(handlers.AuthenticatedHandlerFunc(userstory.GetUserStoryDetails)),
 		})
+		r.Handle("/userstory/{userStoryID}/tests", ghandlers.MethodHandler{
+			"GET": handlers.UnifiedHandler(handlers.AuthenticatedHandlerFunc(userstory.GetUserStoryTests)),
+			"PUT": handlers.UnifiedHandler(handlers.AuthenticatedHandlerFunc(userstory.PostUserStoryTests)),
+		})
 		r.Handle("/{projectID}/userstory/{userStoryID}", ghandlers.MethodHandler{
 			"GET": handlers.UnifiedHandler(handlers.AuthenticatedHandlerFunc(userstory.GetEditUserStory)),
 			"PUT": handlers.UnifiedHandler(handlers.AuthenticatedHandlerFunc(userstory.PutUserStory)),

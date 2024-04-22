@@ -59,6 +59,8 @@ type Database interface {
 	DeleteProjectWallPost(projectID uint, postID uint) error
 	GetProjectWallPostByID(postID uint) (*ProjectWallPost, error)
 	CreateAcceptanceTest(acceptanceTest *AcceptanceTest) error
+	GetAcceptanceTestByID(id uint) (*AcceptanceTest, error)
+	UpdateAcceptanceTest(acceptanceTest *AcceptanceTest) error
 	CreateWorkSession(session *WorkSession) error
 	CreateWorkSessionToday(userID, taskID uint) error
 	GetWorkSessionsForTask(taskID uint) ([]WorkSession, error)

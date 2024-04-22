@@ -29,3 +29,18 @@ func (db *database) GetAcceptanceTestsByUserStory(userStoryID uint) ([]Acceptanc
 func (db *database) DeleteAcceptanceTest(acceptanceTest *AcceptanceTest) error {
 	return db.Unscoped().Delete(&acceptanceTest).Error
 }
+
+func (db *database) GetAcceptanceTestByID(id uint) (*AcceptanceTest, error) {
+	var acceptanceTest AcceptanceTest
+
+	err := db.First(&acceptanceTest, id).Error
+	if err != nil {
+		return nil, err
+	}
+
+	return &acceptanceTest, nil
+}
+
+func (db *database) UpdateAcceptanceTest(acceptanceTest *AcceptanceTest) error {
+	return db.Save(&acceptanceTest).Error
+}
