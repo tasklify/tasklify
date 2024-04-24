@@ -1,8 +1,6 @@
 package sprint
 
 import (
-	"github.com/go-chi/chi/v5"
-	"github.com/gorilla/schema"
 	"net/http"
 	"reflect"
 	"strconv"
@@ -10,6 +8,9 @@ import (
 	"tasklify/internal/handlers"
 	"tasklify/internal/web/components/common"
 	"time"
+
+	"github.com/go-chi/chi/v5"
+	"github.com/gorilla/schema"
 )
 
 var decoder = schema.NewDecoder()

@@ -23,7 +23,7 @@ func (db *database) CreateSprint(sprint *Sprint) error {
 func (db *database) GetSprintByProject(projectID uint) ([]Sprint, error) {
 	var sprints []Sprint
 
-	err := db.Preload("UserStories.AcceptanceTests").Preload("UserStories.Tasks").Preload("UserStories").Find(&sprints, "sprints.project_id = ?", projectID).Error
+	err := db.Preload("UserStories.Tasks.WorkSessions").Preload("UserStories.AcceptanceTests").Preload("UserStories.Tasks").Preload("UserStories").Find(&sprints, "sprints.project_id = ?", projectID).Error
 	if err != nil {
 		return nil, err
 	}

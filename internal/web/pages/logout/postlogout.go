@@ -6,9 +6,9 @@ import (
 )
 
 func PostLogout(w http.ResponseWriter, r *http.Request) error {
-    if r.Method != http.MethodPost {
-        http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
-        return nil
+	if r.Method != http.MethodPost {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return nil
 	}
 
 	err := auth.GetSession().Destroy(w, r)

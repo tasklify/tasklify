@@ -46,7 +46,8 @@ templ docs(contents templ.Component, r *http.Request) {
 			<!-- markdown-body is for github-markdown.css -->
 			@contents
 		</main>
-		<div class="p-8" hx-boost="true">
+		<div class="flex items-center gap-2 h-24 p-8" hx-boost="true">
+			<a href="/docs/user_docs#user-documentation" target="_blank" class="help-button" style="position: static;">?</a>
 			if pages.IsOnProject(r) {
 				<a class="btn btn-primary" href={ templ.SafeURL(fmt.Sprintf("/projects/%d/docs/edit", pages.GetProjectID(r))) }>Edit</a>
 			}

@@ -7,26 +7,58 @@ import (
 	"net/http"
 	"time"
 	"tasklify/internal/web/components/common"
-	"tasklify/internal/web/pages/task"
 	"sort"
+	"math"
 	"fmt"
+	"log"
+	"strconv"
 )
 
-type StatsData struct {
-	StoryPoints float64
-	Realized    bool
-	StartDate   time.Time
-	EndDate     *time.Time
-}
-
 type ChartDataPoint struct {
-	X string  `json:"x"`
+	X int64   `json:"x"`
 	Y float64 `json:"y"`
 }
 
 type ChartSeries struct {
 	Name string           `json:"name"`
 	Data []ChartDataPoint `json:"data"`
+}
+
+type SprintAnnotation struct {
+	X           int64                 `json:"x"`
+	X2          int64                 `json:"x2"`
+	BorderColor string                `json:"borderColor"`
+	FillColor   string                `json:"fillColor"`
+	Opacity     float32               `json:"opacity"`
+	YAxisIndex  int                   `json:"yAxisIndex"`
+	Label       SprintAnnotationLabel `json:"label"`
+}
+
+type SprintAnnotationLabel struct {
+	Text        string                     `json:"text"`
+	Orientation string                     `json:"orientation"`
+	TextAnchor  string                     `json:"textAnchor"`
+	Style       SprintAnnotationLabelStyle `json:"style"`
+}
+
+type SprintAnnotationLabelStyle struct {
+	Color      string `json:"color"`
+	Background string `json:"background"`
+}
+
+type TimeSeriesPoints struct {
+	Time   time.Time
+	Points float64
+}
+
+type SprintTable struct {
+	ID               uint
+	Name             string
+	StartDate        time.Time
+	EndDate          time.Time
+	ActualPoints     float64
+	RealizedPoints   float64
+	PointsDifference float64
 }
 
 func ProjectStats(w http.ResponseWriter, r *http.Request, params handlers.RequestParams) error {
@@ -42,21 +74,20 @@ func ProjectStats(w http.ResponseWriter, r *http.Request, params handlers.Reques
 		return err
 	}
 
-	statsData, err := getStatsDataRaw(sprints)
+	sprintAnnotations := sprintAnnotations(sprints)
+
+	totalPoints, realizedPoints, sprintTables, err := getStatsData(sprints)
 	if err != nil {
 		return err
 	}
 
-	totalPoints, realizedPoints, err := getStatsData(statsData)
+	chartData, err := getStatsDataIntoChartData(totalPoints, realizedPoints)
 	if err != nil {
 		return err
 	}
 
-	fmt.Println(statsData)
-	fmt.Println(totalPoints, realizedPoints)
-	fmt.Println()
-
-	chartData, dataPoints := getStatsDataIntoChartData(totalPoints, realizedPoints)
+	//dump.P(sprintTables)
+	//dump.P(realizedPoints)
 
 	user, err := database.GetDatabase().GetUserByID(params.UserID)
 	if err != nil {
@@ -64,32 +95,41 @@ func ProjectStats(w http.ResponseWriter, r *http.Request, params handlers.Reques
 	}
 	projectRoles, _ := database.GetDatabase().GetProjectRoles(params.UserID, projectID)
 
-	c := stats(*project, projectRoles, user.SystemRole, chartData, dataPoints)
+	c := stats(*project, projectRoles, user.SystemRole, chartData, sprintAnnotations, sprintTables)
 	return pages.Layout(c, "Stats", r).Render(r.Context(), w)
 }
 
-templ stats(project database.Project, projectRoles []database.ProjectRole, user_SystemRole database.SystemRole, chartData []ChartSeries, dataPoints []string) {
+templ stats(project database.Project, projectRoles []database.ProjectRole, user_SystemRole database.SystemRole, chartData []ChartSeries, sprintAnnotations []SprintAnnotation, sprintTables []SprintTable) {
 	@common.ProjectNavbar(project, projectRoles, user_SystemRole, "project_stats") {
-		<div class="min-h-screen">
-			<div id="chart" class="w-3/4"></div>
+		<div class="flex justify-end items-end w-full top-0 right-0">
+			<a href="/docs/stats#burn-down-chart" target="_blank" class="help-button m-4" style="position: static;">?</a>
 		</div>
-		@graph(chartData, dataPoints)
+		if len(chartData[0].Data) > 0 {
+			<div class="min-h-screen">
+				<div id="chart" class="w-full p-9"></div>
+				@table(sprintTables)
+			</div>
+			@graph(chartData, sprintAnnotations)
+		} else {
+			<div class="flex items-center justify-center min-h-screen">
+				<p class="text-center mx-auto w-max text-2xl">
+					No chart data to display
+				</p>
+			</div>
+		}
 	}
 }
 
-script graph(chartData []ChartSeries, dataPoints []string) {
-	var startDate = chartData[0].data[0].x; // First date in the first series
-	var endDate = chartData[0].data[chartData[0].data.length - 1].x; // Last date in the first series
-
-	console.log(startDate, endDate)
+script graph(chartData []ChartSeries, sprintAnnotations []SprintAnnotation) {
+	// console.log(sprintAnnotations)
 
 	var options = {
 		series: chartData,
           chart: {
-          height: 500,
+          height: 600,
           type: 'area',
 		  zoom: {
-            autoScaleYaxis: false
+            autoScaleYaxis: true
           },
         },
         stroke: {
@@ -97,9 +137,11 @@ script graph(chartData []ChartSeries, dataPoints []string) {
         },
         xaxis: {
 			type: 'datetime',
-			min: new Date(startDate).getTime(), // Sets the minimum boundary
-        	max: new Date(endDate).getTime(), // Sets the maximum boundary
         },
+		annotations: {
+          xaxis:  sprintAnnotations,
+        },
+
         tooltip: {
           x: {
             format: 'yyyy-MM-dd'
@@ -130,124 +172,244 @@ script graph(chartData []ChartSeries, dataPoints []string) {
 	}
 }
 
-func getStatsDataRaw(sprints []database.Sprint) ([]StatsData, error) {
-	var statsData []StatsData
-	for _, sprint := range sprints {
-		if database.StatusTodo != sprint.DetermineStatus() {
-			userStories, err := database.GetDatabase().GetUserStoriesBySprint(sprint.ID)
-			if err != nil {
-				return nil, err
-			}
-
-			for _, userStory := range userStories {
-
-				tasks, err := database.GetDatabase().GetTasksByUserStory(userStory.ID)
-				if err != nil {
-					return nil, err
+templ table(sprintTables []SprintTable) {
+	<div class="overflow-x-auto">
+		<table class="table">
+			<!-- head -->
+			<thead>
+				<tr>
+					<th>Index</th>
+					<th>Project ID</th>
+					<th>Project name</th>
+					<th>Active</th>
+					<th>Start date</th>
+					<th>End date</th>
+					<th>Actual points</th>
+					<th>Realized points</th>
+					<th>Points difference</th>
+				</tr>
+			</thead>
+			<tbody>
+				<!-- User stories rows -->
+				for i, sprintTable := range sprintTables {
+					@sprintTableRow(i, sprintTable)
 				}
-
-				var userStoryWorkSessions []database.WorkSession
-				for _, task := range tasks {
-
-					workSessions, err := database.GetDatabase().GetWorkSessionsForTask(task.ID)
-					if err != nil {
-						return nil, err
-					}
-
-					userStoryWorkSessions = append(userStoryWorkSessions, workSessions...)
-				}
-
-				userStoryWorkSessions = task.SortWorkSessionsByDate(userStoryWorkSessions)
-
-				var realized bool
-
-				realizedTemp := userStory.Realized
-				if realizedTemp != nil {
-					realized = *realizedTemp
-				}
-
-				temp := StatsData{
-					StoryPoints: userStory.StoryPoints,
-					Realized:    realized,
-					StartDate:   sprint.StartDate,
-				}
-
-				if realized {
-					temp.EndDate = userStoryWorkSessions[len(userStoryWorkSessions)-1].EndTime
-				}
-
-				statsData = append(statsData, temp)
-			}
-		}
-	}
-
-	return statsData, nil
+			</tbody>
+		</table>
+	</div>
 }
 
-func getStatsData(statsDataRaw []StatsData) (totalPoints, realizedPoints map[time.Time]float64, err error) {
-	sort.Slice(statsDataRaw, func(i, j int) bool {
-		return statsDataRaw[i].StartDate.Before(statsDataRaw[j].StartDate)
+templ sprintTableRow(index int, sprintTable SprintTable) {
+	<!-- row 1 -->
+	<tr class="hover">
+		<td>
+			<div class="font-bold">{ fmt.Sprint(index) }</div>
+		</td>
+		<!-- Project ID -->
+		<td class="min-w-[12rem] max-w-[20rem] truncate">
+			{  fmt.Sprint(sprintTable.ID) }
+		</td>
+		<!-- Project name -->
+		<td class="min-w-[12rem] max-w-[20rem] truncate">
+			{  sprintTable.Name }
+		</td>
+		<!-- Active -->
+		<td>
+			if sprintTable.EndDate.After(time.Now()) {
+				<span class="text-green-500 text-lg">
+					<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+						<path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5"></path>
+					</svg>
+				</span>
+			} else {
+				<span class="text-red-500 text-lg">
+					<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+						<path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12"></path>
+					</svg>
+				</span>
+			}
+		</td>
+		<!-- Start date -->
+		<td class="min-w-[12rem] max-w-[20rem] truncate">
+			{  sprintTable.StartDate.Format("02. 01. 2006") }
+		</td>
+		<!-- End date -->
+		<td class="min-w-[12rem] max-w-[20rem] truncate">
+			{  sprintTable.EndDate.Format("02. 01. 2006") }
+		</td>
+		<!-- Actual points -->
+		<td class="min-w-[12rem] max-w-[20rem] truncate">
+			{  strconv.FormatFloat(sprintTable.ActualPoints, 'f', 2, 64) }
+		</td>
+		<!-- Realized points -->
+		<td class="min-w-[12rem] max-w-[20rem] truncate">
+			{  strconv.FormatFloat(sprintTable.RealizedPoints, 'f', 2, 64) }
+		</td>
+		<!-- Points difference -->
+		<td class="min-w-[12rem] max-w-[20rem] truncate font-bold">
+			<div class={ pointsDifferenceColor(sprintTable.PointsDifference) }>
+				{  strconv.FormatFloat(sprintTable.PointsDifference, 'f', 2, 64) }
+			</div>
+		</td>
+	</tr>
+}
+
+func pointsDifferenceColor(pointsDifference float64) string {
+	if pointsDifference > 0 {
+		return "text-red-500"
+	}
+
+	return "text-green-500"
+}
+
+func getStatsData(sprints []database.Sprint) (actualPoints, realizedPoints []TimeSeriesPoints, sprintTables []SprintTable, err error) {
+	// Sort sprints reverse
+	sort.Slice(sprints, func(i, j int) bool {
+		return sprints[j].StartDate.Before(sprints[i].StartDate)
 	})
 
-	startDate := statsDataRaw[0].StartDate
-	endDate := time.Now().Truncate(24 * time.Hour) // Use current day as the end point
+	currentActualPoints := 0.0
+	currentRealizedPoints := 0.0
 
-	totalPoints = make(map[time.Time]float64)
-	realizedPoints = make(map[time.Time]float64)
-	currentTotal := 0.0
+	for _, sprint := range sprints {
+		if sprint.StartDate.Before(time.Now()) && sprint.Velocity != nil {
+			actualPoints = append(actualPoints, TimeSeriesPoints{sprint.EndDate, currentActualPoints})
 
-	// Initialize realized points to zero for all potential dates
-	for _, d := range statsDataRaw {
-		if _, exists := realizedPoints[d.StartDate]; !exists {
-			realizedPoints[d.StartDate] = 0
+			currentActualPoints += float64(*sprint.Velocity)
+			actualPoints = append(actualPoints, TimeSeriesPoints{sprint.StartDate, currentActualPoints})
 		}
 	}
 
-	// Calculate total story points added and realized up to each day
-	for _, d := range statsDataRaw {
-		currentTotal += d.StoryPoints
-		totalPoints[d.StartDate] = currentTotal
-		if d.Realized && d.EndDate != nil {
-			realizedPoints[*d.EndDate] += d.StoryPoints
-		}
-	}
+	// Sort sprints back in order
+	sort.Slice(sprints, func(i, j int) bool {
+		return sprints[i].StartDate.Before(sprints[j].StartDate)
+	})
 
-	// Ensure every day has an entry in the maps
-	for date := startDate; !date.After(endDate); date = date.AddDate(0, 0, 1) {
-		if _, exists := totalPoints[date]; !exists {
-			totalPoints[date] = currentTotal
+	currentRealizedPoints = currentActualPoints
+
+	for _, sprint := range sprints {
+		// Skip future sprints
+		if sprint.StartDate.After(time.Now()) {
+			continue
 		}
-		if _, exists := realizedPoints[date]; !exists {
-			realizedPoints[date] = 0
+
+		sprintTable := SprintTable{
+			ID:               sprint.ID,
+			Name:             sprint.Title,
+			StartDate:        sprint.StartDate,
+			EndDate:          sprint.EndDate,
+			ActualPoints:     float64(*sprint.Velocity),
+			RealizedPoints:   0,
+			PointsDifference: 0,
 		}
+
+		// Sync first sprint day
+		realizedPoints = append(realizedPoints, TimeSeriesPoints{sprint.StartDate, currentRealizedPoints})
+
+		userStories := sprint.UserStories
+		var userStoriesRealized []database.UserStory
+		for _, userStory := range userStories {
+			if userStory.Realized != nil && *userStory.Realized {
+				userStoriesRealized = append(userStoriesRealized, userStory)
+			}
+		}
+
+		sort.Slice(userStoriesRealized, func(i, j int) bool {
+			tasksI := userStoriesRealized[i].Tasks
+			tasksJ := userStoriesRealized[j].Tasks
+
+			taskIWorkSession := tasksI[len(tasksI)-1].WorkSessions
+			taskILastWorkSession := taskIWorkSession[len(taskIWorkSession)-1]
+
+			taskJWorkSession := tasksJ[len(tasksJ)-1].WorkSessions
+			taskJLastWorkSession := taskJWorkSession[len(taskJWorkSession)-1]
+
+			return taskILastWorkSession.EndTime.Before(*taskJLastWorkSession.EndTime)
+		})
+
+		for _, userStory := range userStoriesRealized {
+			log.Println()
+			for i, task := range userStory.Tasks {
+				for ii, workSession := range task.WorkSessions {
+					log.Printf("%d %d %s\n", i, ii, workSession.EndTime)
+				}
+			}
+			log.Println()
+
+			sprintTable.RealizedPoints += userStory.StoryPoints
+
+			currentRealizedPoints -= userStory.StoryPoints
+
+			lastUserStoryTaskWorkSessions := userStory.Tasks[len(userStory.Tasks)-1].WorkSessions
+			endTime := *lastUserStoryTaskWorkSessions[len(lastUserStoryTaskWorkSessions)-1].EndTime
+			realizedPoints = append(realizedPoints, TimeSeriesPoints{endTime, currentRealizedPoints})
+
+		}
+
+		sprintTable.PointsDifference = sprintTable.ActualPoints - sprintTable.RealizedPoints
+		sprintTables = append(sprintTables, sprintTable)
+
+		// Sync last sprint day
+		realizedPoints = append(realizedPoints, TimeSeriesPoints{sprint.EndDate, currentRealizedPoints})
 	}
 
 	return
 }
 
-func getStatsDataIntoChartData(totalPoints, realizedPoints map[time.Time]float64) ([]ChartSeries, []string) {
+func getStatsDataIntoChartData(actualPoints, realizedPoints []TimeSeriesPoints) ([]ChartSeries, error) {
 	var actualSeriesData []ChartDataPoint
-	var expectedSeriesData []ChartDataPoint
-	var dataPoints []string
-	remainingPoints := 0.0 // starting points
+	var realizedSeriesData []ChartDataPoint
 
-	for _, points := range totalPoints {
-		remainingPoints += points
+	sort.Slice(actualPoints, func(i, j int) bool {
+		return actualPoints[i].Time.Before(actualPoints[j].Time)
+	})
+
+	sort.Slice(realizedPoints, func(i, j int) bool {
+		return realizedPoints[i].Time.Before(realizedPoints[j].Time)
+	})
+
+	for _, data := range actualPoints {
+		actualSeriesData = append(actualSeriesData, ChartDataPoint{X: data.Time.UnixMilli(), Y: roundToTwoDecimals(data.Points)})
 	}
 
-	for date, points := range totalPoints {
-		parsedDate := date.Format(time.DateOnly)
-
-		remainingPoints -= realizedPoints[date]
-		actualSeriesData = append(actualSeriesData, ChartDataPoint{X: parsedDate, Y: remainingPoints})
-		expectedSeriesData = append(expectedSeriesData, ChartDataPoint{X: parsedDate, Y: points})
-		dataPoints = append(dataPoints, parsedDate)
+	for _, data := range realizedPoints {
+		realizedSeriesData = append(realizedSeriesData, ChartDataPoint{X: data.Time.UnixMilli(), Y: roundToTwoDecimals(data.Points)})
 	}
 
-	actualSeries := ChartSeries{Name: "Actual Story Points", Data: actualSeriesData}
-	expectedSeries := ChartSeries{Name: "Expected/remaining Story Points", Data: expectedSeriesData}
+	actualSeries := ChartSeries{Name: "Assigned Story Points", Data: actualSeriesData}
+	expectedSeries := ChartSeries{Name: "Actual/realized Story Points", Data: realizedSeriesData}
 
 	chartData := []ChartSeries{actualSeries, expectedSeries}
 
-	return chartData, dataPoints
+	return chartData, nil
+}
+
+func sprintAnnotations(sprints []database.Sprint) (sprintAnnotations []SprintAnnotation) {
+	for _, sprint := range sprints {
+		sprintAnnotations = append(sprintAnnotations, SprintAnnotation{
+			X:           sprint.StartDate.UnixMilli(),
+			X2:          sprint.EndDate.UnixMilli(),
+			BorderColor: "#999",
+			FillColor:   "#65c3c8",
+			Opacity:     0.1,
+			YAxisIndex:  0,
+			Label: SprintAnnotationLabel{
+				Text:        sprint.Title,
+				Orientation: "horizontal",
+				TextAnchor:  "right",
+				Style: SprintAnnotationLabelStyle{
+					Color:      "#fff",
+					Background: "#65c3c8",
+				},
+			},
+		})
+	}
+
+	return
+}
+
+// roundToTwoDecimals rounds a float64 to two decimal places.
+func roundToTwoDecimals(num float64) float64 {
+	factor := 100.0
+	return math.Round(num*factor) / factor
 }

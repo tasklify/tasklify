@@ -3,53 +3,42 @@ package tests
 import (
 	"net/http"
 	"net/url"
-	"strings"
 	"tasklify/internal/config"
+	"testing"
 
-	. "github.com/onsi/ginkgo/v2"
-	. "github.com/onsi/gomega"
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
-var _ = Describe("API POST Form Requests", func() {
-	var sessionToken string
+func TestAuthenticatedAPIRequests(t *testing.T) {
+	cfg := config.GetConfig()
+	baseURL := "http://localhost:" + cfg.Port
 
-	config := config.GetConfig()
+	// Step 1: Login to get session token
+	loginURL := baseURL + "/login"
+	formData := url.Values{
+		"username": {cfg.Admin.Username},
+		"password": {cfg.Admin.Password},
+	}
+	resp, err := http.PostForm(loginURL, formData)
+	require.NoError(t, err, "Failed to post login form")
+	require.Equal(t, http.StatusOK, resp.StatusCode, "Expected HTTP 200 OK from login")
+	defer resp.Body.Close()
 
-	baseURL := "http://localhost:" + config.Port
+	// Step 2: Extract session token from response cookies
+	cookies := resp.Cookies()
+	require.NotEmpty(t, cookies, "Expected cookies to contain session token")
+	sessionToken := cookies[0].Value
+	require.Greater(t, len(sessionToken), 10, "Expected session token to be longer than 10 characters")
 
-	BeforeEach(func() {
-		// Login to get session token
-		loginUrl := baseURL + "/login"
-		formData := url.Values{
-			"username": {config.Admin.Username},
-			"password": {config.Admin.Password},
-		}
-		resp, err := http.PostForm(loginUrl, formData)
-		Expect(err).NotTo(HaveOccurred())
-		defer resp.Body.Close()
+	// Step 3: Make an authenticated request using the session token
+	apiURL := baseURL + "/users"
+	req, err := http.NewRequest("GET", apiURL, nil)
+	require.NoError(t, err, "Failed to create GET request")
+	req.Header.Add("Cookie", sessionToken)
 
-		// Extract the session token from the response
-		// This is an example, you'll need to extract the token based on your actual response structure
-		sessionToken = strings.Split(resp.Header.Get("Set-Cookie"), ";")[0]
-	})
-
-	Describe("Making authenticated requests", func() {
-		It("Should make a successful POST request with session token", func() {
-			apiUrl := baseURL + "/api/resource"
-			form := url.Values{
-				"key1": {"value1"},
-				"key2": {"value2"},
-			}
-			req, _ := http.NewRequest("POST", apiUrl, strings.NewReader(form.Encode()))
-			req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
-			req.Header.Add("Cookie", sessionToken)
-
-			client := &http.Client{}
-			response, err := client.Do(req)
-			Expect(err).NotTo(HaveOccurred())
-			Expect(response.StatusCode).To(Equal(http.StatusOK))
-
-			// Further assertions can be added here based on response body
-		})
-	})
-})
+	client := &http.Client{}
+	response, err := client.Do(req)
+	require.NoError(t, err, "Failed to execute GET request")
+	assert.Equal(t, http.StatusOK, response.StatusCode, "Expected HTTP 200 OK from API endpoint")
+}

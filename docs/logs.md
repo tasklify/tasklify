@@ -1,9 +1,5 @@
 ---
 Title: Task Logs
-Summary: Everything related to Task Logs
-Tags:
-  - markdown
-  - goldmark
 ---
 
 ## Task Logs
