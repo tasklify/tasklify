@@ -148,19 +148,15 @@ func TestDatabase(t *testing.T) {
 
 	// Sprints
 	var sprintCases []sprintCase
-	for i := 0; i < gofakeit.IntRange(10, 20); i++ {
+	for _, project := range projects {
 		t.Run("Generate sprint cases", func(t *testing.T) {
 			startDate := gofakeit.DateRange(
 				time.Now().Add(-1*time.Duration(gofakeit.IntRange(1, 99)*24*30*int(time.Hour))),
 				time.Now().Add(time.Duration(gofakeit.IntRange(1, 10)*24*30*int(time.Hour))),
 			)
 
-			gofakeit.ShuffleAnySlice(projects)
-			projectID := projects[0].ID
-			assert.NotZero(t, projectID)
-
 			// Consecutive sprints
-			for ii := 0; ii < gofakeit.IntRange(1, 20); ii++ {
+			for ii := 0; ii < gofakeit.IntRange(0, 20); ii++ {
 				generatedSprintCase := sprintCase{
 					desc: "Generated sprint",
 					sprint: &database.Sprint{
@@ -171,7 +167,7 @@ func TestDatabase(t *testing.T) {
 					},
 				}
 
-				generatedSprintCase.sprint.ProjectID = projectID
+				generatedSprintCase.sprint.ProjectID = project.ID
 
 				sprintCases = append(sprintCases, generatedSprintCase)
 
@@ -198,7 +194,7 @@ func TestDatabase(t *testing.T) {
 	assert.NoError(t, err)
 
 	var userStoryCases []userStoryCase
-	for i := 0; i < gofakeit.IntRange(100, 300); i++ {
+	for i := 0; i < gofakeit.IntRange(150, 400); i++ {
 		t.Run("Generate user story cases", func(t *testing.T) {
 			generatedUserStoryCase := userStoryCase{
 				desc: "Generated userStory",
@@ -206,7 +202,7 @@ func TestDatabase(t *testing.T) {
 					Title:         gofakeit.BookTitle() + " " + fmt.Sprint(gofakeit.UintRange(1, 9999)),
 					Description:   ptr.String(gofakeit.LoremIpsumSentence(22)),
 					BusinessValue: gofakeit.UintRange(0, 10),
-					StoryPoints:   gofakeit.Float64Range(0.1, 99),
+					StoryPoints:   gofakeit.Float64Range(10, 30),
 					Realized:      ptr.Bool(realizedChooser.Pick()),
 				},
 			}
@@ -266,6 +262,8 @@ func TestDatabase(t *testing.T) {
 				},
 			}
 
+			assert.NotNil(t, userStory.Realized)
+
 			if *userStory.Realized {
 				taskCase.task.Status = &database.StatusDone
 				taskCases = append(taskCases, taskCase)
@@ -292,33 +290,30 @@ func TestDatabase(t *testing.T) {
 	var workSessionCases []workSessionCase
 	for _, task := range tasks {
 		t.Run("Generate work cases", func(t *testing.T) {
-			projectSprints, err := db.GetSprintByProject(task.ProjectID)
+			userStory, err := db.GetUserStoryByID(task.UserStoryID)
 			assert.NoError(t, err)
 
-			if len(projectSprints) != 0 { // UserStories and Tasks can exist even without a Sprint
-				gofakeit.ShuffleAnySlice(projectSprints)
+			sprint, err := db.GetSprintByID(*userStory.SprintID)
+			assert.NoError(t, err)
 
-				taskUserStory, err := db.GetUserStoryByID(task.UserStoryID)
-				assert.NoError(t, err)
-
-				workSession := workSessionCase{
-					desc: "Generated work session",
-					workSession: &database.WorkSession{
-						StartTime: projectSprints[0].StartDate,
-						EndTime:   ptr.Time(gofakeit.DateRange(projectSprints[0].StartDate, projectSprints[0].EndDate)),
-						Duration:  time.Duration(taskUserStory.StoryPoints),
-						Remaining: time.Duration(gofakeit.Float32Range(0.1, 10) * float32(time.Hour)),
-						TaskID:    task.ID,
-						UserID:    *task.UserID,
-					},
-				}
-
-				if *taskUserStory.Realized {
-					workSession.workSession.Remaining = 0
-				}
-
-				workSessionCases = append(workSessionCases, workSession)
+			workSession := workSessionCase{
+				desc: "Generated work session",
+				workSession: &database.WorkSession{
+					StartTime: sprint.StartDate,
+					EndTime:   ptr.Time(gofakeit.DateRange(sprint.StartDate, sprint.EndDate)),
+					Duration:  time.Duration(userStory.StoryPoints),
+					Remaining: time.Duration(gofakeit.Float32Range(0.1, 10) * float32(time.Hour)),
+					TaskID:    task.ID,
+					UserID:    *task.UserID,
+				},
 			}
+
+			if userStory.Realized != nil && *userStory.Realized {
+				workSession.workSession.Remaining = 0
+			}
+
+			workSessionCases = append(workSessionCases, workSession)
+
 		})
 	}
 
