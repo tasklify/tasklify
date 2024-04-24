@@ -24,6 +24,11 @@ services:
     depends_on:
       tasklify-postgres:
         condition: service_healthy
+    labels:
+      caddy: "*.project-0.dev project-0.dev"
+      caddy.@tasklify: host tasklify.project-0.dev
+      caddy.handle: "@tasklify"
+      caddy.handle.reverse_proxy: "{{ upstreams 8080 }}"
 
   tasklify-postgres:
     image: postgres:16-alpine

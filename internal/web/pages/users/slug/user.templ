@@ -45,6 +45,7 @@ func GetUser(w http.ResponseWriter, r *http.Request, params handlers.RequestPara
 
 templ getUser(user *database.User, canEditSystemRole bool) {
 	@common.CreateDialog(fmt.Sprintf("User %d", user.ID), http.MethodPatch, fmt.Sprintf("/users/%d", user.ID), "Update") {
+		<a href="/docs/users#changing-user-data" target="_blank" class="help-button" style="padding-right=10rem;">?</a>
 		// Username
 		@form.TextField("Username", "username", user.Username, user.Username)
 		// Password

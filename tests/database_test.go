@@ -272,7 +272,6 @@ func TestDatabase(t *testing.T) {
 					taskCases = append(taskCases, taskCase)
 				}
 			}
-
 		})
 	}
 
@@ -328,37 +327,35 @@ func TestDatabase(t *testing.T) {
 	}
 
 	// Cleanup
-	/*
-		t.Cleanup(func() {
-			for _, workSession := range workSessions {
-				err := db.RawDB().Unscoped().Delete(&workSession).Error
-				assert.NoError(t, err)
-			}
+	t.Cleanup(func() {
+		for _, workSession := range workSessions {
+			err := db.RawDB().Unscoped().Delete(&workSession).Error
+			assert.NoError(t, err)
+		}
 
-			for _, task := range tasks {
-				err := db.RawDB().Unscoped().Delete(&task).Error
-				assert.NoError(t, err)
-			}
+		for _, task := range tasks {
+			err := db.RawDB().Unscoped().Delete(&task).Error
+			assert.NoError(t, err)
+		}
 
-			for _, userStory := range userStories {
-				err := db.RawDB().Unscoped().Delete(&userStory).Error
-				assert.NoError(t, err)
-			}
+		for _, userStory := range userStories {
+			err := db.RawDB().Unscoped().Delete(&userStory).Error
+			assert.NoError(t, err)
+		}
 
-			for _, sprint := range sprints {
-				err := db.RawDB().Unscoped().Delete(&sprint).Error
-				assert.NoError(t, err)
-			}
+		for _, sprint := range sprints {
+			err := db.RawDB().Unscoped().Delete(&sprint).Error
+			assert.NoError(t, err)
+		}
 
-			for _, project := range projects {
-				err := db.RawDB().Unscoped().Delete(&project).Error
-				assert.NoError(t, err)
-			}
+		for _, project := range projects {
+			err := db.RawDB().Unscoped().Delete(&project).Error
+			assert.NoError(t, err)
+		}
 
-			for _, user := range users {
-				err := db.RawDB().Unscoped().Delete(&user).Error
-				assert.NoError(t, err)
-			}
-		})
-	*/
+		for _, user := range users {
+			err := db.RawDB().Unscoped().Delete(&user).Error
+			assert.NoError(t, err)
+		}
+	})
 }

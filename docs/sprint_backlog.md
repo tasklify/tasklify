@@ -1,9 +1,6 @@
 ---
 Title: Sprint backlog
 Summary: Everything related to Sprint backlog
-Tags:
-  - markdown
-  - goldmark
 ---
 
 ## Sprint backlog

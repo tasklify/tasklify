@@ -29,6 +29,9 @@ templ login() {
 				<p class="py-6">Log in to your account to access all your projects and continue where you left off.</p>
 			</div>
 			<div class="card shrink-0 w-full max-w-sm shadow-2xl bg-base-100">
+				<div class="flex justify-end items-end w-full absolute top-0 right-0">
+					<a href="/docs/users#user-login" target="_blank" class="help-button m-4" style="position: static;">?</a>
+				</div>
 				<form
 					hx-post="/login"
 					hx-target="#dialog"
