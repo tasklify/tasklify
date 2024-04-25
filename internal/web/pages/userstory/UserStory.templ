@@ -49,11 +49,6 @@ templ CreateUserStoryDialog(projectID uint) {
 						<label for="business_value" class="block text-sm font-medium text-gray-700">Business Value:</label>
 						<input type="number" min="1" max="10" id="business_value" name="business_value" class="input input-bordered input-primary w-full max-w-s mt-1" required/>
 					</div>
-					<!-- Story Points Field -->
-					<div class="mb-4">
-						<label for="story_points" class="block text-sm font-medium text-gray-700">Story Points:</label>
-						<input type="number" min="0.1" max="999" step="0.1" id="story_points" name="story_points" class="input input-bordered input-primary w-full max-w-s mt-1" required/>
-					</div>
 				</div>
 				<div id="validation-error"></div>
 				<div class="flex justify-end mt-3">
@@ -233,10 +228,12 @@ templ UserStoryDetails(us database.UserStory, projectRoles []database.ProjectRol
 				</div>
 			</div>
 			<!--Story points-->
-			<div class="flex items-center gap-4 mb-4">
-				<div class="font-medium">Story Points:</div>
-				<div>
-					<div class="badge badge-primary">{ strconv.FormatFloat(us.StoryPoints, 'f', 2, 64) }</div>
+			<div hidden?={ slices.Contains(projectRoles, database.ProjectRoleManager) }>
+				<div class="flex items-center gap-4 mb-4">
+					<div class="font-medium">Story Points:</div>
+					<div>
+						<div class="badge badge-primary">{ strconv.FormatFloat(us.StoryPoints, 'f', 2, 64) }</div>
+					</div>
 				</div>
 			</div>
 		</div>
@@ -416,7 +413,7 @@ templ SendIcon() {
 }
 
 // EDIT USER STORY DIALOG
-templ EditUserStoryDialog(userStory *database.UserStory) {
+templ EditUserStoryDialog(userStory *database.UserStory, projectRoles []database.ProjectRole) {
 	<div hx-ext="response-targets">
 		<div id="create-dialog" hx-ext="response-targets" class="fixed top-0 left-0 w-full h-full bg-gray-900 bg-opacity-50 flex justify-center items-center z-50">
 			<form
@@ -491,7 +488,7 @@ templ EditUserStoryDialog(userStory *database.UserStory) {
 						<input type="number" min="1" max="10" id="business_value" name="business_value" class="input input-bordered input-primary w-full max-w-s mt-1" value={ strconv.Itoa(int(userStory.BusinessValue)) } required/>
 					</div>
 					<!-- Story Points Field -->
-					<div class="mb-4">
+					<div class="mb-4" hidden?={ slices.Contains(projectRoles, database.ProjectRoleManager) }>
 						<label for="story_points" class="block text-sm font-medium text-gray-700">Story Points:</label>
 						<input type="number" id="story_points" name="story_points" class="input input-bordered input-primary w-full max-w-s mt-1" min="0" value={ strconv.FormatFloat(userStory.StoryPoints, 'f', 2, 64) } required/>
 					</div>

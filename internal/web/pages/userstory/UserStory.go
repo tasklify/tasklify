@@ -3,6 +3,7 @@ package userstory
 import (
 	"crypto/rand"
 	"fmt"
+	"log"
 	"net/http"
 	"reflect"
 	"slices"
@@ -36,7 +37,6 @@ func PostUserStory(w http.ResponseWriter, r *http.Request, params handlers.Reque
 		Description     string            `schema:"description,required"`
 		Priority        database.Priority `schema:"priority,required"`
 		BusinessValue   uint              `schema:"business_value,required"`
-		StoryPoints     float64           `schema:"story_points,required"`
 		AcceptanceTests []string          `schema:"acceptanceTests"`
 	}
 	var userStoryData UserStoryFormData
@@ -61,17 +61,10 @@ func PostUserStory(w http.ResponseWriter, r *http.Request, params handlers.Reque
 		return c.Render(r.Context(), w)
 	}
 
-	if (userStoryData.StoryPoints < 0.1) || (userStoryData.StoryPoints > 999) {
-		w.WriteHeader(http.StatusBadRequest)
-		c := common.ValidationError("Story points must be between 0.1 and 999.")
-		return c.Render(r.Context(), w)
-	}
-
 	userStory := &database.UserStory{
 		Title:           userStoryData.Title,
 		Description:     &userStoryData.Description,
 		BusinessValue:   userStoryData.BusinessValue,
-		StoryPoints:     userStoryData.StoryPoints,
 		Priority:        userStoryData.Priority,
 		ProjectID:       uint(ProjectID),
 		Realized:        new(bool), // Defaults to false
@@ -210,6 +203,8 @@ func GetUserStoryDetails(w http.ResponseWriter, r *http.Request, params handlers
 		return err
 	}
 
+	log.Println("projectRoles", projectRoles)
+
 	c := UserStoryDetailsDialog(*userStory, activeTab, *currentUser, projectRoles)
 	return c.Render(r.Context(), w)
 
@@ -240,7 +235,7 @@ func GetEditUserStory(w http.ResponseWriter, r *http.Request, params handlers.Re
 		return err
 	}
 
-	c := EditUserStoryDialog(userStory)
+	c := EditUserStoryDialog(userStory, projectRoles)
 	return c.Render(r.Context(), w)
 }
 
@@ -333,8 +328,7 @@ func PutUserStory(w http.ResponseWriter, r *http.Request, params handlers.Reques
 	return nil
 }
 
-
-func GetUserStoryTests (w http.ResponseWriter, r *http.Request, params handlers.RequestParams) error {
+func GetUserStoryTests(w http.ResponseWriter, r *http.Request, params handlers.RequestParams) error {
 	userStoryID, err := strconv.Atoi(chi.URLParam(r, "userStoryID"))
 	if err != nil {
 		return err
@@ -356,7 +350,7 @@ func GetUserStoryTests (w http.ResponseWriter, r *http.Request, params handlers.
 
 func PostUserStoryTests(w http.ResponseWriter, r *http.Request, params handlers.RequestParams) error {
 	type TestFormData struct {
-		AcceptanceTests []string          `schema:"acceptanceTests"`
+		AcceptanceTests []string `schema:"acceptanceTests"`
 	}
 
 	var testFormData TestFormData
@@ -383,8 +377,8 @@ func PostUserStoryTests(w http.ResponseWriter, r *http.Request, params handlers.
 		if slices.Contains(testFormData.AcceptanceTests, fmt.Sprint(test.ID)) {
 			*test.Realized = true
 		} else {
-			*test.Realized = false	
-		} 
+			*test.Realized = false
+		}
 		if err := database.GetDatabase().UpdateAcceptanceTest(&test); err != nil {
 			return err
 		}
@@ -395,6 +389,6 @@ func PostUserStoryTests(w http.ResponseWriter, r *http.Request, params handlers.
 	w.Header().Set("HX-Redirect", redirectURL)
 	w.WriteHeader(http.StatusSeeOther)
 
-	return nil	
+	return nil
 
 }
