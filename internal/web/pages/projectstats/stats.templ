@@ -101,17 +101,17 @@ func ProjectStats(w http.ResponseWriter, r *http.Request, params handlers.Reques
 
 templ stats(project database.Project, projectRoles []database.ProjectRole, user_SystemRole database.SystemRole, chartData []ChartSeries, sprintAnnotations []SprintAnnotation, sprintTables []SprintTable) {
 	@common.ProjectNavbar(project, projectRoles, user_SystemRole, "project_stats") {
-		<div class="flex justify-end items-end w-full top-0 right-0">
-			<a href="/docs/stats#burn-down-chart" target="_blank" class="help-button m-4" style="position: static;">?</a>
+		<div class="flex justify-end items-end w-full relative top-[-20] right-2">
+			<a href="/docs/stats#burn-down-chart" target="_blank" class="help-button" style="position: static;">?</a>
 		</div>
 		if len(chartData[0].Data) > 0 {
-			<div class="min-h-screen">
+			<div class="overflow-y-auto">
 				<div id="chart" class="w-full p-9"></div>
 				@table(sprintTables)
 			</div>
 			@graph(chartData, sprintAnnotations)
 		} else {
-			<div class="flex items-center justify-center min-h-screen">
+			<div class="flex items-center justify-center">
 				<p class="text-center mx-auto w-max text-2xl">
 					No chart data to display
 				</p>
@@ -206,7 +206,7 @@ templ sprintTableRow(index int, sprintTable SprintTable) {
 			<div class="font-bold">{ fmt.Sprint(index) }</div>
 		</td>
 		<!-- Project ID -->
-		<td class="min-w-[12rem] max-w-[20rem] truncate">
+		<td class="truncate">
 			{  fmt.Sprint(sprintTable.ID) }
 		</td>
 		<!-- Project name -->

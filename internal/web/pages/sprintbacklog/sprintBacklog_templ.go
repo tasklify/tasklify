@@ -57,9 +57,9 @@ func sprintBacklog(sprint *database.Sprint, projectRoles []database.ProjectRole,
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var3 string
-		templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinStringErrs(sprint.StartDate.Format("Mon Jan _2 2006"))
+		templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinStringErrs(sprint.StartDate.Format("02. 01. 2006"))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/web/pages/sprintbacklog/sprintBacklog.templ`, Line: 26, Col: 98}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/web/pages/sprintbacklog/sprintBacklog.templ`, Line: 26, Col: 95}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var3))
 		if templ_7745c5c3_Err != nil {
@@ -70,9 +70,9 @@ func sprintBacklog(sprint *database.Sprint, projectRoles []database.ProjectRole,
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var4 string
-		templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs(sprint.EndDate.Format("Mon Jan _2 2006"))
+		templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs(sprint.EndDate.Format("02. 01. 2006"))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/web/pages/sprintbacklog/sprintBacklog.templ`, Line: 26, Col: 145}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/web/pages/sprintbacklog/sprintBacklog.templ`, Line: 26, Col: 139}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var4))
 		if templ_7745c5c3_Err != nil {
